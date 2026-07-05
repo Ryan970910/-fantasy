@@ -118,6 +118,12 @@ type PlayerIndexRow = [
   string
 ];
 
+type PoolPlayerIdentity = {
+  id: string;
+  name: string;
+  team: string;
+};
+
 const slotEligibility = {
   PG: ["G", "PG"],
   SG: ["G", "SG"],
@@ -393,6 +399,19 @@ function normalizeTeam(value: string) {
   return teamMap[value] || value;
 }
 
+function dedupePoolPlayers<T extends PoolPlayerIdentity>(players: T[]) {
+  const seen = new Set<string>();
+  return players.filter((player) => {
+    const key = `${normalizeName(player.name)}:${player.team}`;
+    if (seen.has(key)) {
+      return false;
+    }
+
+    seen.add(key);
+    return true;
+  });
+}
+
 async function loadFallbackPositions(teamTricodes: Set<string>, currentSeason: string, previousSeason: string) {
   const positions = new Map<string, string>();
 
@@ -534,7 +553,7 @@ async function loadFallbackPoolPlayers(teamTricodes: Set<string>, currentSeason:
 
   const fallbackPositions = await loadFallbackPositions(teamTricodes, currentSeason, previousSeason);
 
-  return Array.from(byNameAndTeam.values()).flatMap((playerRows): FallbackPoolPlayer[] => {
+  return dedupePoolPlayers(Array.from(byNameAndTeam.values()).flatMap((playerRows): FallbackPoolPlayer[] => {
     const selected = choosePreferredStatsRow(playerRows, currentSeason, previousSeason);
     if (!selected) {
       return [];
@@ -557,7 +576,7 @@ async function loadFallbackPoolPlayers(teamTricodes: Set<string>, currentSeason:
       eligibleSlots: slots,
       stats: selected
     }];
-  }).sort((a, b) => a.team.localeCompare(b.team) || a.name.localeCompare(b.name));
+  })).sort((a, b) => a.team.localeCompare(b.team) || a.name.localeCompare(b.name));
 }
 
 export async function GET() {
@@ -683,7 +702,7 @@ export async function GET() {
       throw error;
     }
 
-    const candidatePlayers = rows
+    const candidatePlayers = dedupePoolPlayers(rows
       .filter((row) => row[19] === 1)
       .filter((row) => candidateTeamTricodes.has(row[9]))
       .map((row) => {
@@ -720,7 +739,7 @@ export async function GET() {
           }
         };
       })
-      .filter((player) => player.eligibleSlots.length > 0)
+      .filter((player) => player.eligibleSlots.length > 0))
       .sort((a, b) => a.team.localeCompare(b.team) || a.name.localeCompare(b.name));
 
     const teamsWithPlayers = new Set(candidatePlayers.map((player) => player.team));

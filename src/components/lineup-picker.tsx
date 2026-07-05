@@ -230,15 +230,26 @@ export function LineupPicker() {
   }, []);
 
   const selectedIds = useMemo(() => new Set(Object.values(lineup).filter(Boolean)), [lineup]);
+  const uniquePlayers = useMemo(() => {
+    const seen = new Set<string>();
+    return (data?.players || []).filter((player) => {
+      const key = `${player.name.trim().toLowerCase()}:${player.team}`;
+      if (seen.has(key)) {
+        return false;
+      }
+      seen.add(key);
+      return true;
+    });
+  }, [data?.players]);
   const selectedPlayers = useMemo(
-    () => slots.map((slot) => data?.players.find((player) => player.id === lineup[slot]) || null),
-    [data?.players, lineup]
+    () => slots.map((slot) => uniquePlayers.find((player) => player.id === lineup[slot]) || null),
+    [lineup, uniquePlayers]
   );
   const selectedPlayersBySlot = useMemo(
     () => Object.fromEntries(
-      slots.map((slot) => [slot, data?.players.find((player) => player.id === lineup[slot]) || null])
+      slots.map((slot) => [slot, uniquePlayers.find((player) => player.id === lineup[slot]) || null])
     ) as Record<Slot, PoolPlayer | null>,
-    [data?.players, lineup]
+    [lineup, uniquePlayers]
   );
   const projectedLineupScore = useMemo(
     () => selectedPlayers.reduce((total, player) => total + (player ? projectedScore(player) : 0), 0),
@@ -254,11 +265,11 @@ export function LineupPicker() {
   const hasLockedTeams = Boolean(data?.lockStatus?.lockedTeams?.length);
   const showPicker = !hasSubmittedLineup || Boolean(editingLineupId);
 
-  const teams = useMemo(() => Array.from(new Set((data?.players || []).map((player) => player.team))).sort(), [data?.players]);
+  const teams = useMemo(() => Array.from(new Set(uniquePlayers.map((player) => player.team))).sort(), [uniquePlayers]);
 
   const availablePlayers = useMemo(() => {
     const activeSelectedId = lineup[activeSlot];
-    const players = (data?.players || [])
+    const players = uniquePlayers
       .filter((player) => player.eligibleSlots.includes(activeSlot))
       .filter((player) => teamFilter === "ALL" || player.team === teamFilter)
       .filter((player) => !selectedIds.has(player.id) || player.id === activeSelectedId);
@@ -278,11 +289,11 @@ export function LineupPicker() {
       }
       return statValue(right.stats.points) - statValue(left.stats.points) || left.name.localeCompare(right.name);
     });
-  }, [activeSlot, data?.players, lineup, selectedIds, sortMode, teamFilter]);
+  }, [activeSlot, lineup, selectedIds, sortMode, teamFilter, uniquePlayers]);
 
   function choosePlayer(playerId: string) {
-    const currentPlayer = data?.players.find((player) => player.id === lineup[activeSlot]);
-    const nextPlayer = data?.players.find((player) => player.id === playerId);
+    const currentPlayer = uniquePlayers.find((player) => player.id === lineup[activeSlot]);
+    const nextPlayer = uniquePlayers.find((player) => player.id === playerId);
     if (currentPlayer?.locked || nextPlayer?.locked) {
       return;
     }
@@ -298,7 +309,7 @@ export function LineupPicker() {
     if (data) {
       setLineup((current) => Object.fromEntries(
         slots.map((slot) => {
-          const player = data.players.find((candidate) => candidate.id === current[slot]);
+          const player = uniquePlayers.find((candidate) => candidate.id === current[slot]);
           return [slot, player?.locked ? current[slot] : ""];
         })
       ) as Record<Slot, string>);
@@ -332,7 +343,7 @@ export function LineupPicker() {
     for (const player of submittedLineup.players) {
       if (slots.includes(player.slot as Slot)) {
         const rawPlayerId = player.id.replace(/^nba-/, "");
-        const poolPlayer = data?.players.find((candidate) =>
+        const poolPlayer = uniquePlayers.find((candidate) =>
           candidate.id === rawPlayerId ||
           (candidate.name === player.name && candidate.team === player.team)
         );
@@ -405,7 +416,7 @@ export function LineupPicker() {
             <h2 id="lineup-picker-title">{editingLineupId ? "Edit your starting five" : "Pick your starting five"}</h2>
             <p className="liveMeta">
               {data
-                ? `${data.gameDate || "Next game day"} | ${data.players.length} players | ${data.teams.length} teams`
+                ? `${data.gameDate || "Next game day"} | ${uniquePlayers.length} players | ${data.teams.length} teams`
                 : "Loading player pool"}
             </p>
           </div>
@@ -439,7 +450,7 @@ export function LineupPicker() {
             </h3>
             <div className="lineupSlotList">
               {slots.map((slot) => {
-                const player = data.players.find((candidate) => candidate.id === lineup[slot]) || null;
+                const player = uniquePlayers.find((candidate) => candidate.id === lineup[slot]) || null;
                 return (
                   <button
                     key={slot}
@@ -507,7 +518,7 @@ export function LineupPicker() {
             <div className="playerRows">
               {availablePlayers.map((player) => {
                 const selectedForActiveSlot = lineup[activeSlot] === player.id;
-                const activeSlotLocked = Boolean(data.players.find((candidate) => candidate.id === lineup[activeSlot])?.locked);
+                const activeSlotLocked = Boolean(uniquePlayers.find((candidate) => candidate.id === lineup[activeSlot])?.locked);
                 const disabled = Boolean(player.locked || (activeSlotLocked && !selectedForActiveSlot));
                 return (
                   <button
