@@ -35,4 +35,28 @@ Lineup player cards prefer the current season averages. If a player has no curre
 
 All database business timestamps are stored as Beijing time.
 
+## Vercel deployment
+
+Use the default Vercel Next.js settings:
+
+- Root Directory: `./`
+- Build Command: `pnpm build`
+- Output Directory: Next.js default
+- Install Command: `pnpm install`
+
+Set these environment variables in Vercel for Production and Preview:
+
+- `DATABASE_URL`: the Neon pooled PostgreSQL connection string.
+- `CRON_SECRET`: a random string of at least 16 characters.
+- `NEXT_PUBLIC_APP_NAME`: optional, for example `Fantasy NBA`.
+
+The app defines Vercel Cron endpoints:
+
+- `/api/cron/sync-games` updates the `Game` table.
+- `/api/cron/sync-player-average-stats` updates `PlayerAverageStats`.
+
+These endpoints require `Authorization: Bearer <CRON_SECRET>`. Vercel automatically sends this header to cron jobs when `CRON_SECRET` is configured.
+
+The checked-in `vercel.json` uses once-per-day schedules because the Vercel Hobby plan rejects cron expressions that run more than once per day. If the project is upgraded to Pro, the schedules can be changed to more frequent expressions such as `*/5 * * * *` for game sync and `0 * * * *` for player average stats.
+
 The first implementation uses a points-league ruleset because it is easier to validate before adding 9-cat scoring.
