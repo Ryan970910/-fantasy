@@ -157,12 +157,16 @@ function projectedScore(player: PoolPlayer) {
   );
 }
 
-function formatPlayerStats(player: PoolPlayer) {
-  return `${formatStatValue(player.stats.minutes ?? null)} MIN / ${formatStatValue(player.stats.points)} PTS / ${formatStatValue(player.stats.rebounds)} REB`;
-}
+function playerGameLabel(player: PoolPlayer, games: PoolGame[]) {
+  const game = games.find((candidate) =>
+    candidate.homeTeam.tricode === player.team || candidate.awayTeam.tricode === player.team
+  );
 
-function formatPlayerStatsSecondLine(player: PoolPlayer) {
-  return `${formatStatValue(player.stats.assists)} AST / ${formatStatValue(player.stats.steals ?? null)} STL / ${formatStatValue(player.stats.blocks ?? null)} BLK / ${formatStatValue(player.stats.turnovers ?? null)} TOV`;
+  if (!game) {
+    return player.team;
+  }
+
+  return `${game.awayTeam.tricode} vs ${game.homeTeam.tricode}`;
 }
 
 export function LineupPicker() {
@@ -506,16 +510,15 @@ export function LineupPicker() {
                     disabled={disabled}
                     onClick={() => choosePlayer(player.id)}
                   >
-                    <span className="teamBadge">{player.team}</span>
+                    <span className="positionTag">{activeSlot}</span>
                     <span className="playerChoiceMain">
                       <strong>{player.name}</strong>
-                      <small>{player.teamName || player.team} | {player.position} | #{player.jersey || "--"}</small>
+                      <small>{playerGameLabel(player, data.allGamesOnDate?.length ? data.allGamesOnDate : data.games)}</small>
                     </span>
                     <span className="playerStats">
                       <small className="playerStatsLabel">Fantasy</small>
                       <strong>{projectedScore(player).toFixed(1)}</strong>
-                      <small>{formatPlayerStats(player)}</small>
-                      <small>{formatPlayerStatsSecondLine(player)}</small>
+                      <small>{formatStatValue(player.stats.minutes ?? null)} MIN</small>
                     </span>
                     <span className="selectPill">{player.locked ? lockedLabel : selectedForActiveSlot ? "Selected" : "Select"}</span>
                   </button>

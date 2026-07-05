@@ -692,7 +692,7 @@ button:disabled {
 
 .playerChoice {
   display: grid;
-  grid-template-columns: 74px minmax(0, 1fr) 180px 104px;
+  grid-template-columns: 64px minmax(0, 1fr) 120px 104px;
   gap: 12px;
   align-items: center;
   width: 100%;
@@ -726,16 +726,18 @@ button:disabled {
   background: #64748b;
 }
 
-.teamBadge {
-  display: grid;
-  width: 54px;
-  height: 54px;
+.positionTag {
+  display: inline-grid;
+  min-width: 54px;
+  min-height: 28px;
+  padding: 0 8px;
   place-items: center;
-  border-radius: 8px;
+  border-radius: 2px;
   color: #fff;
-  background: linear-gradient(180deg, #17408b, #071d49);
-  font-size: 14px;
+  background: #1687d9;
+  font-size: 13px;
   font-weight: 900;
+  text-transform: uppercase;
 }
 
 .playerChoiceMain {
@@ -1196,21 +1198,23 @@ button:disabled {
   }
 
   .playerChoice {
-    grid-template-columns: 48px minmax(0, 1fr) 72px;
-    gap: 8px;
+    grid-template-columns: 42px minmax(0, 1fr) 58px 64px;
+    gap: 6px;
     min-height: 104px;
-    padding: 10px 8px;
+    padding: 10px 6px;
   }
 
-  .teamBadge {
-    width: 44px;
-    height: 44px;
-    border-radius: 8px;
+  .positionTag {
+    min-width: 42px;
+    min-height: 24px;
+    align-self: start;
+    margin-top: 4px;
+    border-radius: 2px;
     font-size: 12px;
   }
 
   .playerChoiceMain strong {
-    font-size: 18px;
+    font-size: 17px;
     white-space: normal;
   }
 
@@ -1225,13 +1229,13 @@ button:disabled {
   }
 
   .playerStats strong {
-    font-size: 20px;
+    font-size: 19px;
   }
 
   .selectPill {
-    min-height: 36px;
-    padding: 0 8px;
-    font-size: 12px;
+    min-height: 34px;
+    padding: 0 6px;
+    font-size: 11px;
   }
 
   .appTopbar {
