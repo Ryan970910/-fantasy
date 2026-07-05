@@ -285,6 +285,60 @@ function numberOrZero(value: unknown) {
   return Number.isFinite(number) ? number : 0;
 }
 
+function hasDetailedFantasyStats(row: AverageStatsRow) {
+  return [
+    row.threesMade,
+    row.fieldGoalsMade,
+    row.fieldGoalsAttempted,
+    row.freeThrowsMade,
+    row.freeThrowsAttempted,
+    row.offensiveRebounds,
+    row.defensiveRebounds
+  ].some((value) => numberOrZero(value) > 0);
+}
+
+function isOfficialNbaPlayerId(value: string) {
+  return /^\d+$/.test(value);
+}
+
+function compareStatsRows(left: AverageStatsRow, right: AverageStatsRow) {
+  const leftDetailed = hasDetailedFantasyStats(left) ? 1 : 0;
+  const rightDetailed = hasDetailedFantasyStats(right) ? 1 : 0;
+  if (leftDetailed !== rightDetailed) {
+    return rightDetailed - leftDetailed;
+  }
+
+  const leftOfficial = isOfficialNbaPlayerId(left.nbaPlayerId) ? 1 : 0;
+  const rightOfficial = isOfficialNbaPlayerId(right.nbaPlayerId) ? 1 : 0;
+  if (leftOfficial !== rightOfficial) {
+    return rightOfficial - leftOfficial;
+  }
+
+  return numberOrZero(right.gamesPlayed) - numberOrZero(left.gamesPlayed);
+}
+
+function choosePreferredStatsRow(rows: AverageStatsRow[], currentSeason: string, previousSeason: string) {
+  const pick = (season: string, requireGames: boolean) =>
+    rows
+      .filter((row) => row.season === season && (!requireGames || numberOrZero(row.gamesPlayed) > 0))
+      .sort(compareStatsRows)[0] || null;
+
+  return (
+    pick(currentSeason, true) ||
+    pick(previousSeason, true) ||
+    pick(currentSeason, false) ||
+    pick(previousSeason, false)
+  );
+}
+
+function canonicalPlayerId(rows: AverageStatsRow[], selected: AverageStatsRow) {
+  return (
+    rows.find((row) => row.season === selected.season && isOfficialNbaPlayerId(row.nbaPlayerId))?.nbaPlayerId ||
+    rows.find((row) => isOfficialNbaPlayerId(row.nbaPlayerId))?.nbaPlayerId ||
+    selected.nbaPlayerId
+  );
+}
+
 function normalizeName(value: string) {
   return value
     .normalize("NFD")
@@ -324,7 +378,7 @@ function buildLockStatus(games: GameSummary[]) {
   };
 }
 
-async function loadAverageStats(players: Array<{ id: string; name: string }>, currentSeason: string, previousSeason: string) {
+async function loadAverageStats(players: Array<{ id: string; name: string; team: string }>, currentSeason: string, previousSeason: string) {
   if (players.length === 0) {
     return new Map<string, AverageStatsRow>();
   }
@@ -345,23 +399,31 @@ async function loadAverageStats(players: Array<{ id: string; name: string }>, cu
     );
 
     const byPlayerId = new Map<string, AverageStatsRow[]>();
-    const byPlayerName = new Map<string, AverageStatsRow[]>();
+    const byPlayerNameAndTeam = new Map<string, AverageStatsRow[]>();
     for (const row of rows) {
       const idRows = byPlayerId.get(row.nbaPlayerId) || [];
       idRows.push(row);
       byPlayerId.set(row.nbaPlayerId, idRows);
 
-      const nameRows = byPlayerName.get(normalizeName((row as AverageStatsRow & { playerName?: string }).playerName || "")) || [];
+      const nameKey = `${normalizeName((row as AverageStatsRow & { playerName?: string }).playerName || "")}:${row.team}`;
+      const nameRows = byPlayerNameAndTeam.get(nameKey) || [];
       nameRows.push(row);
-      byPlayerName.set(normalizeName((row as AverageStatsRow & { playerName?: string }).playerName || ""), nameRows);
+      byPlayerNameAndTeam.set(nameKey, nameRows);
     }
 
     return new Map(players.flatMap((player) => {
-        const playerRows = byPlayerId.get(player.id) || byPlayerName.get(normalizeName(player.name)) || [];
-        const current = playerRows.find((row) => row.season === currentSeason && numberOrZero(row.gamesPlayed) > 0);
-        const previous = playerRows.find((row) => row.season === previousSeason && numberOrZero(row.gamesPlayed) > 0);
-        const fallback = playerRows.find((row) => row.season === currentSeason) || playerRows.find((row) => row.season === previousSeason);
-        const selected = current || previous || fallback;
+        const idRows = byPlayerId.get(player.id) || [];
+        const nameRows = byPlayerNameAndTeam.get(`${normalizeName(player.name)}:${player.team}`) || [];
+        const rowKeys = new Set<string>();
+        const playerRows = [...idRows, ...nameRows].filter((row) => {
+          const key = `${row.nbaPlayerId}:${row.season}:${row.team}`;
+          if (rowKeys.has(key)) {
+            return false;
+          }
+          rowKeys.add(key);
+          return true;
+        });
+        const selected = choosePreferredStatsRow(playerRows, currentSeason, previousSeason);
         return selected ? [[player.id, selected]] : [];
       }));
   } catch (error) {
@@ -393,23 +455,20 @@ async function loadFallbackPoolPlayers(teamTricodes: Set<string>, currentSeason:
 
   const byNameAndTeam = new Map<string, AverageStatsRow[]>();
   for (const row of rows) {
-    const key = `${normalizeName(row.playerName)}:${row.nbaPlayerId}:${row.team}`;
+    const key = `${normalizeName(row.playerName)}:${row.team}`;
     const existing = byNameAndTeam.get(key) || [];
     existing.push(row);
     byNameAndTeam.set(key, existing);
   }
 
   return Array.from(byNameAndTeam.values()).flatMap((playerRows): FallbackPoolPlayer[] => {
-    const current = playerRows.find((row) => row.season === currentSeason && numberOrZero(row.gamesPlayed) > 0);
-    const previous = playerRows.find((row) => row.season === previousSeason && numberOrZero(row.gamesPlayed) > 0);
-    const fallback = playerRows.find((row) => row.season === currentSeason) || playerRows.find((row) => row.season === previousSeason);
-    const selected = current || previous || fallback;
+    const selected = choosePreferredStatsRow(playerRows, currentSeason, previousSeason);
     if (!selected) {
       return [];
     }
 
     return [{
-      id: selected.nbaPlayerId,
+      id: canonicalPlayerId(playerRows, selected),
       name: selected.playerName,
       slug: normalizeName(selected.playerName).replace(/\s+/g, "-"),
       team: selected.team,
@@ -600,7 +659,7 @@ export async function GET() {
     const lockedTeams = new Set(lockStatus.lockedTeams);
     const poolPlayers = candidatePlayers.filter((player) => teamTricodes.has(player.team));
     const averageStats = await loadAverageStats(
-      poolPlayers.map((player) => ({ id: player.id, name: player.name })),
+      poolPlayers.map((player) => ({ id: player.id, name: player.name, team: player.team })),
       statSeasons.current,
       statSeasons.previous
     );
