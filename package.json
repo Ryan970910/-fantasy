@@ -1,0 +1,34 @@
+{
+    "name":  "fantasy-nba-system",
+    "version":  "0.1.0",
+    "private":  true,
+    "scripts":  {
+                    "dev":  "next dev",
+                    "build":  "next build",
+                    "start":  "next start",
+                    "typecheck":  "tsc --noEmit",
+                    "prisma:generate":  "prisma generate",
+                    "prisma:migrate":  "prisma migrate dev",
+                    "games:sync":  "tsx scripts/sync-games.ts",
+                    "games:watch":  "tsx scripts/sync-games.ts --watch",
+                    "player-stats:sync":  "tsx scripts/sync-player-average-stats.ts",
+                    "player-stats:sync:bbr":  "tsx scripts/sync-player-average-stats-bbr.ts",
+                    "player-stats:watch":  "tsx scripts/sync-player-average-stats-bbr.ts --watch --interval-ms=900000"
+                },
+    "dependencies":  {
+                         "@prisma/client":  "6.19.3",
+                         "lucide-react":  "latest",
+                         "next":  "latest",
+                         "react":  "latest",
+                         "react-dom":  "latest"
+                     },
+    "devDependencies":  {
+                            "@types/node":  "latest",
+                            "@types/react":  "latest",
+                            "@types/react-dom":  "latest",
+                            "prisma":  "6.19.3",
+                            "tsx":  "latest",
+                            "typescript":  "latest",
+                            "vitest":  "latest"
+                        }
+}

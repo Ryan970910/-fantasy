@@ -1,0 +1,1099 @@
+* {
+  box-sizing: border-box;
+}
+
+:root {
+  color: #f8fafc;
+  background: #07111f;
+  --nba-blue: #17408b;
+  --nba-blue-dark: #071d49;
+  --nba-red: #c9082a;
+  --court-light: #f0bd77;
+  --panel: #13243d;
+  --line: rgb(255 255 255 / 14%);
+  --muted: #a9b6ca;
+  --text: #f8fafc;
+  --shadow: 0 18px 46px rgb(0 0 0 / 30%);
+}
+
+body {
+  margin: 0;
+  color: var(--text);
+  font-family: Arial, Helvetica, sans-serif;
+  background:
+    linear-gradient(90deg, rgb(23 64 139 / 22%) 0 1px, transparent 1px 100%),
+    linear-gradient(0deg, rgb(255 255 255 / 5%) 0 1px, transparent 1px 100%),
+    linear-gradient(135deg, #08111f 0%, #0b1b34 47%, #160713 100%);
+  background-size: 72px 72px, 72px 72px, auto;
+}
+
+button,
+select,
+input {
+  -webkit-tap-highlight-color: transparent;
+  font: inherit;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+.shell {
+  position: relative;
+  min-height: 100vh;
+  padding: 28px 0 48px;
+  overflow: hidden;
+}
+
+.shell::before {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  content: "";
+  background:
+    linear-gradient(90deg, transparent calc(50% - 1px), rgb(255 255 255 / 10%) calc(50% - 1px) calc(50% + 1px), transparent calc(50% + 1px)),
+    linear-gradient(180deg, rgb(255 255 255 / 8%) 0 2px, transparent 2px 100%);
+}
+
+.shell::after {
+  position: fixed;
+  left: 50%;
+  top: 92px;
+  z-index: -1;
+  width: min(900px, 88vw);
+  aspect-ratio: 2.15;
+  content: "";
+  border: 2px solid rgb(240 189 119 / 22%);
+  border-radius: 999px;
+  transform: translateX(-50%);
+  box-shadow: inset 0 0 0 2px rgb(201 8 42 / 16%);
+}
+
+.appTopbar {
+  display: flex;
+  max-width: 1180px;
+  margin: 0 auto 24px;
+  padding: 0 24px;
+  gap: 16px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.appTopbar div {
+  display: grid;
+  gap: 4px;
+}
+
+.appTopbar strong {
+  color: #fff;
+  font-size: 24px;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.appTopbar strong::before {
+  display: inline-block;
+  width: 12px;
+  height: 24px;
+  margin-right: 10px;
+  vertical-align: -5px;
+  content: "";
+  border-radius: 2px;
+  background: linear-gradient(180deg, var(--nba-blue) 0 50%, var(--nba-red) 50% 100%);
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 24%);
+}
+
+.appTopbar span {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.authShell {
+  display: grid;
+  min-height: 100vh;
+  padding: 28px;
+  place-items: center;
+  background:
+    linear-gradient(90deg, rgb(23 64 139 / 24%) 0 1px, transparent 1px 100%),
+    linear-gradient(0deg, rgb(255 255 255 / 5%) 0 1px, transparent 1px 100%),
+    linear-gradient(135deg, #07111f 0%, #0d2347 58%, #2b0710 100%);
+  background-size: 72px 72px, 72px 72px, auto;
+}
+
+.authPanel {
+  width: min(100%, 420px);
+  padding: 28px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: linear-gradient(180deg, rgb(19 36 61 / 96%), rgb(8 17 31 / 96%));
+  box-shadow: var(--shadow);
+}
+
+.authPanel h1 {
+  margin: 0;
+  color: #fff;
+  font-size: 30px;
+}
+
+.authCopy {
+  margin: 10px 0 22px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.authError {
+  margin-bottom: 16px;
+  padding: 12px;
+  border: 1px solid rgb(201 8 42 / 44%);
+  border-radius: 8px;
+  color: #fff;
+  background: rgb(201 8 42 / 18%);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.authForm {
+  display: grid;
+  gap: 14px;
+}
+
+.authForm label {
+  display: grid;
+  gap: 7px;
+  color: #d8e6ff;
+  font-size: 14px;
+  font-weight: 800;
+}
+
+.authForm input {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid rgb(255 255 255 / 16%);
+  border-radius: 8px;
+  color: #fff;
+  background: rgb(255 255 255 / 8%);
+}
+
+.authForm input:focus,
+.slotControl select:focus {
+  outline: 3px solid rgb(240 189 119 / 55%);
+  outline-offset: 2px;
+}
+
+.authButton {
+  min-height: 44px;
+  margin-top: 4px;
+  border: 1px solid rgb(255 255 255 / 18%);
+  border-radius: 8px;
+  color: #fff;
+  background: linear-gradient(90deg, var(--nba-red), var(--nba-blue));
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 14px 24px rgb(201 8 42 / 18%);
+}
+
+.authButton:hover {
+  filter: brightness(1.08);
+}
+
+.authSwitch {
+  margin: 18px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.authSwitch a {
+  color: #fff;
+  font-weight: 800;
+}
+
+.eyebrow {
+  margin: 0 0 12px;
+  color: var(--court-light);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.liveStats,
+.lineupPicker {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.lineupPicker {
+  margin-top: 0;
+}
+
+.liveHeader,
+.lineupHeader {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: 8px 8px 0 0;
+  background:
+    linear-gradient(90deg, rgb(201 8 42 / 18%), transparent 28%),
+    linear-gradient(180deg, rgb(19 36 61 / 96%), rgb(12 27 50 / 96%));
+  box-shadow: var(--shadow);
+}
+
+.liveHeader h2,
+.lineupHeader h2 {
+  margin: 0;
+  color: #fff;
+  font-size: 28px;
+  letter-spacing: 0;
+}
+
+.liveMeta {
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.refreshButton {
+  display: inline-flex;
+  min-height: 40px;
+  padding: 0 14px;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgb(255 255 255 / 18%);
+  border-radius: 8px;
+  color: #fff;
+  background: rgb(255 255 255 / 8%);
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 160ms ease, border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+.refreshButton:hover:not(:disabled) {
+  border-color: rgb(240 189 119 / 72%);
+  background: rgb(255 255 255 / 12%);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgb(0 0 0 / 25%);
+}
+
+.refreshButton:focus-visible {
+  outline: 3px solid rgb(240 189 119 / 55%);
+  outline-offset: 3px;
+}
+
+.refreshButton:disabled {
+  opacity: 0.55;
+}
+
+.lineupSummary > .refreshButton {
+  width: 100%;
+  margin-top: 16px;
+  background: linear-gradient(90deg, var(--nba-red), var(--nba-blue));
+}
+
+.lineupSummary > small {
+  display: block;
+  margin-top: 10px;
+  color: var(--court-light);
+  line-height: 1.35;
+}
+
+.liveGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-top: 0;
+  border-radius: 0 0 8px 8px;
+  background: rgb(7 17 31 / 74%);
+  backdrop-filter: blur(10px);
+}
+
+.gameCard,
+.playerTableCard,
+.lineupSummary,
+.liveEmpty {
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: linear-gradient(180deg, rgb(19 36 61 / 94%), rgb(8 17 31 / 96%));
+  box-shadow: 0 12px 30px rgb(0 0 0 / 22%);
+}
+
+.gameCard {
+  position: relative;
+  overflow: hidden;
+}
+
+.gameCard::before {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  content: "";
+  background:
+    linear-gradient(90deg, transparent calc(50% - 1px), rgb(240 189 119 / 24%) calc(50% - 1px) calc(50% + 1px), transparent calc(50% + 1px)),
+    linear-gradient(180deg, transparent calc(50% - 1px), rgb(240 189 119 / 16%) calc(50% - 1px) calc(50% + 1px), transparent calc(50% + 1px));
+  opacity: 0.55;
+}
+
+.gameCard > * {
+  position: relative;
+  z-index: 1;
+}
+
+.liveEmpty {
+  display: grid;
+  gap: 6px;
+  border-top: 0;
+  border-radius: 0 0 8px 8px;
+  color: var(--muted);
+}
+
+.liveEmpty strong {
+  color: #fff;
+}
+
+.gameStatus {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.statusLive,
+.statusPill {
+  display: inline-flex;
+  min-height: 30px;
+  padding: 0 10px;
+  gap: 6px;
+  align-items: center;
+  border-radius: 999px;
+  font-weight: 900;
+}
+
+.statusLive {
+  color: #fff;
+  background: var(--nba-red);
+  box-shadow: 0 0 0 4px rgb(201 8 42 / 18%);
+}
+
+.statusPill {
+  color: #d8e6ff;
+  background: rgb(23 64 139 / 45%);
+}
+
+.scoreLine {
+  display: grid;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.scoreLine div {
+  display: grid;
+  grid-template-columns: 64px 82px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  min-height: 74px;
+  padding: 12px;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 8px;
+  background:
+    linear-gradient(90deg, rgb(201 8 42 / 16%), transparent 38%),
+    rgb(255 255 255 / 7%);
+}
+
+.scoreLine span {
+  color: #fff;
+  font-weight: 900;
+}
+
+.scoreLine strong {
+  font-size: 38px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.scoreLine small {
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 13px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.leaderList {
+  display: grid;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.leaderRow {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr);
+  gap: 8px;
+  align-items: center;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.leaderRow strong {
+  grid-column: 2;
+  color: #fff;
+}
+
+.playerTableCard h3,
+.lineupSummary h3 {
+  margin: 0 0 14px;
+  color: #fff;
+  font-size: 20px;
+}
+
+.lineupSummary h3 {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.playerTable {
+  display: grid;
+  gap: 8px;
+}
+
+.playerTableHead,
+.playerTableRow {
+  display: grid;
+  grid-template-columns: minmax(140px, 1fr) repeat(4, 52px);
+  gap: 8px;
+  align-items: center;
+}
+
+.playerTableHead {
+  color: var(--court-light);
+  font-size: 12px;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.playerTableRow {
+  min-height: 50px;
+  padding: 9px 0;
+  border-top: 1px solid rgb(255 255 255 / 10%);
+  color: #fff;
+  font-size: 14px;
+}
+
+.playerTableRow strong,
+.playerTableRow small {
+  display: block;
+}
+
+.playerTableRow small {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.lineupGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-top: 0;
+  background: rgb(7 17 31 / 74%);
+  backdrop-filter: blur(10px);
+}
+
+.lineupSelectionGrid {
+  grid-template-columns: 220px minmax(0, 1fr);
+  align-items: start;
+  background: #e7eaf0;
+  color: #101a2d;
+}
+
+.slotList {
+  display: grid;
+  gap: 12px;
+}
+
+.lineupRail {
+  display: grid;
+  gap: 12px;
+  position: sticky;
+  top: 16px;
+  padding: 12px;
+  border: 1px solid #cfd5df;
+  border-radius: 8px;
+  background: #d9dde5;
+}
+
+.lineupRail h3 {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 0;
+  color: #172554;
+  font-size: 17px;
+}
+
+.lineupSlotList {
+  display: grid;
+  gap: 8px;
+}
+
+.lineupSlotButton {
+  display: grid;
+  gap: 3px;
+  width: 100%;
+  min-height: 76px;
+  padding: 10px;
+  border: 1px solid #c5ccd8;
+  border-radius: 8px;
+  color: #344056;
+  background: #eef1f6;
+  text-align: left;
+  cursor: pointer;
+}
+
+.lineupSlotButton span {
+  color: #5b6678;
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.lineupSlotButton strong {
+  overflow: hidden;
+  color: #1d2b49;
+  font-size: 17px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lineupSlotButton small {
+  overflow: hidden;
+  color: #667085;
+  font-size: 12px;
+  line-height: 1.25;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lineupSlotButton.active {
+  border-color: #1687d9;
+  background: #fff;
+  box-shadow: inset 5px 0 0 #1687d9, 0 8px 18px rgb(16 24 40 / 10%);
+}
+
+.clearLineupButton {
+  min-height: 42px;
+  border: 1px solid #d81b48;
+  border-radius: 999px;
+  color: #d81b48;
+  background: #fff;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.lineupSubmitButton {
+  min-height: 42px;
+  border: 1px solid rgb(255 255 255 / 24%);
+  border-radius: 8px;
+  color: #fff;
+  background: #cfd5df;
+  font-weight: 900;
+  cursor: not-allowed;
+  transition: transform 160ms ease, box-shadow 160ms ease, background 160ms ease;
+}
+
+.lineupSubmitButton.ready {
+  border-color: rgb(255 255 255 / 18%);
+  background: linear-gradient(90deg, #c9082a, #17408b);
+  cursor: pointer;
+  box-shadow: 0 12px 24px rgb(201 8 42 / 28%);
+}
+
+.lineupSubmitButton.ready:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 30px rgb(23 64 139 / 32%);
+}
+
+.lineupSubmitButton:disabled {
+  opacity: 0.72;
+}
+
+.lineupMessage {
+  color: #172554;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.playerBoard {
+  min-width: 0;
+  border: 1px solid #cfd5df;
+  border-radius: 8px;
+  overflow: hidden;
+  background: #f8fafc;
+}
+
+.playerBoardToolbar {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+  border-bottom: 1px solid #d7dde7;
+  background: #f1f4f8;
+}
+
+.playerBoardToolbar > div:first-child {
+  display: grid;
+  gap: 2px;
+}
+
+.playerBoardToolbar strong {
+  color: #172554;
+  font-size: 18px;
+}
+
+.playerBoardToolbar small {
+  color: #667085;
+}
+
+.toolbarControls {
+  display: flex;
+  gap: 10px;
+}
+
+.toolbarControls select {
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid #c7cfda;
+  border-radius: 8px;
+  color: #172554;
+  background: #fff;
+  font-weight: 700;
+}
+
+.playerRows {
+  display: grid;
+  max-height: 720px;
+  overflow: auto;
+}
+
+.playerChoice {
+  display: grid;
+  grid-template-columns: 74px minmax(0, 1fr) 180px 104px;
+  gap: 12px;
+  align-items: center;
+  width: 100%;
+  min-height: 92px;
+  padding: 12px;
+  border: 0;
+  border-bottom: 1px solid #dde3ec;
+  color: #172554;
+  background:
+    linear-gradient(90deg, rgb(23 64 139 / 6%), transparent 42%),
+    #fff;
+  text-align: left;
+  cursor: pointer;
+}
+
+.playerChoice:hover {
+  background: #f4f8ff;
+}
+
+.playerChoice.selected {
+  background: #eaf4ff;
+  box-shadow: inset 5px 0 0 #1687d9;
+}
+
+.playerChoice.locked {
+  opacity: 0.58;
+  cursor: not-allowed;
+}
+
+.playerChoice.locked .selectPill {
+  background: #64748b;
+}
+
+.teamBadge {
+  display: grid;
+  width: 54px;
+  height: 54px;
+  place-items: center;
+  border-radius: 8px;
+  color: #fff;
+  background: linear-gradient(180deg, #17408b, #071d49);
+  font-size: 14px;
+  font-weight: 900;
+}
+
+.playerChoiceMain {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+
+.playerChoiceMain strong {
+  overflow: hidden;
+  color: #0f1d3a;
+  font-size: 24px;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.playerChoiceMain small,
+.playerStats small {
+  color: #64748b;
+  font-size: 13px;
+}
+
+.playerStats {
+  display: grid;
+  gap: 4px;
+}
+
+.playerStats .playerStatsLabel {
+  color: #0f1d3a;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.playerStats strong {
+  color: #d97706;
+  font-size: 24px;
+  line-height: 1;
+}
+
+.selectPill {
+  display: inline-flex;
+  min-height: 42px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  color: #fff;
+  background: #d81b48;
+  font-weight: 900;
+}
+
+.slotControl {
+  display: grid;
+  grid-template-columns: 56px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background:
+    linear-gradient(90deg, rgb(23 64 139 / 26%), transparent 42%),
+    rgb(255 255 255 / 7%);
+}
+
+.slotControl span {
+  display: inline-grid;
+  min-height: 38px;
+  place-items: center;
+  border-radius: 8px;
+  color: #fff;
+  background: linear-gradient(180deg, var(--nba-blue), var(--nba-blue-dark));
+  font-weight: 900;
+}
+
+.slotControl select {
+  width: 100%;
+  min-height: 42px;
+  padding: 0 12px;
+  border: 1px solid rgb(255 255 255 / 16%);
+  border-radius: 8px;
+  color: #fff;
+  background: #0b1729;
+}
+
+.selectedList {
+  display: grid;
+  gap: 10px;
+}
+
+.selectedPlayer {
+  display: grid;
+  gap: 3px;
+  padding: 10px 0;
+  border-top: 1px solid rgb(255 255 255 / 10%);
+}
+
+.selectedPlayer strong {
+  color: var(--court-light);
+}
+
+.selectedPlayer span {
+  color: #fff;
+}
+
+.selectedPlayer small {
+  color: var(--muted);
+}
+
+.nextGames {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-top: 0;
+  border-radius: 0 0 8px 8px;
+  background: rgb(7 17 31 / 82%);
+}
+
+.nextGame {
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 8px;
+  background:
+    linear-gradient(90deg, rgb(201 8 42 / 22%), transparent 30%),
+    rgb(255 255 255 / 7%);
+}
+
+.nextGame strong {
+  color: #fff;
+}
+
+.nextGame span,
+.nextGame small {
+  color: var(--muted);
+}
+
+.submittedLineups {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background:
+    linear-gradient(90deg, rgb(23 64 139 / 18%), transparent 38%),
+    rgb(7 17 31 / 86%);
+}
+
+.submittedLineupsHeader,
+.submittedLineupMeta {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.submittedLineupsHeader h3 {
+  margin: 0;
+  color: #fff;
+  font-size: 24px;
+}
+
+.submittedLineupsHeader span,
+.submittedLineupMeta span {
+  color: var(--court-light);
+  font-weight: 900;
+}
+
+.lineupEmpty {
+  display: grid;
+  gap: 4px;
+  padding: 14px;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 8px;
+  color: var(--muted);
+  background: rgb(255 255 255 / 7%);
+}
+
+.lineupEmpty strong {
+  color: #fff;
+}
+
+.submittedLineupCard {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 8px;
+  background: rgb(255 255 255 / 8%);
+}
+
+.submittedLineupMeta strong {
+  color: #fff;
+  font-size: 18px;
+}
+
+.submittedLineupMeta small {
+  display: block;
+  margin-top: 3px;
+  color: var(--muted);
+}
+
+.submittedLineupMeta span {
+  color: #f59e0b;
+  font-size: 26px;
+}
+
+.submittedLineupActions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.submittedLineupActions button {
+  min-height: 36px;
+  padding: 0 16px;
+  border: 1px solid rgb(255 255 255 / 18%);
+  border-radius: 999px;
+  color: #fff;
+  background: #17408b;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.submittedLineupActions button:hover {
+  background: #1d4ed8;
+}
+
+.submittedLineupActions button:disabled {
+  opacity: 0.56;
+  cursor: not-allowed;
+}
+
+.lineupLockedNotice {
+  display: grid;
+  gap: 4px;
+  margin: 0 0 18px;
+  padding: 14px 16px;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 8px;
+  color: var(--muted);
+  background:
+    linear-gradient(90deg, rgb(201 8 42 / 28%), transparent 36%),
+    rgb(7 17 31 / 88%);
+}
+
+.lineupLockedNotice strong {
+  color: #fff;
+}
+
+.submittedPlayers {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.submittedPlayer {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 8px;
+  background: rgb(7 17 31 / 72%);
+}
+
+.submittedPlayer span {
+  color: var(--court-light);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.submittedPlayer strong {
+  overflow: hidden;
+  color: #fff;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.submittedPlayer small {
+  overflow: hidden;
+  color: var(--muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.submittedPlayer em {
+  color: #f59e0b;
+  font-style: normal;
+  font-weight: 900;
+}
+
+@media (max-width: 860px) {
+  .liveHeader,
+  .lineupHeader {
+    flex-direction: column;
+  }
+
+  .liveGrid,
+  .lineupGrid,
+  .nextGames {
+    grid-template-columns: 1fr;
+  }
+
+  .lineupRail {
+    position: static;
+  }
+
+  .lineupSlotList {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .submittedLineupsHeader,
+  .submittedLineupMeta {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .submittedLineupActions {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .submittedPlayers {
+    grid-template-columns: 1fr;
+  }
+
+  .playerBoardToolbar,
+  .toolbarControls {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .playerChoice {
+    grid-template-columns: 54px minmax(0, 1fr);
+  }
+
+  .playerStats,
+  .selectPill {
+    grid-column: 2;
+  }
+
+  .appTopbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .playerTableHead,
+  .playerTableRow {
+    grid-template-columns: minmax(120px, 1fr) repeat(4, 42px);
+  }
+
+  .slotControl {
+    grid-template-columns: 1fr;
+  }
+}

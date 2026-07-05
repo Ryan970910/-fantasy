@@ -1,0 +1,244 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum LeagueStatus {
+  SETUP
+  DRAFTING
+  ACTIVE
+  COMPLETE
+}
+
+enum DraftStatus {
+  SCHEDULED
+  LIVE
+  PAUSED
+  COMPLETE
+}
+
+enum RosterSlot {
+  PG
+  SG
+  SF
+  PF
+  C
+  G
+  F
+  UTIL
+  BENCH
+  INJ
+}
+
+enum TransactionType {
+  ADD
+  DROP
+  TRADE
+  WAIVER_CLAIM
+}
+
+model User {
+  id           String        @id @default(cuid())
+  email        String        @unique
+  name         String
+  passwordHash String
+  createdAt    DateTime      @default(now())
+  sessions     Session[]
+  teams        FantasyTeam[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  userId    String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model League {
+  id             String        @id @default(cuid())
+  name           String
+  season         Int
+  status         LeagueStatus  @default(SETUP)
+  scoringRules   Json
+  rosterSettings Json
+  createdAt      DateTime      @default(now())
+  teams          FantasyTeam[]
+  draft          Draft?
+  matchups       Matchup[]
+  transactions   Transaction[]
+
+  @@unique([name, season])
+}
+
+model FantasyTeam {
+  id             String        @id @default(cuid())
+  name           String
+  ownerId        String
+  leagueId       String
+  waiverRank     Int           @default(1)
+  wins           Int           @default(0)
+  losses         Int           @default(0)
+  ties           Int           @default(0)
+  pointsFor      Float         @default(0)
+  pointsAgainst  Float         @default(0)
+  owner          User          @relation(fields: [ownerId], references: [id])
+  league         League        @relation(fields: [leagueId], references: [id])
+  rosterSpots    RosterSpot[]
+  draftPicks     DraftPick[]
+  homeMatchups   Matchup[]     @relation("HomeTeam")
+  awayMatchups   Matchup[]     @relation("AwayTeam")
+  transactions   Transaction[]
+
+  @@unique([leagueId, name])
+}
+
+model NbaPlayer {
+  id          String       @id @default(cuid())
+  externalId  String?      @unique
+  fullName    String
+  nbaTeam     String
+  positions   String[]
+  status      String       @default("ACTIVE")
+  rosterSpots RosterSpot[]
+  gameLines   PlayerGameLine[]
+  draftPicks  DraftPick[]
+}
+
+model Draft {
+  id             String      @id @default(cuid())
+  leagueId       String      @unique
+  status         DraftStatus @default(SCHEDULED)
+  currentPick    Int         @default(1)
+  roundCount     Int
+  secondsPerPick Int         @default(90)
+  startsAt       DateTime?
+  league         League      @relation(fields: [leagueId], references: [id])
+  picks          DraftPick[]
+}
+
+model DraftPick {
+  id        String      @id @default(cuid())
+  draftId   String
+  teamId    String
+  playerId  String?
+  pickNo    Int
+  round     Int
+  slot      Int
+  pickedAt  DateTime?
+  draft     Draft       @relation(fields: [draftId], references: [id])
+  team      FantasyTeam @relation(fields: [teamId], references: [id])
+  player    NbaPlayer?  @relation(fields: [playerId], references: [id])
+
+  @@unique([draftId, pickNo])
+}
+
+model RosterSpot {
+  id        String      @id @default(cuid())
+  teamId    String
+  playerId  String
+  slot      RosterSlot
+  startsOn  DateTime
+  endsOn    DateTime?
+  team      FantasyTeam @relation(fields: [teamId], references: [id])
+  player    NbaPlayer   @relation(fields: [playerId], references: [id])
+
+  @@index([teamId, startsOn])
+}
+
+model NbaGame {
+  id         String           @id @default(cuid())
+  externalId String?          @unique
+  gameDate   DateTime
+  homeTeam   String
+  awayTeam   String
+  status     String           @default("SCHEDULED")
+  lines      PlayerGameLine[]
+}
+
+model PlayerGameLine {
+  id            String    @id @default(cuid())
+  gameId        String
+  playerId      String
+  minutes       Float     @default(0)
+  points        Int       @default(0)
+  rebounds      Int       @default(0)
+  assists       Int       @default(0)
+  steals        Int       @default(0)
+  blocks        Int       @default(0)
+  turnovers     Int       @default(0)
+  threes        Int       @default(0)
+  fantasyPoints Float     @default(0)
+  game          NbaGame   @relation(fields: [gameId], references: [id])
+  player        NbaPlayer @relation(fields: [playerId], references: [id])
+
+  @@unique([gameId, playerId])
+}
+
+model PlayerAverageStats {
+  id                   String   @id @default(cuid())
+  nbaPlayerId          String
+  playerName           String
+  team                 String
+  season               String
+  seasonType           String   @default("Regular Season")
+  source               String
+  sourceUrl            String
+  gamesPlayed          Int      @default(0)
+  minutes              Float    @default(0)
+  points               Float    @default(0)
+  rebounds             Float    @default(0)
+  assists              Float    @default(0)
+  steals               Float    @default(0)
+  blocks               Float    @default(0)
+  turnovers            Float    @default(0)
+  threesMade           Float    @default(0)
+  fieldGoalsMade       Float    @default(0)
+  fieldGoalsAttempted  Float    @default(0)
+  freeThrowsMade       Float    @default(0)
+  freeThrowsAttempted  Float    @default(0)
+  offensiveRebounds    Float    @default(0)
+  defensiveRebounds    Float    @default(0)
+  updatedAt            DateTime @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)"))
+
+  @@unique([nbaPlayerId, season, seasonType])
+  @@index([nbaPlayerId])
+  @@index([season, seasonType])
+}
+
+model Matchup {
+  id          String      @id @default(cuid())
+  leagueId    String
+  weekNo      Int
+  homeTeamId  String
+  awayTeamId  String
+  homeScore   Float       @default(0)
+  awayScore   Float       @default(0)
+  startsOn    DateTime
+  endsOn      DateTime
+  league      League      @relation(fields: [leagueId], references: [id])
+  homeTeam    FantasyTeam @relation("HomeTeam", fields: [homeTeamId], references: [id])
+  awayTeam    FantasyTeam @relation("AwayTeam", fields: [awayTeamId], references: [id])
+
+  @@unique([leagueId, weekNo, homeTeamId, awayTeamId])
+}
+
+model Transaction {
+  id        String          @id @default(cuid())
+  leagueId  String
+  teamId    String
+  playerId  String?
+  type      TransactionType
+  note      String?
+  createdAt DateTime        @default(now())
+  league    League          @relation(fields: [leagueId], references: [id])
+  team      FantasyTeam     @relation(fields: [teamId], references: [id])
+}
