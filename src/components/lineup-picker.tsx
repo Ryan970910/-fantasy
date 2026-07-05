@@ -137,6 +137,34 @@ function formatStatValue(value: number | null) {
   return statValue(value).toFixed(1);
 }
 
+function normalizePlayerName(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[.'\u2019-]/g, "")
+    .replace(/\b(jr|sr|ii|iii|iv|v)\b/gi, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+}
+
+function playerDisplayKey(player: PoolPlayer) {
+  return `${normalizePlayerName(player.name)}:${player.team}`;
+}
+
+function dedupePlayersForDisplay(players: PoolPlayer[]) {
+  const seen = new Set<string>();
+  return players.filter((player) => {
+    const key = playerDisplayKey(player);
+    if (seen.has(key)) {
+      return false;
+    }
+
+    seen.add(key);
+    return true;
+  });
+}
+
 function projectedScore(player: PoolPlayer) {
   const missedFieldGoals = Math.max(0, statValue(player.stats.fieldGoalsAttempted ?? null) - statValue(player.stats.fieldGoalsMade ?? null));
   const missedFreeThrows = Math.max(0, statValue(player.stats.freeThrowsAttempted ?? null) - statValue(player.stats.freeThrowsMade ?? null));
@@ -231,15 +259,7 @@ export function LineupPicker() {
 
   const selectedIds = useMemo(() => new Set(Object.values(lineup).filter(Boolean)), [lineup]);
   const uniquePlayers = useMemo(() => {
-    const seen = new Set<string>();
-    return (data?.players || []).filter((player) => {
-      const key = `${player.name.trim().toLowerCase()}:${player.team}`;
-      if (seen.has(key)) {
-        return false;
-      }
-      seen.add(key);
-      return true;
-    });
+    return dedupePlayersForDisplay(data?.players || []);
   }, [data?.players]);
   const selectedPlayers = useMemo(
     () => slots.map((slot) => uniquePlayers.find((player) => player.id === lineup[slot]) || null),
@@ -274,7 +294,7 @@ export function LineupPicker() {
       .filter((player) => teamFilter === "ALL" || player.team === teamFilter)
       .filter((player) => !selectedIds.has(player.id) || player.id === activeSelectedId);
 
-    return [...players].sort((left, right) => {
+    return dedupePlayersForDisplay([...players]).sort((left, right) => {
       if (sortMode === "name") {
         return left.name.localeCompare(right.name);
       }
@@ -515,14 +535,14 @@ export function LineupPicker() {
               </div>
             </div>
 
-            <div className="playerRows">
+            <div key={activeSlot} className="playerRows">
               {availablePlayers.map((player) => {
                 const selectedForActiveSlot = lineup[activeSlot] === player.id;
                 const activeSlotLocked = Boolean(uniquePlayers.find((candidate) => candidate.id === lineup[activeSlot])?.locked);
                 const disabled = Boolean(player.locked || (activeSlotLocked && !selectedForActiveSlot));
                 return (
                   <button
-                    key={player.id}
+                    key={`${activeSlot}:${playerDisplayKey(player)}`}
                     className={`playerChoice${selectedForActiveSlot ? " selected" : ""}${disabled ? " locked" : ""}`}
                     type="button"
                     disabled={disabled}
