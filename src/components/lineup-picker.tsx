@@ -240,6 +240,10 @@ export function LineupPicker() {
     ) as Record<Slot, PoolPlayer | null>,
     [data?.players, lineup]
   );
+  const projectedLineupScore = useMemo(
+    () => selectedPlayers.reduce((total, player) => total + (player ? projectedScore(player) : 0), 0),
+    [selectedPlayers]
+  );
   const lineupComplete = selectedPlayers.every(Boolean);
   const currentGameDate = data?.gameDate || null;
   const currentGameDayLineups = useMemo(
@@ -393,7 +397,7 @@ export function LineupPicker() {
   }
 
   return (
-    <section className="lineupPicker" aria-labelledby="lineup-picker-title">
+    <section className={`lineupPicker${showPicker ? " pickerActive" : ""}`} aria-labelledby="lineup-picker-title">
       {showPicker ? (
         <div className="lineupHeader">
           <div>
@@ -455,23 +459,26 @@ export function LineupPicker() {
               })}
             </div>
 
-            <button className="clearLineupButton" type="button" onClick={clearLineup}>
-              Clear lineup
-            </button>
-            {editingLineupId ? (
-              <button className="clearLineupButton" type="button" onClick={cancelEditLineup}>
-                Cancel edit
+            <div className="lineupActionsBar">
+              <button className="clearLineupButton" type="button" onClick={clearLineup}>
+                Clear lineup
               </button>
-            ) : null}
-            <button
-              className={`lineupSubmitButton${lineupComplete ? " ready" : ""}`}
-              type="button"
-              onClick={() => void submitLineup()}
-              disabled={!lineupComplete || submitting}
-            >
-              {submitting ? "Saving" : editingLineupId ? "Save changes" : "Submit"}
-            </button>
-            {submitMessage ? <small className="lineupMessage">{submitMessage}</small> : null}
+              {editingLineupId ? (
+                <button className="cancelLineupButton" type="button" onClick={cancelEditLineup}>
+                  Cancel edit
+                </button>
+              ) : null}
+              <span className="lineupActionScore">Fantasy {projectedLineupScore.toFixed(1)}</span>
+              <button
+                className={`lineupSubmitButton${lineupComplete ? " ready" : ""}`}
+                type="button"
+                onClick={() => void submitLineup()}
+                disabled={!lineupComplete || submitting}
+              >
+                {submitting ? "Saving" : editingLineupId ? "Save changes" : "Submit"}
+              </button>
+              {submitMessage ? <small className="lineupMessage">{submitMessage}</small> : null}
+            </div>
           </aside>
 
           <div className="playerBoard">

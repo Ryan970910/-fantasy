@@ -594,7 +594,17 @@ button:disabled {
   box-shadow: inset 5px 0 0 #1687d9, 0 8px 18px rgb(16 24 40 / 10%);
 }
 
-.clearLineupButton {
+.lineupActionsBar {
+  display: grid;
+  gap: 12px;
+}
+
+.lineupActionScore {
+  display: none;
+}
+
+.clearLineupButton,
+.cancelLineupButton {
   min-height: 42px;
   border: 1px solid #d81b48;
   border-radius: 999px;
@@ -1038,7 +1048,8 @@ button:disabled {
 @media (max-width: 860px) {
   .shell {
     min-width: 0;
-    padding: 0 0 104px;
+    min-height: 100dvh;
+    padding: 0;
     overflow-x: hidden;
   }
 
@@ -1049,13 +1060,21 @@ button:disabled {
     padding: 0;
   }
 
+  .appTopbar {
+    display: none;
+  }
+
   .liveHeader,
   .lineupHeader {
-    padding: 18px 14px;
+    padding: 10px 12px;
     border-right: 0;
     border-left: 0;
     border-radius: 0;
     flex-direction: column;
+  }
+
+  .lineupHeader {
+    display: none;
   }
 
   .lineupGrid {
@@ -1069,11 +1088,16 @@ button:disabled {
   .lineupSelectionGrid {
     grid-template-columns: 96px minmax(0, 1fr);
     align-items: stretch;
+    height: 100dvh;
+    overflow: hidden;
   }
 
   .nextGames {
-    grid-template-columns: 1fr;
-    padding: 10px;
+    display: none;
+  }
+
+  .pickerActive:has(.lineupSelectionGrid) .submittedLineups {
+    display: none;
   }
 
   .lineupRail {
@@ -1081,7 +1105,9 @@ button:disabled {
     top: 0;
     z-index: 2;
     align-self: start;
-    min-height: 100vh;
+    height: 100dvh;
+    min-height: 0;
+    overflow: hidden;
     padding: 0;
     gap: 0;
     border: 0;
@@ -1091,13 +1117,6 @@ button:disabled {
   }
 
   .lineupRail h3 {
-    min-height: 44px;
-    padding: 8px 6px;
-    justify-content: center;
-    font-size: 12px;
-  }
-
-  .lineupRail h3 svg {
     display: none;
   }
 
@@ -1107,13 +1126,14 @@ button:disabled {
   }
 
   .lineupSlotButton {
-    min-height: 78px;
-    padding: 7px 5px;
+    min-height: 16.6dvh;
+    padding: 5px 4px;
     border: 0;
     border-bottom: 1px solid #c4cad4;
     border-radius: 0;
     background: #d9dde5;
     text-align: center;
+    place-content: center;
   }
 
   .lineupSlotButton.active {
@@ -1123,44 +1143,67 @@ button:disabled {
   }
 
   .lineupSlotButton span {
-    font-size: 11px;
+    display: none;
   }
 
   .lineupSlotButton strong {
-    font-size: 12px;
+    font-size: 13px;
     line-height: 1.15;
+    overflow: visible;
+    overflow-wrap: anywhere;
+    text-overflow: clip;
     white-space: normal;
   }
 
   .lineupSlotButton small {
-    font-size: 11px;
-    line-height: 1.2;
-    white-space: normal;
-  }
-
-  .clearLineupButton,
-  .lineupSubmitButton {
-    position: fixed;
-    z-index: 20;
-    bottom: 12px;
-    min-height: 48px;
-    box-shadow: 0 8px 24px rgb(15 23 42 / 20%);
-  }
-
-  .clearLineupButton {
-    left: 12px;
-    width: calc(38vw - 18px);
-    padding: 0 8px;
-    background: #fff;
-  }
-
-  .lineupRail .clearLineupButton + .clearLineupButton {
     display: none;
   }
 
-  .lineupSubmitButton {
-    right: 12px;
-    width: calc(50vw - 18px);
+  .lineupActionsBar {
+    position: fixed;
+    right: 0;
+    bottom: max(58px, calc(env(safe-area-inset-bottom) + 58px));
+    left: 0;
+    z-index: 60;
+    display: grid;
+    grid-template-columns: minmax(92px, 0.9fr) minmax(92px, 0.85fr) minmax(112px, 1fr);
+    gap: 8px;
+    align-items: center;
+    padding: 9px 10px;
+    border-top: 1px solid #d7dde7;
+    background: rgb(248 250 252 / 96%);
+    box-shadow: 0 -10px 24px rgb(15 23 42 / 22%);
+    backdrop-filter: blur(10px);
+  }
+
+  .lineupActionsBar .clearLineupButton,
+  .lineupActionsBar .lineupSubmitButton {
+    position: static;
+    width: auto;
+    min-height: 42px;
+    padding: 0 8px;
+    box-shadow: none;
+  }
+
+  .lineupActionsBar .cancelLineupButton {
+    display: none;
+  }
+
+  .lineupActionScore {
+    display: block;
+    color: #172554;
+    font-size: 11px;
+    font-weight: 900;
+    line-height: 1.15;
+    text-align: center;
+    text-transform: uppercase;
+  }
+
+  .lineupMessage {
+    grid-column: 1 / -1;
+    max-height: 32px;
+    overflow: hidden;
+    text-align: center;
   }
 
   .submittedLineupsHeader,
@@ -1179,14 +1222,17 @@ button:disabled {
   }
 
   .playerBoard {
+    display: flex;
+    min-height: 0;
+    height: 100dvh;
+    flex-direction: column;
     border: 0;
     border-radius: 0;
   }
 
   .playerBoardToolbar {
-    position: sticky;
-    top: 0;
     z-index: 1;
+    flex: 0 0 auto;
     align-items: stretch;
     flex-direction: column;
     padding: 10px;
@@ -1202,6 +1248,14 @@ button:disabled {
     gap: 6px;
     min-height: 104px;
     padding: 10px 6px;
+  }
+
+  .playerRows {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none;
+    overflow-y: auto;
+    padding-bottom: 104px;
   }
 
   .positionTag {
