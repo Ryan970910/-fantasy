@@ -1035,74 +1035,209 @@ button:disabled {
 
 @media (max-width: 860px) {
   .shell {
-    min-width: 1180px;
-    overflow-x: auto;
+    min-width: 0;
+    padding: 0 0 104px;
+    overflow-x: hidden;
   }
 
   .appTopbar,
   .lineupPicker {
-    width: 1180px;
+    width: 100%;
     max-width: none;
+    padding: 0;
   }
 
   .liveHeader,
   .lineupHeader {
-    flex-direction: row;
+    padding: 18px 14px;
+    border-right: 0;
+    border-left: 0;
+    border-radius: 0;
+    flex-direction: column;
   }
 
   .lineupGrid {
-    grid-template-columns: minmax(0, 1fr) 340px;
+    grid-template-columns: 96px minmax(0, 1fr);
+    gap: 0;
+    padding: 0;
+    border-right: 0;
+    border-left: 0;
   }
 
   .lineupSelectionGrid {
-    grid-template-columns: 220px minmax(0, 1fr);
+    grid-template-columns: 96px minmax(0, 1fr);
+    align-items: stretch;
   }
 
   .nextGames {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: 1fr;
+    padding: 10px;
   }
 
   .lineupRail {
     position: sticky;
+    top: 0;
+    z-index: 2;
+    align-self: start;
+    min-height: 100vh;
+    padding: 0;
+    gap: 0;
+    border: 0;
+    border-right: 1px solid #c4cad4;
+    border-radius: 0;
+    background: #d9dde5;
+  }
+
+  .lineupRail h3 {
+    min-height: 44px;
+    padding: 8px 6px;
+    justify-content: center;
+    font-size: 12px;
+  }
+
+  .lineupRail h3 svg {
+    display: none;
   }
 
   .lineupSlotList {
+    gap: 0;
     grid-template-columns: 1fr;
+  }
+
+  .lineupSlotButton {
+    min-height: 78px;
+    padding: 7px 5px;
+    border: 0;
+    border-bottom: 1px solid #c4cad4;
+    border-radius: 0;
+    background: #d9dde5;
+    text-align: center;
+  }
+
+  .lineupSlotButton.active {
+    border-color: #1687d9;
+    background: #fff;
+    box-shadow: inset 4px 0 0 #1687d9;
+  }
+
+  .lineupSlotButton span {
+    font-size: 11px;
+  }
+
+  .lineupSlotButton strong {
+    font-size: 12px;
+    line-height: 1.15;
+    white-space: normal;
+  }
+
+  .lineupSlotButton small {
+    font-size: 11px;
+    line-height: 1.2;
+    white-space: normal;
+  }
+
+  .clearLineupButton,
+  .lineupSubmitButton {
+    position: fixed;
+    z-index: 20;
+    bottom: 12px;
+    min-height: 48px;
+    box-shadow: 0 8px 24px rgb(15 23 42 / 20%);
+  }
+
+  .clearLineupButton {
+    left: 12px;
+    width: calc(38vw - 18px);
+    padding: 0 8px;
+    background: #fff;
+  }
+
+  .lineupRail .clearLineupButton + .clearLineupButton {
+    display: none;
+  }
+
+  .lineupSubmitButton {
+    right: 12px;
+    width: calc(50vw - 18px);
   }
 
   .submittedLineupsHeader,
   .submittedLineupMeta {
-    align-items: center;
-    flex-direction: row;
+    align-items: flex-start;
+    flex-direction: column;
   }
 
   .submittedLineupActions {
-    align-items: center;
-    flex-direction: row;
+    align-items: flex-start;
+    flex-direction: column;
   }
 
   .submittedPlayers {
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: 1fr;
   }
 
-  .playerBoardToolbar,
+  .playerBoard {
+    border: 0;
+    border-radius: 0;
+  }
+
+  .playerBoardToolbar {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    align-items: stretch;
+    flex-direction: column;
+    padding: 10px;
+  }
+
   .toolbarControls {
-    align-items: center;
-    flex-direction: row;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .playerChoice {
-    grid-template-columns: 74px minmax(0, 1fr) 180px 104px;
+    grid-template-columns: 48px minmax(0, 1fr) 72px;
+    gap: 8px;
+    min-height: 104px;
+    padding: 10px 8px;
   }
 
-  .playerStats,
+  .teamBadge {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    font-size: 12px;
+  }
+
+  .playerChoiceMain strong {
+    font-size: 18px;
+    white-space: normal;
+  }
+
+  .playerChoiceMain small,
+  .playerStats small {
+    font-size: 11px;
+    line-height: 1.25;
+  }
+
+  .playerStats {
+    gap: 3px;
+  }
+
+  .playerStats strong {
+    font-size: 20px;
+  }
+
   .selectPill {
-    grid-column: auto;
+    min-height: 36px;
+    padding: 0 8px;
+    font-size: 12px;
   }
 
   .appTopbar {
-    flex-direction: row;
-    align-items: center;
+    padding: 14px;
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .playerTableHead,
