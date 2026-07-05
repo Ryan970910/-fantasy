@@ -54,6 +54,7 @@ type SelectedGameDay = GameDay & {
 type AverageStatsRow = {
   nbaPlayerId: string;
   playerName: string;
+  team: string;
   season: string;
   gamesPlayed: number;
   minutes: number;
@@ -72,6 +73,19 @@ type AverageStatsRow = {
   defensiveRebounds: number;
   source: string;
   sourceUrl: string;
+};
+
+type FallbackPoolPlayer = {
+  id: string;
+  name: string;
+  slug: string;
+  team: string;
+  teamName: string;
+  jersey: string;
+  position: string;
+  height: string;
+  eligibleSlots: string[];
+  stats: AverageStatsRow;
 };
 
 type PlayerIndexRow = [
@@ -321,7 +335,7 @@ async function loadAverageStats(players: Array<{ id: string; name: string }>, cu
          "nbaPlayerId", "season", "gamesPlayed", "minutes", "points", "rebounds", "assists", "steals",
          "blocks", "turnovers", "threesMade", "fieldGoalsMade", "fieldGoalsAttempted",
          "freeThrowsMade", "freeThrowsAttempted", "offensiveRebounds", "defensiveRebounds",
-         "source", "sourceUrl", "playerName"
+         "source", "sourceUrl", "playerName", "team"
        FROM "PlayerAverageStats"
        WHERE "seasonType" = $1
          AND "season" IN ($2, $3)`,
@@ -354,6 +368,59 @@ async function loadAverageStats(players: Array<{ id: string; name: string }>, cu
     console.error("Player average stats lookup failed", error);
     return new Map<string, AverageStatsRow>();
   }
+}
+
+async function loadFallbackPoolPlayers(teamTricodes: Set<string>, currentSeason: string, previousSeason: string) {
+  if (teamTricodes.size === 0) {
+    return [] as FallbackPoolPlayer[];
+  }
+
+  const rows = await prisma.$queryRawUnsafe<AverageStatsRow[]>(
+    `SELECT
+       "nbaPlayerId", "season", "gamesPlayed", "minutes", "points", "rebounds", "assists", "steals",
+       "blocks", "turnovers", "threesMade", "fieldGoalsMade", "fieldGoalsAttempted",
+       "freeThrowsMade", "freeThrowsAttempted", "offensiveRebounds", "defensiveRebounds",
+       "source", "sourceUrl", "playerName", "team"
+     FROM "PlayerAverageStats"
+     WHERE "seasonType" = $1
+       AND "season" IN ($2, $3)
+       AND "team" = ANY($4::text[])`,
+    SEASON_TYPE,
+    currentSeason,
+    previousSeason,
+    Array.from(teamTricodes)
+  );
+
+  const byNameAndTeam = new Map<string, AverageStatsRow[]>();
+  for (const row of rows) {
+    const key = `${normalizeName(row.playerName)}:${row.nbaPlayerId}:${row.team}`;
+    const existing = byNameAndTeam.get(key) || [];
+    existing.push(row);
+    byNameAndTeam.set(key, existing);
+  }
+
+  return Array.from(byNameAndTeam.values()).flatMap((playerRows): FallbackPoolPlayer[] => {
+    const current = playerRows.find((row) => row.season === currentSeason && numberOrZero(row.gamesPlayed) > 0);
+    const previous = playerRows.find((row) => row.season === previousSeason && numberOrZero(row.gamesPlayed) > 0);
+    const fallback = playerRows.find((row) => row.season === currentSeason) || playerRows.find((row) => row.season === previousSeason);
+    const selected = current || previous || fallback;
+    if (!selected) {
+      return [];
+    }
+
+    return [{
+      id: selected.nbaPlayerId,
+      name: selected.playerName,
+      slug: normalizeName(selected.playerName).replace(/\s+/g, "-"),
+      team: selected.team,
+      teamName: selected.team,
+      jersey: "",
+      position: "G-F-C",
+      height: "",
+      eligibleSlots: ["PG", "SG", "SF", "PF", "C"],
+      stats: selected
+    }];
+  }).sort((a, b) => a.team.localeCompare(b.team) || a.name.localeCompare(b.name));
 }
 
 export async function GET() {
@@ -391,12 +458,93 @@ export async function GET() {
   }
 
   try {
-    const playerIndex = await fetchJson(NBA_PLAYER_INDEX_URL);
-    const rows: PlayerIndexRow[] = playerIndex.resultSets?.[0]?.rowSet || [];
     const statSeasons = defaultStatSeasons();
     const candidateTeamTricodes = new Set(
       selectedGameDay.poolGames.flatMap((game) => [game.homeTeam.tricode, game.awayTeam.tricode]).filter(Boolean)
     );
+    let rows: PlayerIndexRow[] = [];
+    let playersSourceUrl = NBA_PLAYER_INDEX_URL;
+    let playersSource = "NBA.com official games page + NBA official playerIndex";
+    const notes: string[] = [
+      ...errors,
+      "Player pool teams are taken only from the selected next game day games.",
+      "NBA.com games cards do not publish full scheduled Summer League rosters before tipoff, so players are pulled from the official NBA playerIndex for those teams.",
+      `Per-game stats prefer ${statSeasons.current} ${SEASON_TYPE}; if unavailable, they fall back to ${statSeasons.previous} ${SEASON_TYPE}.`
+    ];
+
+    try {
+      const playerIndex = await fetchJson(NBA_PLAYER_INDEX_URL);
+      rows = playerIndex.resultSets?.[0]?.rowSet || [];
+    } catch (error) {
+      const fallbackPlayers = await loadFallbackPoolPlayers(candidateTeamTricodes, statSeasons.current, statSeasons.previous);
+      rows = [];
+      playersSourceUrl = "PlayerAverageStats";
+      playersSource = "NBA.com official games page + PlayerAverageStats fallback";
+      notes.push(`NBA playerIndex unavailable (${error instanceof Error ? error.message : "unknown error"}); using PlayerAverageStats fallback.`);
+
+      if (fallbackPlayers.length > 0) {
+        const lockStatus = buildLockStatus(selectedGameDay.games);
+        const lockedTeams = new Set(lockStatus.lockedTeams);
+        const players = fallbackPlayers.map((player) => ({
+          ...player,
+          locked: lockedTeams.has(player.team),
+          lockReason: lockedTeams.has(player.team) ? "Team game has started" : null,
+          stats: {
+            season: player.stats.season,
+            gamesPlayed: numberOrZero(player.stats.gamesPlayed),
+            minutes: numberOrZero(player.stats.minutes),
+            points: numberOrZero(player.stats.points),
+            rebounds: numberOrZero(player.stats.rebounds),
+            assists: numberOrZero(player.stats.assists),
+            steals: numberOrZero(player.stats.steals),
+            blocks: numberOrZero(player.stats.blocks),
+            turnovers: numberOrZero(player.stats.turnovers),
+            threesMade: numberOrZero(player.stats.threesMade),
+            fieldGoalsMade: numberOrZero(player.stats.fieldGoalsMade),
+            fieldGoalsAttempted: numberOrZero(player.stats.fieldGoalsAttempted),
+            freeThrowsMade: numberOrZero(player.stats.freeThrowsMade),
+            freeThrowsAttempted: numberOrZero(player.stats.freeThrowsAttempted),
+            offensiveRebounds: numberOrZero(player.stats.offensiveRebounds),
+            defensiveRebounds: numberOrZero(player.stats.defensiveRebounds),
+            source: player.stats.source,
+            sourceUrl: player.stats.sourceUrl
+          }
+        }));
+        const fallbackTeams = new Set(players.map((player) => player.team));
+        const rosterReadyGames = selectedGameDay.poolGames.filter(
+          (game) => fallbackTeams.has(game.homeTeam.tricode) && fallbackTeams.has(game.awayTeam.tricode)
+        );
+        const ignoredGames = selectedGameDay.poolGames.filter(
+          (game) => !fallbackTeams.has(game.homeTeam.tricode) || !fallbackTeams.has(game.awayTeam.tricode)
+        );
+
+        return NextResponse.json({
+          source: playersSource,
+          gamesSourceUrl: selectedGameDay.sourceUrl,
+          playersSourceUrl,
+          fetchedAt: new Date().toISOString(),
+          gameDate: selectedGameDay.gameDate,
+          games: rosterReadyGames,
+          allGamesOnDate: selectedGameDay.games,
+          ignoredGames,
+          poolMode: selectedGameDay.poolMode,
+          statSeasons,
+          lockStatus,
+          teams: Array.from(fallbackTeams).sort(),
+          players,
+          notes: [
+            ...notes,
+            ...(
+              ignoredGames.length > 0
+                ? [`Ignored games without fallback player stats: ${ignoredGames.map((game) => `${game.awayTeam.tricode}@${game.homeTeam.tricode}`).join(", ")}.`]
+                : []
+            )
+          ]
+        });
+      }
+
+      throw error;
+    }
 
     const candidatePlayers = rows
       .filter((row) => row[19] === 1)
@@ -492,22 +640,16 @@ export async function GET() {
         }
       };
     });
-    const notes = [
-      ...errors,
-      "Player pool teams are taken only from the selected next game day games.",
-      "NBA.com games cards do not publish full scheduled Summer League rosters before tipoff, so players are pulled from the official NBA playerIndex for those teams.",
-      `Per-game stats prefer ${statSeasons.current} ${SEASON_TYPE}; if unavailable, they fall back to ${statSeasons.previous} ${SEASON_TYPE}.`,
-      ...(
-        ignoredGames.length > 0
-          ? [`Ignored games without a complete selectable roster: ${ignoredGames.map((game) => `${game.awayTeam.tricode}@${game.homeTeam.tricode}`).join(", ")}.`]
-          : []
-      )
-    ];
+    notes.push(...(
+      ignoredGames.length > 0
+        ? [`Ignored games without a complete selectable roster: ${ignoredGames.map((game) => `${game.awayTeam.tricode}@${game.homeTeam.tricode}`).join(", ")}.`]
+        : []
+    ));
 
     return NextResponse.json({
-      source: "NBA.com official games page + NBA official playerIndex",
+      source: playersSource,
       gamesSourceUrl: selectedGameDay.sourceUrl,
-      playersSourceUrl: NBA_PLAYER_INDEX_URL,
+      playersSourceUrl,
       fetchedAt: new Date().toISOString(),
       gameDate: selectedGameDay.gameDate,
       games: rosterReadyGames,

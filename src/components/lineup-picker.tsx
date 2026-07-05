@@ -190,12 +190,12 @@ export function LineupPicker() {
     try {
       const response = await fetch("/api/nba/next-player-pool", { cache: "no-store" });
       const payload = (await response.json()) as PoolResponse;
+      setData(payload);
 
       if (!response.ok) {
         throw new Error(payload.error || "Unable to load next game day player pool");
       }
 
-      setData(payload);
       setError(null);
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Unable to load next game day player pool");
@@ -324,7 +324,11 @@ export function LineupPicker() {
     for (const player of submittedLineup.players) {
       if (slots.includes(player.slot as Slot)) {
         const rawPlayerId = player.id.replace(/^nba-/, "");
-        nextLineup[player.slot as Slot] = rawPlayerId;
+        const poolPlayer = data?.players.find((candidate) =>
+          candidate.id === rawPlayerId ||
+          (candidate.name === player.name && candidate.team === player.team)
+        );
+        nextLineup[player.slot as Slot] = poolPlayer?.id || rawPlayerId;
       }
     }
 
