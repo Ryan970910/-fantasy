@@ -1034,58 +1034,75 @@ button:disabled {
 }
 
 @media (max-width: 860px) {
-  .liveHeader,
-  .lineupHeader {
-    flex-direction: column;
+  .shell {
+    min-width: 1180px;
+    overflow-x: auto;
   }
 
-  .liveGrid,
-  .lineupGrid,
+  .appTopbar,
+  .lineupPicker {
+    width: 1180px;
+    max-width: none;
+  }
+
+  .liveHeader,
+  .lineupHeader {
+    flex-direction: row;
+  }
+
+  .lineupGrid {
+    grid-template-columns: minmax(0, 1fr) 340px;
+  }
+
+  .lineupSelectionGrid {
+    grid-template-columns: 220px minmax(0, 1fr);
+  }
+
   .nextGames {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .lineupRail {
-    position: static;
+    position: sticky;
   }
 
   .lineupSlotList {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: 1fr;
   }
 
   .submittedLineupsHeader,
   .submittedLineupMeta {
-    align-items: flex-start;
-    flex-direction: column;
+    align-items: center;
+    flex-direction: row;
   }
 
   .submittedLineupActions {
-    align-items: flex-start;
-    flex-direction: column;
+    align-items: center;
+    flex-direction: row;
   }
 
   .submittedPlayers {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
   }
 
   .playerBoardToolbar,
   .toolbarControls {
-    align-items: stretch;
-    flex-direction: column;
+    align-items: center;
+    flex-direction: row;
   }
 
   .playerChoice {
-    grid-template-columns: 54px minmax(0, 1fr);
+    grid-template-columns: 74px minmax(0, 1fr) 180px 104px;
   }
 
   .playerStats,
   .selectPill {
-    grid-column: 2;
+    grid-column: auto;
   }
 
   .appTopbar {
-    flex-direction: column;
-    align-items: stretch;
+    flex-direction: row;
+    align-items: center;
   }
 
   .playerTableHead,
