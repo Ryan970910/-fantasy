@@ -5,6 +5,7 @@ export const dynamic = "force-dynamic";
 
 const NBA_GAMES_URL = "https://www.nba.com/games";
 const NBA_PLAYER_INDEX_URL = "https://cdn.nba.com/static/json/staticData/playerIndex.json";
+const BBR_PER_GAME_URL = "https://www.basketball-reference.com/leagues/NBA_{year}_per_game.html";
 const REQUEST_TIMEOUT_MS = 8000;
 const SEASON_TYPE = "Regular Season";
 
@@ -178,6 +179,33 @@ async function fetchJson(url: string) {
   return JSON.parse(await fetchText(url));
 }
 
+function htmlDecode(value: string) {
+  return value
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&")
+    .replace(/&#x27;/g, "'")
+    .replace(/&#39;/g, "'")
+    .replace(/&quot;/g, "\"")
+    .replace(/<[^>]+>/g, "")
+    .trim();
+}
+
+function extractRawCell(rowHtml: string, dataStats: string[]) {
+  for (const dataStat of dataStats) {
+    const pattern = new RegExp(`<(?:td|th)[^>]*data-stat="${dataStat}"[^>]*>([\\s\\S]*?)<\\/(?:td|th)>`, "i");
+    const match = rowHtml.match(pattern)?.[1];
+    if (match !== undefined) {
+      return match;
+    }
+  }
+
+  return "";
+}
+
+function extractAnyCell(rowHtml: string, dataStats: string[]) {
+  return htmlDecode(extractRawCell(rowHtml, dataStats));
+}
+
 function extractNextData(html: string) {
   const nameIndex = html.indexOf("__NEXT_DATA__");
   const scriptStart = html.lastIndexOf("<script", nameIndex);
@@ -269,6 +297,10 @@ function seasonLabel(startYear: number) {
   return `${startYear}-${String(startYear + 1).slice(-2)}`;
 }
 
+function bbrYearFromSeason(season: string) {
+  return Number(`20${season.slice(-2)}`);
+}
+
 function defaultStatSeasons() {
   const now = new Date();
   const year = now.getFullYear();
@@ -348,6 +380,45 @@ function normalizeName(value: string) {
     .replace(/\s+/g, " ")
     .trim()
     .toLowerCase();
+}
+
+function normalizeTeam(value: string) {
+  const teamMap: Record<string, string> = {
+    BRK: "BKN",
+    CHO: "CHA",
+    NOH: "NOP",
+    NOK: "NOP",
+    PHO: "PHX"
+  };
+  return teamMap[value] || value;
+}
+
+async function loadFallbackPositions(teamTricodes: Set<string>, currentSeason: string, previousSeason: string) {
+  const positions = new Map<string, string>();
+
+  for (const season of [currentSeason, previousSeason]) {
+    try {
+      const html = await fetchText(BBR_PER_GAME_URL.replace("{year}", String(bbrYearFromSeason(season))));
+      for (const match of html.matchAll(/<tr[^>]*>([\s\S]*?)<\/tr>/gi)) {
+        const rowHtml = match[1];
+        const playerName = extractAnyCell(rowHtml, ["name_display", "player"]);
+        const team = normalizeTeam(extractAnyCell(rowHtml, ["team_name_abbr", "team_id"]));
+        const position = extractAnyCell(rowHtml, ["pos"]);
+        if (!playerName || playerName === "Player" || !teamTricodes.has(team) || !position) {
+          continue;
+        }
+
+        const key = `${normalizeName(playerName)}:${team}`;
+        if (!positions.has(key)) {
+          positions.set(key, position);
+        }
+      }
+    } catch (error) {
+      console.error(`Fallback position lookup failed for ${season}`, error);
+    }
+  }
+
+  return positions;
 }
 
 function gameStarted(game: GameSummary, now = Date.now()) {
@@ -461,9 +532,16 @@ async function loadFallbackPoolPlayers(teamTricodes: Set<string>, currentSeason:
     byNameAndTeam.set(key, existing);
   }
 
+  const fallbackPositions = await loadFallbackPositions(teamTricodes, currentSeason, previousSeason);
+
   return Array.from(byNameAndTeam.values()).flatMap((playerRows): FallbackPoolPlayer[] => {
     const selected = choosePreferredStatsRow(playerRows, currentSeason, previousSeason);
     if (!selected) {
+      return [];
+    }
+    const position = fallbackPositions.get(`${normalizeName(selected.playerName)}:${selected.team}`) || "";
+    const slots = eligibleSlots(position);
+    if (!slots.length) {
       return [];
     }
 
@@ -474,9 +552,9 @@ async function loadFallbackPoolPlayers(teamTricodes: Set<string>, currentSeason:
       team: selected.team,
       teamName: selected.team,
       jersey: "",
-      position: "G-F-C",
+      position,
       height: "",
-      eligibleSlots: ["PG", "SG", "SF", "PF", "C"],
+      eligibleSlots: slots,
       stats: selected
     }];
   }).sort((a, b) => a.team.localeCompare(b.team) || a.name.localeCompare(b.name));

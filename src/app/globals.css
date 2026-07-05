@@ -1126,8 +1126,8 @@ button:disabled {
   }
 
   .lineupSlotButton {
-    min-height: 112px;
-    padding: 5px 4px;
+    min-height: 90px;
+    padding: 6px 4px;
     border: 0;
     border-bottom: 1px solid #c4cad4;
     border-radius: 0;
@@ -1143,11 +1143,15 @@ button:disabled {
   }
 
   .lineupSlotButton span {
-    display: none;
+    display: block;
+    color: #5b6678;
+    font-size: 11px;
+    font-weight: 900;
+    line-height: 1;
   }
 
   .lineupSlotButton strong {
-    font-size: 13px;
+    font-size: 12px;
     line-height: 1.15;
     overflow: visible;
     overflow-wrap: anywhere;

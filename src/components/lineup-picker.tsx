@@ -517,7 +517,7 @@ export function LineupPicker() {
                     disabled={disabled}
                     onClick={() => choosePlayer(player.id)}
                   >
-                    <span className="positionTag">{activeSlot}</span>
+                    <span className="positionTag">{player.position || activeSlot}</span>
                     <span className="playerChoiceMain">
                       <strong>{player.name}</strong>
                       <small>{playerGameLabel(player, data.allGamesOnDate?.length ? data.allGamesOnDate : data.games)}</small>
