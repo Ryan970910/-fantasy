@@ -206,6 +206,8 @@ export function LineupPicker() {
   const [submittedLineups, setSubmittedLineups] = useState<SubmittedLineup[]>([]);
   const [lineupsError, setLineupsError] = useState<string | null>(null);
   const [editingLineupId, setEditingLineupId] = useState<string | null>(null);
+  const [submittedTab, setSubmittedTab] = useState<"current" | "history">("current");
+  const [expandedLineupIds, setExpandedLineupIds] = useState<Set<string>>(() => new Set());
   const [activeSlot, setActiveSlot] = useState<Slot>("PG");
   const [sortMode, setSortMode] = useState<SortMode>("fantasy");
   const [teamFilter, setTeamFilter] = useState("ALL");
@@ -281,6 +283,11 @@ export function LineupPicker() {
     () => submittedLineups.filter((submittedLineup) => submittedLineup.gameDate && submittedLineup.gameDate === currentGameDate),
     [currentGameDate, submittedLineups]
   );
+  const historicalLineups = useMemo(
+    () => submittedLineups.filter((submittedLineup) => !submittedLineup.gameDate || submittedLineup.gameDate !== currentGameDate),
+    [currentGameDate, submittedLineups]
+  );
+  const visibleSubmittedLineups = submittedTab === "current" ? currentGameDayLineups : historicalLineups;
   const hasSubmittedLineup = currentGameDayLineups.length > 0;
   const hasLockedTeams = Boolean(data?.lockStatus?.lockedTeams?.length);
   const showPicker = !hasSubmittedLineup || Boolean(editingLineupId);
@@ -380,6 +387,18 @@ export function LineupPicker() {
   function cancelEditLineup() {
     clearLineup();
     setEditingLineupId(null);
+  }
+
+  function toggleLineupExpanded(lineupId: string) {
+    setExpandedLineupIds((current) => {
+      const next = new Set(current);
+      if (next.has(lineupId)) {
+        next.delete(lineupId);
+      } else {
+        next.add(lineupId);
+      }
+      return next;
+    });
   }
 
   async function submitLineup() {
@@ -588,6 +607,29 @@ export function LineupPicker() {
           <span>{submittedLineups.length} submitted</span>
         </div>
 
+        <div className="submittedLineupTabs" role="tablist" aria-label="Submitted lineups">
+          <button
+            className={`submittedLineupTab${submittedTab === "current" ? " active" : ""}`}
+            type="button"
+            role="tab"
+            aria-selected={submittedTab === "current"}
+            onClick={() => setSubmittedTab("current")}
+          >
+            Current lineup
+            <span>{currentGameDayLineups.length}</span>
+          </button>
+          <button
+            className={`submittedLineupTab${submittedTab === "history" ? " active" : ""}`}
+            type="button"
+            role="tab"
+            aria-selected={submittedTab === "history"}
+            onClick={() => setSubmittedTab("history")}
+          >
+            History lineup
+            <span>{historicalLineups.length}</span>
+          </button>
+        </div>
+
         {lineupsError ? (
           <div className="lineupEmpty">
             <strong>Unable to load submitted lineup</strong>
@@ -602,36 +644,89 @@ export function LineupPicker() {
           </div>
         ) : null}
 
-        {!lineupsError && submittedLineups.map((submittedLineup) => (
-          <article key={submittedLineup.id} className="submittedLineupCard">
-            <div className="submittedLineupMeta">
-              <div>
-                <strong>{submittedLineup.name}</strong>
-                <small>Game day {formatDateTime(submittedLineup.gameDay)} | Submitted {formatDateTime(submittedLineup.createdAt)}</small>
-              </div>
-              <div className="submittedLineupActions">
-                <span>{submittedLineup.totalPoints.toFixed(1)}</span>
-                <button
-                  type="button"
-                  onClick={() => startEditLineup(submittedLineup)}
-                  disabled={submittedLineup.gameDate !== currentGameDate}
+        {!lineupsError && submittedLineups.length > 0 && visibleSubmittedLineups.length === 0 ? (
+          <div className="lineupEmpty">
+            <strong>{submittedTab === "current" ? "No current lineup" : "No historical lineup"}</strong>
+            <span>
+              {submittedTab === "current"
+                ? "The lineup for this game day will show here after you submit it."
+                : "Older game day lineups will show here after a new game day opens."}
+            </span>
+          </div>
+        ) : null}
+
+        {!lineupsError && visibleSubmittedLineups.length > 0 ? (
+          <div className="submittedLineupList">
+            {visibleSubmittedLineups.map((submittedLineup) => {
+              const isExpanded = expandedLineupIds.has(submittedLineup.id);
+              const canEdit = submittedLineup.gameDate === currentGameDate;
+              return (
+                <article
+                  key={submittedLineup.id}
+                  className={`submittedLineupCard${isExpanded ? " expanded" : ""}`}
                 >
-                  {submittedLineup.gameDate !== currentGameDate ? "Locked" : "Edit"}
-                </button>
-              </div>
-            </div>
-            <div className="submittedPlayers">
-              {submittedLineup.players.map((player) => (
-                <div key={`${submittedLineup.id}-${player.slot}-${player.id}`} className="submittedPlayer">
-                  <span>{player.slot}</span>
-                  <strong>{player.name}</strong>
-                  <small>{player.team} | {player.position}</small>
-                  <em>{player.fantasyPoints.toFixed(1)}</em>
-                </div>
-              ))}
-            </div>
-          </article>
-        ))}
+                  <button
+                    className="submittedLineupSummary"
+                    type="button"
+                    aria-expanded={isExpanded}
+                    onClick={() => toggleLineupExpanded(submittedLineup.id)}
+                  >
+                    <span className="lineupThumbTop">
+                      <span>{submittedLineup.name}</span>
+                      <strong>{submittedLineup.totalPoints.toFixed(1)}</strong>
+                    </span>
+                    <span className="lineupThumbMeta">
+                      Game day {formatDateTime(submittedLineup.gameDay)}
+                    </span>
+                    <span className="lineupMiniPlayers" aria-hidden="true">
+                      {slots.map((slot) => {
+                        const player = submittedLineup.players.find((candidate) => candidate.slot === slot);
+                        return (
+                          <span key={`${submittedLineup.id}-thumb-${slot}`} className="lineupMiniPlayer">
+                            <span>{slot}</span>
+                            <strong>{player?.name || "Open"}</strong>
+                          </span>
+                        );
+                      })}
+                    </span>
+                    <span className="lineupExpandHint">{isExpanded ? "Click to collapse" : "Click to expand"}</span>
+                  </button>
+
+                  <div className="submittedLineupFooter">
+                    <small>Submitted {formatDateTime(submittedLineup.createdAt)}</small>
+                    <button
+                      className="submittedLineupEdit"
+                      type="button"
+                      onClick={() => startEditLineup(submittedLineup)}
+                      disabled={!canEdit}
+                    >
+                      {canEdit ? "Edit" : "Locked"}
+                    </button>
+                  </div>
+
+                  {isExpanded ? (
+                    <div className="submittedPlayers">
+                      {slots.map((slot) => {
+                        const player = submittedLineup.players.find((candidate) => candidate.slot === slot);
+                        return (
+                          <div
+                            key={`${submittedLineup.id}-${slot}-${player?.id || "open"}`}
+                            className="submittedPlayer"
+                          >
+                            <span>{slot}</span>
+                            <strong>{player?.name || "Open"}</strong>
+                            <small>{player ? `${player.team} | ${player.position}` : "No player selected"}</small>
+                            <em>{player ? player.fantasyPoints.toFixed(1) : "0.0"}</em>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  ) : null}
+                </article>
+              );
+            })}
+          </div>
+        ) : null}
       </section>
     </section>
   );

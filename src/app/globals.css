@@ -916,7 +916,7 @@ button:disabled {
 }
 
 .submittedLineupsHeader span,
-.submittedLineupMeta span {
+.lineupThumbTop strong {
   color: var(--court-light);
   font-weight: 900;
 }
@@ -937,38 +937,149 @@ button:disabled {
 
 .submittedLineupCard {
   display: grid;
-  gap: 12px;
-  padding: 14px;
+  gap: 10px;
+  min-width: 0;
+  padding: 12px;
   border: 1px solid rgb(255 255 255 / 10%);
   border-radius: 8px;
   background: rgb(255 255 255 / 8%);
 }
 
-.submittedLineupMeta strong {
+.submittedLineupCard.expanded {
+  grid-column: 1 / -1;
+}
+
+.submittedLineupList {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+}
+
+.submittedLineupTabs {
+  display: flex;
+  gap: 6px;
+  width: fit-content;
+  padding: 4px;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 8%);
+}
+
+.submittedLineupTab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 999px;
+  color: var(--muted);
+  background: transparent;
+  font-weight: 900;
+  cursor: pointer;
+}
+
+.submittedLineupTab.active {
+  color: #08111f;
+  background: #fff;
+}
+
+.submittedLineupTab span {
+  display: inline-grid;
+  min-width: 22px;
+  height: 22px;
+  place-items: center;
+  border-radius: 999px;
+  color: #fff;
+  background: #c9082a;
+  font-size: 12px;
+}
+
+.submittedLineupSummary {
+  display: grid;
+  gap: 10px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  color: #fff;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.lineupThumbTop {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.lineupThumbTop span {
+  overflow: hidden;
   color: #fff;
   font-size: 18px;
+  font-weight: 900;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.submittedLineupMeta small {
-  display: block;
-  margin-top: 3px;
-  color: var(--muted);
-}
-
-.submittedLineupMeta span {
+.lineupThumbTop strong {
   color: #f59e0b;
   font-size: 26px;
+  line-height: 1;
 }
 
-.submittedLineupActions {
+.lineupThumbMeta,
+.submittedLineupFooter small,
+.lineupExpandHint {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.lineupMiniPlayers {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.lineupMiniPlayer {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  min-height: 54px;
+  align-content: center;
+  padding: 6px;
+  border: 1px solid rgb(255 255 255 / 8%);
+  border-radius: 6px;
+  background: rgb(7 17 31 / 72%);
+}
+
+.lineupMiniPlayer span {
+  color: var(--court-light);
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.lineupMiniPlayer strong {
+  overflow: hidden;
+  color: #fff;
+  font-size: 11px;
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.submittedLineupFooter {
   display: flex;
   gap: 10px;
   align-items: center;
+  justify-content: space-between;
+  padding-top: 2px;
 }
 
-.submittedLineupActions button {
-  min-height: 36px;
-  padding: 0 16px;
+.submittedLineupEdit {
+  min-height: 34px;
+  padding: 0 14px;
   border: 1px solid rgb(255 255 255 / 18%);
   border-radius: 999px;
   color: #fff;
@@ -977,11 +1088,11 @@ button:disabled {
   cursor: pointer;
 }
 
-.submittedLineupActions button:hover {
+.submittedLineupEdit:hover {
   background: #1d4ed8;
 }
 
-.submittedLineupActions button:disabled {
+.submittedLineupEdit:disabled {
   opacity: 0.56;
   cursor: not-allowed;
 }
@@ -1212,6 +1323,33 @@ button:disabled {
 
   .submittedLineupsHeader,
   .submittedLineupMeta {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .submittedLineupTabs {
+    width: 100%;
+  }
+
+  .submittedLineupTab {
+    flex: 1;
+    justify-content: center;
+    padding: 0 10px;
+  }
+
+  .submittedLineupList {
+    grid-template-columns: 1fr;
+  }
+
+  .submittedLineupCard.expanded {
+    grid-column: auto;
+  }
+
+  .lineupMiniPlayers {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .submittedLineupFooter {
     align-items: flex-start;
     flex-direction: column;
   }
