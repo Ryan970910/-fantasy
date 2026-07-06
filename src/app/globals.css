@@ -1281,7 +1281,7 @@ button:disabled {
     left: 0;
     z-index: 60;
     display: grid;
-    grid-template-columns: minmax(92px, 0.9fr) minmax(92px, 0.85fr) minmax(112px, 1fr);
+    grid-template-columns: minmax(78px, 0.75fr) minmax(78px, 0.75fr) minmax(64px, 0.6fr) minmax(106px, 1fr);
     gap: 8px;
     align-items: center;
     padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
@@ -1291,17 +1291,23 @@ button:disabled {
     backdrop-filter: blur(10px);
   }
 
+  .lineupActionsBar:not(:has(.cancelLineupButton)) {
+    grid-template-columns: minmax(92px, 0.9fr) minmax(92px, 0.85fr) minmax(112px, 1fr);
+  }
+
   .lineupActionsBar .clearLineupButton,
+  .lineupActionsBar .cancelLineupButton,
   .lineupActionsBar .lineupSubmitButton {
     position: static;
     width: auto;
     min-height: 42px;
-    padding: 0 8px;
+    padding: 0 6px;
     box-shadow: none;
+    font-size: 12px;
   }
 
   .lineupActionsBar .cancelLineupButton {
-    display: none;
+    min-height: 38px;
   }
 
   .lineupActionScore {
