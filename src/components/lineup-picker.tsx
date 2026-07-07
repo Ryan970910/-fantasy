@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 
 const slots = ["PG", "SG", "SF", "PF", "C"] as const;
 const lockedLabel = "\u5df2\u9501\u5b9a";
-const LINEUP_SALARY_CAP = 100;
+const LINEUP_SALARY_CAP = 125;
 type Slot = (typeof slots)[number];
 type SortMode = "fantasy" | "points" | "rebounds" | "assists" | "name";
 

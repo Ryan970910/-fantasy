@@ -7,7 +7,7 @@ export const dynamic = "force-dynamic";
 
 const slots = ["PG", "SG", "SF", "PF", "C"] as const;
 const BEIJING_OFFSET_MS = 8 * 60 * 60 * 1000;
-const LINEUP_SALARY_CAP = 100;
+const LINEUP_SALARY_CAP = 125;
 const MIN_PLAYER_SALARY = 5;
 const MAX_PLAYER_SALARY = 45;
 
