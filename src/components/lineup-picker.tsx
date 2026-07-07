@@ -207,6 +207,7 @@ export function LineupPicker() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState<string | null>(null);
+  const [salaryCapPopupOpen, setSalaryCapPopupOpen] = useState(false);
   const [submittedLineups, setSubmittedLineups] = useState<SubmittedLineup[]>([]);
   const [lineupsError, setLineupsError] = useState<string | null>(null);
   const [editingLineupId, setEditingLineupId] = useState<string | null>(null);
@@ -438,7 +439,7 @@ export function LineupPicker() {
       return;
     }
     if (salaryCapExceeded) {
-      setSubmitMessage(salaryCapWarning);
+      setSalaryCapPopupOpen(true);
       return;
     }
 
@@ -578,11 +579,6 @@ export function LineupPicker() {
                 <strong>${projectedLineupSalary} / ${LINEUP_SALARY_CAP}</strong>
                 <small>{remainingSalary >= 0 ? `$${remainingSalary} left` : `$${Math.abs(remainingSalary)} over`}</small>
               </div>
-              {salaryCapWarning ? (
-                <strong className="salaryCapWarning" role="alert" aria-live="polite">
-                  {salaryCapWarning}
-                </strong>
-              ) : null}
               <button className="clearLineupButton" type="button" onClick={clearLineup}>
                 Clear lineup
               </button>
@@ -599,10 +595,10 @@ export function LineupPicker() {
                 Fantasy {projectedLineupScore.toFixed(1)} | ${projectedLineupSalary}/${LINEUP_SALARY_CAP}
               </span>
               <button
-                className={`lineupSubmitButton${lineupComplete && !salaryCapExceeded ? " ready" : ""}`}
+                className={`lineupSubmitButton${lineupComplete && !salaryCapExceeded ? " ready" : ""}${lineupComplete && salaryCapExceeded ? " overCap" : ""}`}
                 type="button"
                 onClick={() => void submitLineup()}
-                disabled={!lineupComplete || salaryCapExceeded || submitting}
+                disabled={!lineupComplete || submitting}
               >
                 {submitting ? "Saving" : editingLineupId ? "Save changes" : "Submit"}
               </button>
@@ -674,6 +670,26 @@ export function LineupPicker() {
               <small>{formatGameTime(game.startTimeUTC)} - {game.statusText}</small>
             </div>
           ))}
+        </div>
+      ) : null}
+
+      {salaryCapPopupOpen && salaryCapWarning ? (
+        <div className="lineupPopupBackdrop" role="presentation" onClick={() => setSalaryCapPopupOpen(false)}>
+          <div
+            className="lineupPopup"
+            role="alertdialog"
+            aria-modal="true"
+            aria-labelledby="salary-cap-popup-title"
+            aria-describedby="salary-cap-popup-message"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <p className="eyebrow">Salary cap</p>
+            <h3 id="salary-cap-popup-title">Lineup exceeds cap</h3>
+            <p id="salary-cap-popup-message">{salaryCapWarning}</p>
+            <button type="button" onClick={() => setSalaryCapPopupOpen(false)}>
+              OK
+            </button>
+          </div>
         </div>
       ) : null}
 

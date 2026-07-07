@@ -665,6 +665,13 @@ button:disabled {
   box-shadow: 0 12px 24px rgb(201 8 42 / 28%);
 }
 
+.lineupSubmitButton.overCap {
+  border-color: rgb(216 27 72 / 28%);
+  background: #d81b48;
+  cursor: pointer;
+  box-shadow: 0 10px 22px rgb(216 27 72 / 22%);
+}
+
 .lineupSubmitButton.ready:hover:not(:disabled) {
   transform: translateY(-1px);
   box-shadow: 0 16px 30px rgb(23 64 139 / 32%);
@@ -678,17 +685,6 @@ button:disabled {
   color: #172554;
   font-size: 12px;
   line-height: 1.35;
-}
-
-.salaryCapWarning {
-  display: block;
-  padding: 8px 10px;
-  border: 1px solid rgb(216 27 72 / 32%);
-  border-radius: 8px;
-  color: #d81b48;
-  background: #fff1f3;
-  font-size: 12px;
-  line-height: 1.25;
 }
 
 .playerBoard {
@@ -931,6 +927,50 @@ button:disabled {
 .nextGame span,
 .nextGame small {
   color: var(--muted);
+}
+
+.lineupPopupBackdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: rgb(2 6 23 / 58%);
+  backdrop-filter: blur(6px);
+}
+
+.lineupPopup {
+  width: min(360px, 100%);
+  padding: 22px;
+  border: 1px solid rgb(255 255 255 / 18%);
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 24px 60px rgb(15 23 42 / 36%);
+}
+
+.lineupPopup h3 {
+  margin: 6px 0 8px;
+  color: #0f1f44;
+  font-size: 24px;
+}
+
+.lineupPopup p:not(.eyebrow) {
+  margin: 0 0 18px;
+  color: #475467;
+  font-size: 15px;
+  line-height: 1.45;
+}
+
+.lineupPopup button {
+  width: 100%;
+  min-height: 44px;
+  border: 0;
+  border-radius: 8px;
+  color: #fff;
+  background: linear-gradient(90deg, #c9082a, #17408b);
+  font-weight: 900;
+  cursor: pointer;
 }
 
 .submittedLineups {
@@ -1377,23 +1417,8 @@ button:disabled {
     backdrop-filter: blur(10px);
   }
 
-  .lineupActionsBar:has(.salaryCapWarning) {
-    grid-template-rows: auto auto;
-  }
-
   .lineupActionsBar:not(:has(.cancelLineupButton)) {
     grid-template-columns: minmax(92px, 0.9fr) minmax(92px, 0.85fr) minmax(112px, 1fr);
-  }
-
-  .lineupActionsBar .salaryCapWarning {
-    grid-column: 1 / -1;
-    padding: 4px 6px;
-    border: 0;
-    background: transparent;
-    font-size: 11px;
-    font-weight: 900;
-    line-height: 1.1;
-    text-align: center;
   }
 
   .lineupActionsBar .clearLineupButton,
