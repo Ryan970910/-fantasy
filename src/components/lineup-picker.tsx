@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 
 const slots = ["PG", "SG", "SF", "PF", "C"] as const;
 const lockedLabel = "\u5df2\u9501\u5b9a";
+const LINEUP_SALARY_CAP = 100;
 type Slot = (typeof slots)[number];
 type SortMode = "fantasy" | "points" | "rebounds" | "assists" | "name";
 
@@ -16,6 +17,7 @@ type PoolPlayer = {
   jersey: string;
   position: string;
   height: string;
+  salary: number;
   eligibleSlots: string[];
   locked?: boolean;
   lockReason?: string | null;
@@ -74,6 +76,7 @@ type SubmittedLineup = {
   id: string;
   name: string;
   gameDate: string | null;
+  totalSalary: number;
   totalPoints: number;
   gameDay: string;
   createdAt: string;
@@ -83,6 +86,7 @@ type SubmittedLineup = {
     name: string;
     team: string;
     position: string;
+    salary: number;
     fantasyPoints: number;
     stats: {
       points: number;
@@ -278,6 +282,12 @@ export function LineupPicker() {
     () => selectedPlayers.reduce((total, player) => total + (player ? projectedScore(player) : 0), 0),
     [selectedPlayers]
   );
+  const projectedLineupSalary = useMemo(
+    () => selectedPlayers.reduce((total, player) => total + (player ? statValue(player.salary) : 0), 0),
+    [selectedPlayers]
+  );
+  const remainingSalary = LINEUP_SALARY_CAP - projectedLineupSalary;
+  const salaryCapExceeded = projectedLineupSalary > LINEUP_SALARY_CAP;
   const lineupComplete = selectedPlayers.every(Boolean);
   const currentGameDate = data?.gameDate || null;
   const currentGameDayLineups = useMemo(
@@ -547,7 +557,7 @@ export function LineupPicker() {
                     <strong>{player ? player.name : "Open"}</strong>
                     <small>
                       {player
-                        ? `${player.team} | ${formatStatValue(player.stats.points)} PTS | ${player.locked ? lockedLabel : player.stats.season || "stats"}`
+                        ? `${player.team} | $${player.salary} | ${formatStatValue(player.stats.points)} PTS`
                         : "Tap to fill"}
                     </small>
                   </button>
@@ -556,6 +566,11 @@ export function LineupPicker() {
             </div>
 
             <div className="lineupActionsBar">
+              <div className={`salaryCapMeter${salaryCapExceeded ? " over" : ""}`}>
+                <span>Salary</span>
+                <strong>${projectedLineupSalary} / ${LINEUP_SALARY_CAP}</strong>
+                <small>{remainingSalary >= 0 ? `$${remainingSalary} left` : `$${Math.abs(remainingSalary)} over`}</small>
+              </div>
               <button className="clearLineupButton" type="button" onClick={clearLineup}>
                 Clear lineup
               </button>
@@ -568,12 +583,14 @@ export function LineupPicker() {
                   Cancel create
                 </button>
               ) : null}
-              <span className="lineupActionScore">Fantasy {projectedLineupScore.toFixed(1)}</span>
+              <span className={`lineupActionScore${salaryCapExceeded ? " over" : ""}`}>
+                Fantasy {projectedLineupScore.toFixed(1)} | ${projectedLineupSalary}/${LINEUP_SALARY_CAP}
+              </span>
               <button
                 className={`lineupSubmitButton${lineupComplete ? " ready" : ""}`}
                 type="button"
                 onClick={() => void submitLineup()}
-                disabled={!lineupComplete || submitting}
+                disabled={!lineupComplete || salaryCapExceeded || submitting}
               >
                 {submitting ? "Saving" : editingLineupId ? "Save changes" : "Submit"}
               </button>
@@ -625,7 +642,7 @@ export function LineupPicker() {
                     <span className="playerStats">
                       <small className="playerStatsLabel">Fantasy</small>
                       <strong>{projectedScore(player).toFixed(1)}</strong>
-                      <small>{formatStatValue(player.stats.minutes ?? null)} MIN</small>
+                      <small>${player.salary} | {formatStatValue(player.stats.minutes ?? null)} MIN</small>
                     </span>
                     <span className="selectPill">{player.locked ? lockedLabel : selectedForActiveSlot ? "Selected" : "Select"}</span>
                   </button>
@@ -729,13 +746,13 @@ export function LineupPicker() {
                     aria-expanded={isExpanded}
                     onClick={() => toggleLineupExpanded(submittedLineup.id)}
                   >
-                    <span className="lineupThumbTop">
-                      <span>{submittedLineup.name}</span>
-                      <strong>{submittedLineup.totalPoints.toFixed(1)}</strong>
-                    </span>
-                    <span className="lineupThumbMeta">
-                      Game day {formatDateTime(submittedLineup.gameDay)}
-                    </span>
+                      <span className="lineupThumbTop">
+                        <span>{submittedLineup.name}</span>
+                        <strong>{submittedLineup.totalPoints.toFixed(1)}</strong>
+                      </span>
+                      <span className="lineupThumbMeta">
+                      Game day {formatDateTime(submittedLineup.gameDay)} | Salary ${submittedLineup.totalSalary || 0}/${LINEUP_SALARY_CAP}
+                      </span>
                     <span className="lineupMiniPlayers" aria-hidden="true">
                       {slots.map((slot) => {
                         const player = submittedLineup.players.find((candidate) => candidate.slot === slot);
@@ -743,6 +760,7 @@ export function LineupPicker() {
                           <span key={`${submittedLineup.id}-thumb-${slot}`} className="lineupMiniPlayer">
                             <span>{slot}</span>
                             <strong>{player?.name || "Open"}</strong>
+                            <small>{player ? `$${player.salary || 0}` : "$0"}</small>
                           </span>
                         );
                       })}
@@ -790,7 +808,7 @@ export function LineupPicker() {
                             <span>{slot}</span>
                             <strong>{player?.name || "Open"}</strong>
                             <small>{player ? `${player.team} | ${player.position}` : "No player selected"}</small>
-                            <em>{player ? player.fantasyPoints.toFixed(1) : "0.0"}</em>
+                            <em>{player ? `$${player.salary || 0} | ${player.fantasyPoints.toFixed(1)}` : "$0 | 0.0"}</em>
                           </div>
                         );
                       })}

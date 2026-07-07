@@ -7,6 +7,9 @@ export const dynamic = "force-dynamic";
 
 const slots = ["PG", "SG", "SF", "PF", "C"] as const;
 const BEIJING_OFFSET_MS = 8 * 60 * 60 * 1000;
+const LINEUP_SALARY_CAP = 100;
+const MIN_PLAYER_SALARY = 5;
+const MAX_PLAYER_SALARY = 45;
 
 type Slot = (typeof slots)[number];
 
@@ -15,7 +18,9 @@ type SubmittedPlayer = {
   name?: string;
   team?: string;
   position?: string;
+  salary?: number | null;
   stats?: {
+    minutes?: number | null;
     points?: number | null;
     rebounds?: number | null;
     assists?: number | null;
@@ -48,6 +53,7 @@ type SubmitLineupBody = {
 type LineupRow = {
   lineupId: string;
   lineupName: string;
+  totalSalary: number;
   totalPoints: number;
   gameDay: Date;
   createdAt: Date;
@@ -56,6 +62,7 @@ type LineupRow = {
   playerName: string;
   team: string;
   playerPosition: string;
+  salary: number;
   fantasyPoints: number;
   points: number;
   rebounds: number;
@@ -83,6 +90,10 @@ function numberOrZero(value: number | null | undefined) {
   return typeof value === "number" && Number.isFinite(value) ? value : 0;
 }
 
+function clamp(value: number, min: number, max: number) {
+  return Math.min(max, Math.max(min, value));
+}
+
 function fantasyScore(stats: NonNullable<SubmittedPlayer["stats"]>) {
   const missedFieldGoals = Math.max(0, numberOrZero(stats.fieldGoalsAttempted) - numberOrZero(stats.fieldGoalsMade));
   const missedFreeThrows = Math.max(0, numberOrZero(stats.freeThrowsAttempted) - numberOrZero(stats.freeThrowsMade));
@@ -101,6 +112,10 @@ function fantasyScore(stats: NonNullable<SubmittedPlayer["stats"]>) {
     numberOrZero(stats.blocks) * 1.8 -
     numberOrZero(stats.turnovers)
   );
+}
+
+function playerSalaryFromStats(stats: NonNullable<SubmittedPlayer["stats"]>) {
+  return clamp(Math.round(5 + fantasyScore(stats) * 0.85 + numberOrZero(stats.minutes) * 0.2), MIN_PLAYER_SALARY, MAX_PLAYER_SALARY);
 }
 
 function beijingNow() {
@@ -180,6 +195,7 @@ function normalizePlayer(slot: Slot, player: SubmittedPlayer | null | undefined)
   const freeThrowsAttempted = numberOrZero(player?.stats?.freeThrowsAttempted);
   const offensiveRebounds = numberOrZero(player?.stats?.offensiveRebounds);
   const defensiveRebounds = numberOrZero(player?.stats?.defensiveRebounds);
+  const salary = playerSalaryFromStats(player?.stats || {});
 
   return {
     id: `nba-${id}`,
@@ -187,6 +203,7 @@ function normalizePlayer(slot: Slot, player: SubmittedPlayer | null | undefined)
     name,
     team,
     position,
+    salary,
     ppg: points,
     rpg: rebounds,
     apg: assists,
@@ -229,6 +246,7 @@ export async function GET() {
     `SELECT
        l."id" AS "lineupId",
        l."name" AS "lineupName",
+       l."totalSalary" AS "totalSalary",
        l."totalPoints" AS "totalPoints",
        l."gameDay" AS "gameDay",
        l."createdAt" AS "createdAt",
@@ -237,6 +255,7 @@ export async function GET() {
        p."name" AS "playerName",
        p."team" AS "team",
        p."position" AS "playerPosition",
+       p."salary" AS "salary",
        p."fppg" AS "fantasyPoints",
        p."ppg" AS "points",
        p."rpg" AS "rebounds",
@@ -258,6 +277,7 @@ export async function GET() {
         id: row.lineupId,
         name: row.lineupName,
         gameDate: gameDateFromLineupName(row.lineupName),
+        totalSalary: Number(row.totalSalary) || 0,
         totalPoints: Number(row.totalPoints) || 0,
         gameDay: row.gameDay.toISOString(),
         createdAt: row.createdAt.toISOString(),
@@ -267,6 +287,7 @@ export async function GET() {
           name: string;
           team: string;
           position: string;
+          salary: number;
           fantasyPoints: number;
           stats: {
             points: number;
@@ -285,6 +306,7 @@ export async function GET() {
         name: row.playerName,
         team: row.team,
         position: row.playerPosition,
+        salary: Number(row.salary) || 0,
         fantasyPoints: Number(row.fantasyPoints) || 0,
         stats: {
           points: Number(row.points) || 0,
@@ -302,6 +324,7 @@ export async function GET() {
       id: string;
       name: string;
       gameDate: string | null;
+      totalSalary: number;
       totalPoints: number;
       gameDay: string;
       createdAt: string;
@@ -311,6 +334,7 @@ export async function GET() {
         name: string;
         team: string;
         position: string;
+        salary: number;
         fantasyPoints: number;
         stats: {
           points: number;
@@ -360,6 +384,10 @@ export async function POST(request: Request) {
     const lineupName = body.gameDate ? `Lineup ${body.gameDate}` : "My Lineup";
     const gameDay = earliestBeijingGameTime(body.games, body.gameDate);
     const totalPoints = selectedPlayers.reduce((sum, { player }) => sum + player.fppg, 0);
+    const totalSalary = selectedPlayers.reduce((sum, { player }) => sum + player.salary, 0);
+    if (totalSalary > LINEUP_SALARY_CAP) {
+      return jsonError(`Lineup salary $${totalSalary} exceeds the $${LINEUP_SALARY_CAP} cap.`, 400);
+    }
 
     await prisma.$transaction(async (tx) => {
       for (const { player } of selectedPlayers) {
@@ -369,11 +397,12 @@ export async function POST(request: Request) {
             "fg3m", "fgm", "fga", "ftm", "fta", "oreb", "dreb", "nbaPlayerId", "statsSeason", "imageUrl",
             "isActive", "createdAt", "updatedAt"
           )
-          VALUES ($1,$2,$3,$4,0,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,'',true,now() AT TIME ZONE 'Asia/Shanghai',now() AT TIME ZONE 'Asia/Shanghai')
+          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,'',true,now() AT TIME ZONE 'Asia/Shanghai',now() AT TIME ZONE 'Asia/Shanghai')
           ON CONFLICT ("id") DO UPDATE SET
             "name" = EXCLUDED."name",
             "team" = EXCLUDED."team",
             "position" = EXCLUDED."position",
+            "salary" = EXCLUDED."salary",
             "fppg" = EXCLUDED."fppg",
             "ppg" = EXCLUDED."ppg",
             "rpg" = EXCLUDED."rpg",
@@ -396,6 +425,7 @@ export async function POST(request: Request) {
           player.name,
           player.team,
           player.position,
+          player.salary,
           player.fppg,
           player.ppg,
           player.rpg,
@@ -417,10 +447,11 @@ export async function POST(request: Request) {
 
       await tx.$executeRawUnsafe(
         `INSERT INTO "Lineup" ("id", "userId", "name", "totalSalary", "totalPoints", "gameDay", "createdAt", "updatedAt")
-         VALUES ($1,$2,$3,0,$4,$5,now() AT TIME ZONE 'Asia/Shanghai',now() AT TIME ZONE 'Asia/Shanghai')`,
+         VALUES ($1,$2,$3,$4,$5,$6,now() AT TIME ZONE 'Asia/Shanghai',now() AT TIME ZONE 'Asia/Shanghai')`,
         lineupId,
         currentUser.id,
         lineupName,
+        totalSalary,
         totalPoints,
         gameDay
       );
@@ -514,6 +545,10 @@ export async function PUT(request: Request) {
     const lineupName = body.gameDate ? `Lineup ${body.gameDate}` : "My Lineup";
     const gameDay = earliestBeijingGameTime(body.games, body.gameDate);
     const totalPoints = selectedPlayers.reduce((sum, { player }) => sum + player.fppg, 0);
+    const totalSalary = selectedPlayers.reduce((sum, { player }) => sum + player.salary, 0);
+    if (totalSalary > LINEUP_SALARY_CAP) {
+      return jsonError(`Lineup salary $${totalSalary} exceeds the $${LINEUP_SALARY_CAP} cap.`, 400);
+    }
 
     await prisma.$transaction(async (tx) => {
       for (const { player } of selectedPlayers) {
@@ -523,11 +558,12 @@ export async function PUT(request: Request) {
             "fg3m", "fgm", "fga", "ftm", "fta", "oreb", "dreb", "nbaPlayerId", "statsSeason", "imageUrl",
             "isActive", "createdAt", "updatedAt"
           )
-          VALUES ($1,$2,$3,$4,0,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,'',true,now() AT TIME ZONE 'Asia/Shanghai',now() AT TIME ZONE 'Asia/Shanghai')
+          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,'',true,now() AT TIME ZONE 'Asia/Shanghai',now() AT TIME ZONE 'Asia/Shanghai')
           ON CONFLICT ("id") DO UPDATE SET
             "name" = EXCLUDED."name",
             "team" = EXCLUDED."team",
             "position" = EXCLUDED."position",
+            "salary" = EXCLUDED."salary",
             "fppg" = EXCLUDED."fppg",
             "ppg" = EXCLUDED."ppg",
             "rpg" = EXCLUDED."rpg",
@@ -550,6 +586,7 @@ export async function PUT(request: Request) {
           player.name,
           player.team,
           player.position,
+          player.salary,
           player.fppg,
           player.ppg,
           player.rpg,
@@ -572,11 +609,13 @@ export async function PUT(request: Request) {
       await tx.$executeRawUnsafe(
         `UPDATE "Lineup"
          SET "name" = $1,
-             "totalPoints" = $2,
-             "gameDay" = $3,
+             "totalSalary" = $2,
+             "totalPoints" = $3,
+             "gameDay" = $4,
              "updatedAt" = now() AT TIME ZONE 'Asia/Shanghai'
-         WHERE "id" = $4 AND "userId" = $5`,
+         WHERE "id" = $5 AND "userId" = $6`,
         lineupName,
+        totalSalary,
         totalPoints,
         gameDay,
         lineupId,

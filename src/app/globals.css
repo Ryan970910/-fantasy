@@ -603,6 +603,39 @@ button:disabled {
   display: none;
 }
 
+.salaryCapMeter {
+  display: grid;
+  gap: 3px;
+  padding: 10px 12px;
+  border: 1px solid #d7dde7;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.salaryCapMeter span,
+.salaryCapMeter small {
+  color: #667085;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.salaryCapMeter strong {
+  color: #172554;
+  font-size: 18px;
+  line-height: 1;
+}
+
+.salaryCapMeter.over {
+  border-color: rgb(216 27 72 / 42%);
+  background: #fff1f3;
+}
+
+.salaryCapMeter.over strong,
+.lineupActionScore.over {
+  color: #d81b48;
+}
+
 .clearLineupButton,
 .cancelLineupButton {
   min-height: 42px;
@@ -1083,6 +1116,12 @@ button:disabled {
   white-space: nowrap;
 }
 
+.lineupMiniPlayer small {
+  color: #f59e0b;
+  font-size: 10px;
+  font-weight: 900;
+}
+
 .submittedLineupFooter {
   display: flex;
   gap: 10px;
@@ -1354,6 +1393,10 @@ button:disabled {
     line-height: 1.15;
     text-align: center;
     text-transform: uppercase;
+  }
+
+  .salaryCapMeter {
+    display: none;
   }
 
   .lineupMessage {

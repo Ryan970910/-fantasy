@@ -9,6 +9,8 @@ const BBR_PER_GAME_URL = "https://www.basketball-reference.com/leagues/NBA_{year
 const REQUEST_TIMEOUT_MS = 8000;
 const SEASON_TYPE = "Regular Season";
 const BEIJING_OFFSET_MS = 8 * 60 * 60 * 1000;
+const MIN_PLAYER_SALARY = 5;
+const MAX_PLAYER_SALARY = 45;
 
 type NbaGameCard = {
   cardData?: {
@@ -403,6 +405,47 @@ function numberOrZero(value: unknown) {
   return Number.isFinite(number) ? number : 0;
 }
 
+function clamp(value: number, min: number, max: number) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function fantasyScore(stats: {
+  points?: unknown;
+  assists?: unknown;
+  steals?: unknown;
+  blocks?: unknown;
+  turnovers?: unknown;
+  threesMade?: unknown;
+  fieldGoalsMade?: unknown;
+  fieldGoalsAttempted?: unknown;
+  freeThrowsMade?: unknown;
+  freeThrowsAttempted?: unknown;
+  offensiveRebounds?: unknown;
+  defensiveRebounds?: unknown;
+}) {
+  const missedFieldGoals = Math.max(0, numberOrZero(stats.fieldGoalsAttempted) - numberOrZero(stats.fieldGoalsMade));
+  const missedFreeThrows = Math.max(0, numberOrZero(stats.freeThrowsAttempted) - numberOrZero(stats.freeThrowsMade));
+
+  return (
+    numberOrZero(stats.points) +
+    numberOrZero(stats.threesMade) * 0.5 +
+    numberOrZero(stats.fieldGoalsMade) * 0.4 -
+    missedFieldGoals +
+    numberOrZero(stats.freeThrowsMade) * 0.2 -
+    missedFreeThrows * 0.5 +
+    numberOrZero(stats.offensiveRebounds) +
+    numberOrZero(stats.defensiveRebounds) * 0.7 +
+    numberOrZero(stats.assists) * 1.5 +
+    numberOrZero(stats.steals) * 2 +
+    numberOrZero(stats.blocks) * 1.8 -
+    numberOrZero(stats.turnovers)
+  );
+}
+
+function playerSalary(stats: Parameters<typeof fantasyScore>[0] & { minutes?: unknown }) {
+  return clamp(Math.round(5 + fantasyScore(stats) * 0.85 + numberOrZero(stats.minutes) * 0.2), MIN_PLAYER_SALARY, MAX_PLAYER_SALARY);
+}
+
 function hasDetailedFantasyStats(row: AverageStatsRow) {
   return [
     row.threesMade,
@@ -723,11 +766,8 @@ export async function GET() {
       if (fallbackPlayers.length > 0) {
         const lockStatus = buildLockStatus(selectedGameDay.games);
         const lockedTeams = new Set(lockStatus.lockedTeams);
-        const players = fallbackPlayers.map((player) => ({
-          ...player,
-          locked: lockedTeams.has(player.team),
-          lockReason: lockedTeams.has(player.team) ? "Team game has started" : null,
-          stats: {
+        const players = fallbackPlayers.map((player) => {
+          const normalizedStats = {
             season: player.stats.season,
             gamesPlayed: numberOrZero(player.stats.gamesPlayed),
             minutes: numberOrZero(player.stats.minutes),
@@ -746,8 +786,16 @@ export async function GET() {
             defensiveRebounds: numberOrZero(player.stats.defensiveRebounds),
             source: player.stats.source,
             sourceUrl: player.stats.sourceUrl
-          }
-        }));
+          };
+
+          return {
+            ...player,
+            salary: playerSalary(normalizedStats),
+            locked: lockedTeams.has(player.team),
+            lockReason: lockedTeams.has(player.team) ? "Team game has started" : null,
+            stats: normalizedStats
+          };
+        });
         const fallbackTeams = new Set(players.map((player) => player.team));
         const rosterReadyGames = selectedGameDay.poolGames.filter(
           (game) => fallbackTeams.has(game.homeTeam.tricode) && fallbackTeams.has(game.awayTeam.tricode)
@@ -789,6 +837,26 @@ export async function GET() {
       .filter((row) => candidateTeamTricodes.has(row[9]))
       .map((row) => {
         const position = row[11] || "";
+        const stats = {
+          season: "playerIndex",
+          gamesPlayed: 0,
+          minutes: 0,
+          points: row[22] ?? null,
+          rebounds: row[23] ?? null,
+          assists: row[24] ?? null,
+          steals: 0,
+          blocks: 0,
+          turnovers: 0,
+          threesMade: 0,
+          fieldGoalsMade: 0,
+          fieldGoalsAttempted: 0,
+          freeThrowsMade: 0,
+          freeThrowsAttempted: 0,
+          offensiveRebounds: 0,
+          defensiveRebounds: row[23] ?? 0,
+          source: "NBA official playerIndex fallback",
+          sourceUrl: NBA_PLAYER_INDEX_URL
+        };
         return {
           id: String(row[0]),
           name: `${row[2]} ${row[1]}`,
@@ -799,26 +867,8 @@ export async function GET() {
           position,
           height: row[12] || "",
           eligibleSlots: eligibleSlots(position),
-          stats: {
-            season: "playerIndex",
-            gamesPlayed: 0,
-            minutes: 0,
-            points: row[22] ?? null,
-            rebounds: row[23] ?? null,
-            assists: row[24] ?? null,
-            steals: 0,
-            blocks: 0,
-            turnovers: 0,
-            threesMade: 0,
-            fieldGoalsMade: 0,
-            fieldGoalsAttempted: 0,
-            freeThrowsMade: 0,
-            freeThrowsAttempted: 0,
-            offensiveRebounds: 0,
-            defensiveRebounds: row[23] ?? 0,
-            source: "NBA official playerIndex fallback",
-            sourceUrl: NBA_PLAYER_INDEX_URL
-          }
+          salary: playerSalary(stats),
+          stats
         };
       })
       .filter((player) => player.eligibleSlots.length > 0))
@@ -847,35 +897,39 @@ export async function GET() {
       if (!stats) {
         return {
           ...player,
+          salary: playerSalary(player.stats),
           locked: lockedTeams.has(player.team),
           lockReason: lockedTeams.has(player.team) ? "Team game has started" : null
         };
       }
 
+      const normalizedStats = {
+        season: stats.season,
+        gamesPlayed: numberOrZero(stats.gamesPlayed),
+        minutes: numberOrZero(stats.minutes),
+        points: numberOrZero(stats.points),
+        rebounds: numberOrZero(stats.rebounds),
+        assists: numberOrZero(stats.assists),
+        steals: numberOrZero(stats.steals),
+        blocks: numberOrZero(stats.blocks),
+        turnovers: numberOrZero(stats.turnovers),
+        threesMade: numberOrZero(stats.threesMade),
+        fieldGoalsMade: numberOrZero(stats.fieldGoalsMade),
+        fieldGoalsAttempted: numberOrZero(stats.fieldGoalsAttempted),
+        freeThrowsMade: numberOrZero(stats.freeThrowsMade),
+        freeThrowsAttempted: numberOrZero(stats.freeThrowsAttempted),
+        offensiveRebounds: numberOrZero(stats.offensiveRebounds),
+        defensiveRebounds: numberOrZero(stats.defensiveRebounds),
+        source: stats.source,
+        sourceUrl: stats.sourceUrl
+      };
+
       return {
         ...player,
+        salary: playerSalary(normalizedStats),
         locked: lockedTeams.has(player.team),
         lockReason: lockedTeams.has(player.team) ? "Team game has started" : null,
-        stats: {
-          season: stats.season,
-          gamesPlayed: numberOrZero(stats.gamesPlayed),
-          minutes: numberOrZero(stats.minutes),
-          points: numberOrZero(stats.points),
-          rebounds: numberOrZero(stats.rebounds),
-          assists: numberOrZero(stats.assists),
-          steals: numberOrZero(stats.steals),
-          blocks: numberOrZero(stats.blocks),
-          turnovers: numberOrZero(stats.turnovers),
-          threesMade: numberOrZero(stats.threesMade),
-          fieldGoalsMade: numberOrZero(stats.fieldGoalsMade),
-          fieldGoalsAttempted: numberOrZero(stats.fieldGoalsAttempted),
-          freeThrowsMade: numberOrZero(stats.freeThrowsMade),
-          freeThrowsAttempted: numberOrZero(stats.freeThrowsAttempted),
-          offensiveRebounds: numberOrZero(stats.offensiveRebounds),
-          defensiveRebounds: numberOrZero(stats.defensiveRebounds),
-          source: stats.source,
-          sourceUrl: stats.sourceUrl
-        }
+        stats: normalizedStats
       };
     });
     notes.push(...(
