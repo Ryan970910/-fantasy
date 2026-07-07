@@ -935,6 +935,20 @@ button:disabled {
   color: #fff;
 }
 
+.createLineupButton {
+  width: fit-content;
+  min-height: 38px;
+  margin-top: 6px;
+  padding: 0 18px;
+  border: 1px solid rgb(255 255 255 / 18%);
+  border-radius: 999px;
+  color: #fff;
+  background: linear-gradient(90deg, #c9082a, #17408b);
+  font-weight: 900;
+  cursor: pointer;
+  box-shadow: 0 10px 22px rgb(23 64 139 / 24%);
+}
+
 .submittedLineupCard {
   display: grid;
   gap: 10px;
@@ -1077,22 +1091,44 @@ button:disabled {
   padding-top: 2px;
 }
 
-.submittedLineupEdit {
+.submittedLineupButtons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.submittedLineupEdit,
+.submittedLineupDelete {
   min-height: 34px;
   padding: 0 14px;
   border: 1px solid rgb(255 255 255 / 18%);
   border-radius: 999px;
   color: #fff;
-  background: #17408b;
   font-weight: 900;
   cursor: pointer;
+}
+
+.submittedLineupEdit {
+  background: #17408b;
+}
+
+.submittedLineupDelete {
+  border-color: rgb(216 27 72 / 50%);
+  color: #d81b48;
+  background: #fff;
 }
 
 .submittedLineupEdit:hover {
   background: #1d4ed8;
 }
 
-.submittedLineupEdit:disabled {
+.submittedLineupDelete:hover {
+  color: #fff;
+  background: #d81b48;
+}
+
+.submittedLineupEdit:disabled,
+.submittedLineupDelete:disabled {
   opacity: 0.56;
   cursor: not-allowed;
 }
@@ -1358,6 +1394,15 @@ button:disabled {
   .submittedLineupFooter {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .submittedLineupButtons {
+    width: 100%;
+  }
+
+  .submittedLineupEdit,
+  .submittedLineupDelete {
+    flex: 1;
   }
 
   .submittedLineupActions {

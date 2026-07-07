@@ -206,6 +206,7 @@ export function LineupPicker() {
   const [submittedLineups, setSubmittedLineups] = useState<SubmittedLineup[]>([]);
   const [lineupsError, setLineupsError] = useState<string | null>(null);
   const [editingLineupId, setEditingLineupId] = useState<string | null>(null);
+  const [isCreatingLineup, setIsCreatingLineup] = useState(false);
   const [submittedTab, setSubmittedTab] = useState<"current" | "history">("current");
   const [expandedLineupIds, setExpandedLineupIds] = useState<Set<string>>(() => new Set());
   const [activeSlot, setActiveSlot] = useState<Slot>("PG");
@@ -290,7 +291,7 @@ export function LineupPicker() {
   const visibleSubmittedLineups = submittedTab === "current" ? currentGameDayLineups : historicalLineups;
   const hasSubmittedLineup = currentGameDayLineups.length > 0;
   const hasLockedTeams = Boolean(data?.lockStatus?.lockedTeams?.length);
-  const showPicker = !hasSubmittedLineup || Boolean(editingLineupId);
+  const showPicker = isCreatingLineup || Boolean(editingLineupId);
 
   const teams = useMemo(() => Array.from(new Set(uniquePlayers.map((player) => player.team))).sort(), [uniquePlayers]);
 
@@ -379,6 +380,7 @@ export function LineupPicker() {
     }
 
     setLineup(nextLineup);
+    setIsCreatingLineup(false);
     setEditingLineupId(submittedLineup.id);
     setActiveSlot("PG");
     setSubmitMessage(null);
@@ -387,6 +389,22 @@ export function LineupPicker() {
   function cancelEditLineup() {
     clearLineup();
     setEditingLineupId(null);
+    setIsCreatingLineup(false);
+  }
+
+  function startCreateLineup() {
+    setLineup({
+      PG: "",
+      SG: "",
+      SF: "",
+      PF: "",
+      C: ""
+    });
+    setEditingLineupId(null);
+    setIsCreatingLineup(true);
+    setSubmittedTab("current");
+    setActiveSlot("PG");
+    setSubmitMessage(null);
   }
 
   function toggleLineupExpanded(lineupId: string) {
@@ -431,6 +449,7 @@ export function LineupPicker() {
 
       setSubmitMessage(isEditing ? "Lineup updated." : `Lineup submitted: ${payload.lineupId}`);
       setEditingLineupId(null);
+      setIsCreatingLineup(false);
       setLineup({
         PG: "",
         SG: "",
@@ -446,13 +465,40 @@ export function LineupPicker() {
     }
   }
 
+  async function deleteLineup(lineupId: string) {
+    setSubmitting(true);
+    setSubmitMessage(null);
+    try {
+      const response = await fetch(`/api/lineups?lineupId=${encodeURIComponent(lineupId)}`, {
+        method: "DELETE"
+      });
+      const payload = (await response.json()) as { error?: string };
+
+      if (!response.ok) {
+        throw new Error(payload.error || "Unable to delete lineup.");
+      }
+
+      if (editingLineupId === lineupId) {
+        setEditingLineupId(null);
+      }
+      setIsCreatingLineup(false);
+      clearLineup();
+      setSubmitMessage("Lineup deleted.");
+      await loadSubmittedLineups();
+    } catch (caught) {
+      setSubmitMessage(caught instanceof Error ? caught.message : "Unable to delete lineup.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   return (
     <section className={`lineupPicker${showPicker ? " pickerActive" : ""}`} aria-labelledby="lineup-picker-title">
       {showPicker ? (
         <div className="lineupHeader">
           <div>
             <p className="eyebrow">Next game day player pool</p>
-            <h2 id="lineup-picker-title">{editingLineupId ? "Edit your starting five" : "Pick your starting five"}</h2>
+            <h2 id="lineup-picker-title">{editingLineupId ? "Edit your starting five" : "Create your starting five"}</h2>
             <p className="liveMeta">
               {data
                 ? `${data.gameDate || "Next game day"} | ${uniquePlayers.length} players | ${data.teams.length} teams`
@@ -516,6 +562,10 @@ export function LineupPicker() {
               {editingLineupId ? (
                 <button className="cancelLineupButton" type="button" onClick={cancelEditLineup}>
                   Cancel edit
+                </button>
+              ) : isCreatingLineup ? (
+                <button className="cancelLineupButton" type="button" onClick={cancelEditLineup}>
+                  Cancel create
                 </button>
               ) : null}
               <span className="lineupActionScore">Fantasy {projectedLineupScore.toFixed(1)}</span>
@@ -641,6 +691,9 @@ export function LineupPicker() {
           <div className="lineupEmpty">
             <strong>No lineup submitted yet</strong>
             <span>Your submitted picks will show here after you press Submit.</span>
+            <button className="createLineupButton" type="button" onClick={startCreateLineup}>
+              Create
+            </button>
           </div>
         ) : null}
 
@@ -652,6 +705,11 @@ export function LineupPicker() {
                 ? "The lineup for this game day will show here after you submit it."
                 : "Older game day lineups will show here after a new game day opens."}
             </span>
+            {submittedTab === "current" ? (
+              <button className="createLineupButton" type="button" onClick={startCreateLineup}>
+                Create
+              </button>
+            ) : null}
           </div>
         ) : null}
 
@@ -694,14 +752,30 @@ export function LineupPicker() {
 
                   <div className="submittedLineupFooter">
                     <small>Submitted {formatDateTime(submittedLineup.createdAt)}</small>
-                    <button
-                      className="submittedLineupEdit"
-                      type="button"
-                      onClick={() => startEditLineup(submittedLineup)}
-                      disabled={!canEdit}
-                    >
-                      {canEdit ? "Edit" : "Locked"}
-                    </button>
+                    <span className="submittedLineupButtons">
+                      {submittedTab === "current" && canEdit ? (
+                        <button
+                          className="submittedLineupDelete"
+                          type="button"
+                          onClick={() => {
+                            if (window.confirm("Delete this current lineup?")) {
+                              void deleteLineup(submittedLineup.id);
+                            }
+                          }}
+                          disabled={submitting}
+                        >
+                          Delete
+                        </button>
+                      ) : null}
+                      <button
+                        className="submittedLineupEdit"
+                        type="button"
+                        onClick={() => startEditLineup(submittedLineup)}
+                        disabled={!canEdit || submitting}
+                      >
+                        {canEdit ? "Edit" : "Locked"}
+                      </button>
+                    </span>
                   </div>
 
                   {isExpanded ? (

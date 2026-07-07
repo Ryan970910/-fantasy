@@ -617,3 +617,48 @@ export async function PUT(request: Request) {
     return jsonError(error instanceof Error ? error.message : "Unable to update lineup.", 400);
   }
 }
+
+export async function DELETE(request: Request) {
+  const currentUser = await getCurrentUser();
+  if (!currentUser) {
+    return jsonError("Unauthorized", 401);
+  }
+
+  const url = new URL(request.url);
+  const lineupId = url.searchParams.get("lineupId") || "";
+  if (!lineupId) {
+    return jsonError("Missing lineupId.", 400);
+  }
+
+  try {
+    const ownedLineups = await prisma.$queryRawUnsafe<OwnedLineupRow[]>(
+      `SELECT "id", "name", "gameDay" FROM "Lineup" WHERE "id" = $1 AND "userId" = $2 LIMIT 1`,
+      lineupId,
+      currentUser.id
+    );
+
+    if (ownedLineups.length === 0) {
+      return jsonError("Lineup not found.", 404);
+    }
+
+    await prisma.$transaction(async (tx) => {
+      await tx.$executeRawUnsafe(
+        `DELETE FROM "LineupPlayer" WHERE "lineupId" = $1`,
+        lineupId
+      );
+      await tx.$executeRawUnsafe(
+        `DELETE FROM "Lineup" WHERE "id" = $1 AND "userId" = $2`,
+        lineupId,
+        currentUser.id
+      );
+    });
+
+    return NextResponse.json({
+      ok: true,
+      lineupId
+    });
+  } catch (error) {
+    console.error("Lineup delete failed", error);
+    return jsonError(error instanceof Error ? error.message : "Unable to delete lineup.", 400);
+  }
+}
