@@ -12,6 +12,7 @@ type SortMode = "fantasy" | "points" | "rebounds" | "assists" | "name";
 type PoolPlayer = {
   id: string;
   name: string;
+  displayName?: string;
   team: string;
   teamName: string;
   jersey: string;
@@ -84,6 +85,7 @@ type SubmittedLineup = {
     slot: string;
     id: string;
     name: string;
+    displayName?: string;
     team: string;
     position: string;
     salary: number;
@@ -154,6 +156,10 @@ function normalizePlayerName(value: string) {
 
 function playerDisplayKey(player: PoolPlayer) {
   return `${normalizePlayerName(player.name)}:${player.team}`;
+}
+
+function playerDisplayName(player: { name: string; displayName?: string | null }) {
+  return player.displayName || player.name;
 }
 
 function dedupePlayersForDisplay(players: PoolPlayer[]) {
@@ -318,18 +324,18 @@ export function LineupPicker() {
 
     return dedupePlayersForDisplay([...players]).sort((left, right) => {
       if (sortMode === "name") {
-        return left.name.localeCompare(right.name);
+        return playerDisplayName(left).localeCompare(playerDisplayName(right));
       }
       if (sortMode === "rebounds") {
-        return statValue(right.stats.rebounds) - statValue(left.stats.rebounds) || left.name.localeCompare(right.name);
+        return statValue(right.stats.rebounds) - statValue(left.stats.rebounds) || playerDisplayName(left).localeCompare(playerDisplayName(right));
       }
       if (sortMode === "assists") {
-        return statValue(right.stats.assists) - statValue(left.stats.assists) || left.name.localeCompare(right.name);
+        return statValue(right.stats.assists) - statValue(left.stats.assists) || playerDisplayName(left).localeCompare(playerDisplayName(right));
       }
       if (sortMode === "fantasy") {
-        return projectedScore(right) - projectedScore(left) || left.name.localeCompare(right.name);
+        return projectedScore(right) - projectedScore(left) || playerDisplayName(left).localeCompare(playerDisplayName(right));
       }
-      return statValue(right.stats.points) - statValue(left.stats.points) || left.name.localeCompare(right.name);
+      return statValue(right.stats.points) - statValue(left.stats.points) || playerDisplayName(left).localeCompare(playerDisplayName(right));
     });
   }, [activeSlot, lineup, selectedIds, sortMode, teamFilter, uniquePlayers]);
 
@@ -562,7 +568,7 @@ export function LineupPicker() {
                     onClick={() => setActiveSlot(slot)}
                   >
                     <span>{slot}</span>
-                    <strong>{player ? player.name : "Open"}</strong>
+                    <strong>{player ? playerDisplayName(player) : "Open"}</strong>
                     <small>
                       {player
                         ? `${player.team} | $${player.salary} | ${formatStatValue(player.stats.points)} PTS`
@@ -644,7 +650,7 @@ export function LineupPicker() {
                   >
                     <span className="positionTag">{player.position || activeSlot}</span>
                     <span className="playerChoiceMain">
-                      <strong>{player.name}</strong>
+                      <strong>{playerDisplayName(player)}</strong>
                       <small>{playerGameLabel(player, data.allGamesOnDate?.length ? data.allGamesOnDate : data.games)}</small>
                     </span>
                     <span className="playerStats">
@@ -787,7 +793,7 @@ export function LineupPicker() {
                         return (
                           <span key={`${submittedLineup.id}-thumb-${slot}`} className="lineupMiniPlayer">
                             <span>{slot}</span>
-                            <strong>{player?.name || "Open"}</strong>
+                            <strong>{player ? playerDisplayName(player) : "Open"}</strong>
                             <small>{player ? `$${player.salary || 0}` : "$0"}</small>
                           </span>
                         );
@@ -834,7 +840,7 @@ export function LineupPicker() {
                             className="submittedPlayer"
                           >
                             <span>{slot}</span>
-                            <strong>{player?.name || "Open"}</strong>
+                            <strong>{player ? playerDisplayName(player) : "Open"}</strong>
                             <small>{player ? `${player.team} | ${player.position}` : "No player selected"}</small>
                             <em>{player ? `$${player.salary || 0} | ${player.fantasyPoints.toFixed(1)}` : "$0 | 0.0"}</em>
                           </div>

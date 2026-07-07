@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { createPlayerNameTranslator, loadPlayerNameTranslations } from "@/lib/player-name-translations";
 
 export const dynamic = "force-dynamic";
 
@@ -941,6 +942,7 @@ export async function GET() {
     const lockStatus = buildLockStatus(selectedGameDay.games);
     const lockedTeams = new Set(lockStatus.lockedTeams);
     const poolPlayers = candidatePlayers.filter((player) => teamTricodes.has(player.team));
+    const translatePlayerName = createPlayerNameTranslator(await loadPlayerNameTranslations());
     const averageStats = await loadAverageStats(
       poolPlayers.map((player) => ({ id: player.id, name: player.name, team: player.team })),
       statSeasons.current,
@@ -951,6 +953,7 @@ export async function GET() {
       if (!statsSelection) {
         return {
           ...player,
+          displayName: translatePlayerName(player.name),
           salary: playerSalary(player.stats),
           locked: lockedTeams.has(player.team),
           lockReason: lockedTeams.has(player.team) ? "Team game has started" : null
@@ -981,6 +984,7 @@ export async function GET() {
 
       return {
         ...player,
+        displayName: translatePlayerName(player.name),
         salary: playerSalary(statsSelection.salaryStats),
         locked: lockedTeams.has(player.team),
         lockReason: lockedTeams.has(player.team) ? "Team game has started" : null,
