@@ -20,6 +20,7 @@ type SubmittedPlayer = {
   position?: string;
   salary?: number | null;
   stats?: {
+    gamesPlayed?: number | null;
     minutes?: number | null;
     points?: number | null;
     rebounds?: number | null;
@@ -78,6 +79,28 @@ type OwnedLineupRow = {
   gameDay: Date;
 };
 
+type AverageStatsRow = {
+  nbaPlayerId: string;
+  playerName: string;
+  team: string;
+  season: string;
+  gamesPlayed: number;
+  minutes: number;
+  points: number;
+  rebounds: number;
+  assists: number;
+  steals: number;
+  blocks: number;
+  turnovers: number;
+  threesMade: number;
+  fieldGoalsMade: number;
+  fieldGoalsAttempted: number;
+  freeThrowsMade: number;
+  freeThrowsAttempted: number;
+  offensiveRebounds: number;
+  defensiveRebounds: number;
+};
+
 function jsonError(message: string, status: number) {
   return NextResponse.json({ error: message }, { status });
 }
@@ -115,7 +138,90 @@ function fantasyScore(stats: NonNullable<SubmittedPlayer["stats"]>) {
 }
 
 function playerSalaryFromStats(stats: NonNullable<SubmittedPlayer["stats"]>) {
-  return clamp(Math.round(5 + fantasyScore(stats) * 0.85 + numberOrZero(stats.minutes) * 0.2), MIN_PLAYER_SALARY, MAX_PLAYER_SALARY);
+  const rawSalary = Math.round(5 + fantasyScore(stats) * 0.85 + numberOrZero(stats.minutes) * 0.2);
+  const gamesPlayed = numberOrZero((stats as { gamesPlayed?: number | null }).gamesPlayed);
+  const sampleMaxSalary = gamesPlayed > 0 && gamesPlayed < 3
+    ? 12
+    : gamesPlayed > 0 && gamesPlayed < 10
+      ? 20
+      : gamesPlayed > 0 && gamesPlayed < 20
+        ? 35
+        : MAX_PLAYER_SALARY;
+
+  return clamp(rawSalary, MIN_PLAYER_SALARY, sampleMaxSalary);
+}
+
+function normalizeName(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[.'\u2019-]/g, "")
+    .replace(/\b(jr|sr|ii|iii|iv|v)\b/gi, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+}
+
+function seasonLabel(startYear: number) {
+  return `${startYear}-${String(startYear + 1).slice(-2)}`;
+}
+
+function defaultStatSeasons() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth() + 1;
+  const currentStartYear = month >= 10 ? year : year - 1;
+  return {
+    current: seasonLabel(currentStartYear),
+    previous: seasonLabel(currentStartYear - 1)
+  };
+}
+
+function compareStatsRows(left: AverageStatsRow, right: AverageStatsRow) {
+  return numberOrZero(right.gamesPlayed) - numberOrZero(left.gamesPlayed);
+}
+
+function choosePreferredStatsRow(rows: AverageStatsRow[], currentSeason: string, previousSeason: string) {
+  const pick = (season: string, requireGames: boolean) =>
+    rows
+      .filter((row) => row.season === season && (!requireGames || numberOrZero(row.gamesPlayed) > 0))
+      .sort(compareStatsRows)[0] || null;
+
+  return (
+    pick(currentSeason, true) ||
+    pick(previousSeason, true) ||
+    pick(currentSeason, false) ||
+    pick(previousSeason, false)
+  );
+}
+
+function choosePricingStatsRow(rows: AverageStatsRow[], currentSeason: string, previousSeason: string) {
+  const current = rows
+    .filter((row) => row.season === currentSeason && numberOrZero(row.gamesPlayed) > 0)
+    .sort(compareStatsRows)[0] || null;
+  const previous = rows
+    .filter((row) => row.season === previousSeason && numberOrZero(row.gamesPlayed) > 0)
+    .sort(compareStatsRows)[0] || null;
+
+  if (!current) {
+    return previous || choosePreferredStatsRow(rows, currentSeason, previousSeason);
+  }
+  if (!previous) {
+    return current;
+  }
+
+  const currentGames = numberOrZero(current.gamesPlayed);
+  const currentFantasy = fantasyScore(current);
+  const previousFantasy = fantasyScore(previous);
+
+  if (currentGames < 10) {
+    return previous;
+  }
+  if (currentGames < 20 && previousFantasy > 0 && currentFantasy < previousFantasy * 0.85) {
+    return previous;
+  }
+
+  return current;
 }
 
 function beijingNow() {
@@ -234,6 +340,55 @@ function normalizePlayer(slot: Slot, player: SubmittedPlayer | null | undefined)
       defensiveRebounds
     })
   };
+}
+
+async function applyStableSalaries<T extends ReturnType<typeof normalizePlayer>>(players: T[]) {
+  const seasons = defaultStatSeasons();
+  const rows = await prisma.$queryRawUnsafe<AverageStatsRow[]>(
+    `SELECT
+       "nbaPlayerId", "playerName", "team", "season", "gamesPlayed", "minutes", "points", "rebounds",
+       "assists", "steals", "blocks", "turnovers", "threesMade", "fieldGoalsMade", "fieldGoalsAttempted",
+       "freeThrowsMade", "freeThrowsAttempted", "offensiveRebounds", "defensiveRebounds"
+     FROM "PlayerAverageStats"
+     WHERE "seasonType" = $1
+       AND "season" IN ($2, $3)`,
+    "Regular Season",
+    seasons.current,
+    seasons.previous
+  );
+
+  const byPlayerId = new Map<string, AverageStatsRow[]>();
+  const byPlayerName = new Map<string, AverageStatsRow[]>();
+  for (const row of rows) {
+    const idRows = byPlayerId.get(row.nbaPlayerId) || [];
+    idRows.push(row);
+    byPlayerId.set(row.nbaPlayerId, idRows);
+
+    const nameRows = byPlayerName.get(normalizeName(row.playerName)) || [];
+    nameRows.push(row);
+    byPlayerName.set(normalizeName(row.playerName), nameRows);
+  }
+
+  return players.map((player) => {
+    const rowKeys = new Set<string>();
+    const candidates = [
+      ...(byPlayerId.get(player.nbaPlayerId) || []),
+      ...(byPlayerName.get(normalizeName(player.name)) || [])
+    ].filter((row) => {
+      const key = `${row.nbaPlayerId}:${row.season}:${row.team}`;
+      if (rowKeys.has(key)) {
+        return false;
+      }
+      rowKeys.add(key);
+      return true;
+    });
+
+    const pricingStats = choosePricingStatsRow(candidates, seasons.current, seasons.previous);
+    return {
+      ...player,
+      salary: pricingStats ? playerSalaryFromStats(pricingStats) : player.salary
+    };
+  });
 }
 
 export async function GET() {
@@ -368,7 +523,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const selectedPlayers = slots.map((slot) => ({
+    let selectedPlayers = slots.map((slot) => ({
       slot,
       player: normalizePlayer(slot, body.playersBySlot?.[slot])
     }));
@@ -379,6 +534,11 @@ export async function POST(request: Request) {
     }
 
     validateLineupWindow(body.games, selectedPlayers);
+    const stableSalaryPlayers = await applyStableSalaries(selectedPlayers.map(({ player }) => player));
+    selectedPlayers = selectedPlayers.map(({ slot }, index) => ({
+      slot,
+      player: stableSalaryPlayers[index]
+    }));
 
     const lineupId = randomUUID();
     const lineupName = body.gameDate ? `Lineup ${body.gameDate}` : "My Lineup";
@@ -520,7 +680,7 @@ export async function PUT(request: Request) {
     if (ownedGameDate && body.gameDate && ownedGameDate !== body.gameDate) {
       return jsonError("This lineup belongs to a previous game day and is locked.", 409);
     }
-    const selectedPlayers = slots.map((slot) => ({
+    let selectedPlayers = slots.map((slot) => ({
       slot,
       player: normalizePlayer(slot, body.playersBySlot?.[slot])
     }));
@@ -541,6 +701,11 @@ export async function PUT(request: Request) {
     );
 
     validateLineupWindow(body.games, selectedPlayers, allowedLockedPlayers);
+    const stableSalaryPlayers = await applyStableSalaries(selectedPlayers.map(({ player }) => player));
+    selectedPlayers = selectedPlayers.map(({ slot }, index) => ({
+      slot,
+      player: stableSalaryPlayers[index]
+    }));
 
     const lineupName = body.gameDate ? `Lineup ${body.gameDate}` : "My Lineup";
     const gameDay = earliestBeijingGameTime(body.games, body.gameDate);

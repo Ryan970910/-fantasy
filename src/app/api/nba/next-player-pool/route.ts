@@ -135,6 +135,11 @@ type PoolPlayerIdentity = {
   team: string;
 };
 
+type AverageStatsSelection = {
+  displayStats: AverageStatsRow;
+  salaryStats: AverageStatsRow;
+};
+
 const slotEligibility = {
   PG: ["G", "PG"],
   SG: ["G", "SG"],
@@ -443,7 +448,17 @@ function fantasyScore(stats: {
 }
 
 function playerSalary(stats: Parameters<typeof fantasyScore>[0] & { minutes?: unknown }) {
-  return clamp(Math.round(5 + fantasyScore(stats) * 0.85 + numberOrZero(stats.minutes) * 0.2), MIN_PLAYER_SALARY, MAX_PLAYER_SALARY);
+  const rawSalary = Math.round(5 + fantasyScore(stats) * 0.85 + numberOrZero(stats.minutes) * 0.2);
+  const gamesPlayed = numberOrZero((stats as { gamesPlayed?: unknown }).gamesPlayed);
+  const sampleMaxSalary = gamesPlayed > 0 && gamesPlayed < 3
+    ? 12
+    : gamesPlayed > 0 && gamesPlayed < 10
+      ? 20
+      : gamesPlayed > 0 && gamesPlayed < 20
+        ? 35
+        : MAX_PLAYER_SALARY;
+
+  return clamp(rawSalary, MIN_PLAYER_SALARY, sampleMaxSalary);
 }
 
 function hasDetailedFantasyStats(row: AverageStatsRow) {
@@ -490,6 +505,35 @@ function choosePreferredStatsRow(rows: AverageStatsRow[], currentSeason: string,
     pick(currentSeason, false) ||
     pick(previousSeason, false)
   );
+}
+
+function choosePricingStatsRow(rows: AverageStatsRow[], currentSeason: string, previousSeason: string) {
+  const current = rows
+    .filter((row) => row.season === currentSeason && numberOrZero(row.gamesPlayed) > 0)
+    .sort(compareStatsRows)[0] || null;
+  const previous = rows
+    .filter((row) => row.season === previousSeason && numberOrZero(row.gamesPlayed) > 0)
+    .sort(compareStatsRows)[0] || null;
+
+  if (!current) {
+    return previous || choosePreferredStatsRow(rows, currentSeason, previousSeason);
+  }
+  if (!previous) {
+    return current;
+  }
+
+  const currentGames = numberOrZero(current.gamesPlayed);
+  const currentFantasy = fantasyScore(current);
+  const previousFantasy = fantasyScore(previous);
+
+  if (currentGames < 10) {
+    return previous;
+  }
+  if (currentGames < 20 && previousFantasy > 0 && currentFantasy < previousFantasy * 0.85) {
+    return previous;
+  }
+
+  return current;
 }
 
 function canonicalPlayerId(rows: AverageStatsRow[], selected: AverageStatsRow) {
@@ -593,7 +637,7 @@ function buildLockStatus(games: GameSummary[]) {
 
 async function loadAverageStats(players: Array<{ id: string; name: string; team: string }>, currentSeason: string, previousSeason: string) {
   if (players.length === 0) {
-    return new Map<string, AverageStatsRow>();
+    return new Map<string, AverageStatsSelection>();
   }
 
   try {
@@ -613,6 +657,7 @@ async function loadAverageStats(players: Array<{ id: string; name: string; team:
 
     const byPlayerId = new Map<string, AverageStatsRow[]>();
     const byPlayerNameAndTeam = new Map<string, AverageStatsRow[]>();
+    const byPlayerName = new Map<string, AverageStatsRow[]>();
     for (const row of rows) {
       const idRows = byPlayerId.get(row.nbaPlayerId) || [];
       idRows.push(row);
@@ -622,13 +667,19 @@ async function loadAverageStats(players: Array<{ id: string; name: string; team:
       const nameRows = byPlayerNameAndTeam.get(nameKey) || [];
       nameRows.push(row);
       byPlayerNameAndTeam.set(nameKey, nameRows);
+
+      const normalizedPlayerName = normalizeName((row as AverageStatsRow & { playerName?: string }).playerName || "");
+      const allTeamRows = byPlayerName.get(normalizedPlayerName) || [];
+      allTeamRows.push(row);
+      byPlayerName.set(normalizedPlayerName, allTeamRows);
     }
 
     return new Map(players.flatMap((player) => {
         const idRows = byPlayerId.get(player.id) || [];
         const nameRows = byPlayerNameAndTeam.get(`${normalizeName(player.name)}:${player.team}`) || [];
+        const nameAllTeamRows = byPlayerName.get(normalizeName(player.name)) || [];
         const rowKeys = new Set<string>();
-        const playerRows = [...idRows, ...nameRows].filter((row) => {
+        const playerRows = [...idRows, ...nameRows, ...nameAllTeamRows].filter((row) => {
           const key = `${row.nbaPlayerId}:${row.season}:${row.team}`;
           if (rowKeys.has(key)) {
             return false;
@@ -636,12 +687,13 @@ async function loadAverageStats(players: Array<{ id: string; name: string; team:
           rowKeys.add(key);
           return true;
         });
-        const selected = choosePreferredStatsRow(playerRows, currentSeason, previousSeason);
-        return selected ? [[player.id, selected]] : [];
+        const displayStats = choosePreferredStatsRow(playerRows, currentSeason, previousSeason);
+        const salaryStats = choosePricingStatsRow(playerRows, currentSeason, previousSeason);
+        return displayStats && salaryStats ? [[player.id, { displayStats, salaryStats }]] : [];
       }));
   } catch (error) {
     console.error("Player average stats lookup failed", error);
-    return new Map<string, AverageStatsRow>();
+    return new Map<string, AverageStatsSelection>();
   }
 }
 
@@ -893,8 +945,8 @@ export async function GET() {
       statSeasons.previous
     );
     const players = poolPlayers.map((player) => {
-      const stats = averageStats.get(player.id);
-      if (!stats) {
+      const statsSelection = averageStats.get(player.id);
+      if (!statsSelection) {
         return {
           ...player,
           salary: playerSalary(player.stats),
@@ -903,6 +955,7 @@ export async function GET() {
         };
       }
 
+      const stats = statsSelection.displayStats;
       const normalizedStats = {
         season: stats.season,
         gamesPlayed: numberOrZero(stats.gamesPlayed),
@@ -926,7 +979,7 @@ export async function GET() {
 
       return {
         ...player,
-        salary: playerSalary(normalizedStats),
+        salary: playerSalary(statsSelection.salaryStats),
         locked: lockedTeams.has(player.team),
         lockReason: lockedTeams.has(player.team) ? "Team game has started" : null,
         stats: normalizedStats
