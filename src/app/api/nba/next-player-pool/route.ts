@@ -702,6 +702,8 @@ async function loadFallbackPoolPlayers(teamTricodes: Set<string>, currentSeason:
     return [] as FallbackPoolPlayer[];
   }
 
+  // Historical team rows are valid for stats/pricing, but they must not create
+  // current roster identities. Otherwise traded players can appear for old teams.
   const rows = await prisma.$queryRawUnsafe<AverageStatsRow[]>(
     `SELECT
        "nbaPlayerId", "season", "gamesPlayed", "minutes", "points", "rebounds", "assists", "steals",
@@ -710,11 +712,11 @@ async function loadFallbackPoolPlayers(teamTricodes: Set<string>, currentSeason:
        "source", "sourceUrl", "playerName", "team"
      FROM "PlayerAverageStats"
      WHERE "seasonType" = $1
-       AND "season" IN ($2, $3)
-       AND "team" = ANY($4::text[])`,
+       AND "season" = $2
+       AND "team" = ANY($3::text[])
+       AND "team" !~ '^[0-9]+TM$'`,
     SEASON_TYPE,
     currentSeason,
-    previousSeason,
     Array.from(teamTricodes)
   );
 
