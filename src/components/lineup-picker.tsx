@@ -288,6 +288,9 @@ export function LineupPicker() {
   );
   const remainingSalary = LINEUP_SALARY_CAP - projectedLineupSalary;
   const salaryCapExceeded = projectedLineupSalary > LINEUP_SALARY_CAP;
+  const salaryCapWarning = salaryCapExceeded
+    ? `Over salary cap by $${projectedLineupSalary - LINEUP_SALARY_CAP}. Remove salary before submitting.`
+    : null;
   const lineupComplete = selectedPlayers.every(Boolean);
   const currentGameDate = data?.gameDate || null;
   const currentGameDayLineups = useMemo(
@@ -434,6 +437,10 @@ export function LineupPicker() {
       setSubmitMessage("Choose one player for every slot before submitting.");
       return;
     }
+    if (salaryCapExceeded) {
+      setSubmitMessage(salaryCapWarning);
+      return;
+    }
 
     setSubmitting(true);
     setSubmitMessage(null);
@@ -571,6 +578,11 @@ export function LineupPicker() {
                 <strong>${projectedLineupSalary} / ${LINEUP_SALARY_CAP}</strong>
                 <small>{remainingSalary >= 0 ? `$${remainingSalary} left` : `$${Math.abs(remainingSalary)} over`}</small>
               </div>
+              {salaryCapWarning ? (
+                <strong className="salaryCapWarning" role="alert" aria-live="polite">
+                  {salaryCapWarning}
+                </strong>
+              ) : null}
               <button className="clearLineupButton" type="button" onClick={clearLineup}>
                 Clear lineup
               </button>
@@ -587,7 +599,7 @@ export function LineupPicker() {
                 Fantasy {projectedLineupScore.toFixed(1)} | ${projectedLineupSalary}/${LINEUP_SALARY_CAP}
               </span>
               <button
-                className={`lineupSubmitButton${lineupComplete ? " ready" : ""}`}
+                className={`lineupSubmitButton${lineupComplete && !salaryCapExceeded ? " ready" : ""}`}
                 type="button"
                 onClick={() => void submitLineup()}
                 disabled={!lineupComplete || salaryCapExceeded || submitting}
