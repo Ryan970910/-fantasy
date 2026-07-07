@@ -3,7 +3,7 @@
   "crons": [
     {
       "path": "/api/cron/sync-games",
-      "schedule": "0 16 * * *"
+      "schedule": "*/5 * * * *"
     },
     {
       "path": "/api/cron/sync-player-average-stats",

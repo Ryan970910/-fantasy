@@ -8,6 +8,7 @@ const NBA_PLAYER_INDEX_URL = "https://cdn.nba.com/static/json/staticData/playerI
 const BBR_PER_GAME_URL = "https://www.basketball-reference.com/leagues/NBA_{year}_per_game.html";
 const REQUEST_TIMEOUT_MS = 8000;
 const SEASON_TYPE = "Regular Season";
+const BEIJING_OFFSET_MS = 8 * 60 * 60 * 1000;
 
 type NbaGameCard = {
   cardData?: {
@@ -17,16 +18,20 @@ type NbaGameCard = {
     seasonType?: string;
     gameStatus?: number;
     gameStatusText?: string;
+    gameClock?: string;
+    period?: number;
     gameTimeUtc?: string;
     homeTeam?: {
       teamId?: number;
       teamName?: string;
       teamTricode?: string;
+      score?: number;
     };
     awayTeam?: {
       teamId?: number;
       teamName?: string;
       teamTricode?: string;
+      score?: number;
     };
   };
 };
@@ -37,8 +42,12 @@ type GameSummary = {
   status: number;
   statusText: string;
   startTimeUTC: string;
+  quarter: string;
+  timeLeft: string;
   homeTeam: { id: number; name: string; tricode: string };
   awayTeam: { id: number; name: string; tricode: string };
+  homeScore: number;
+  awayScore: number;
 };
 
 type GameDay = {
@@ -148,6 +157,45 @@ function selectionDate(offsetDays = 0) {
   return `${year}-${month}-${day}`;
 }
 
+function gameStatusLabel(status: number) {
+  if (status === 1) {
+    return "not_started";
+  }
+  if (status === 2) {
+    return "in_progress";
+  }
+  if (status === 3) {
+    return "finished";
+  }
+  return "unknown";
+}
+
+function quarterLabel(period: number | undefined, status: number) {
+  if (status === 1) {
+    return "Pre";
+  }
+  if (status === 3) {
+    return "Final";
+  }
+  return period ? String(period) : "Live";
+}
+
+function timeLeftLabel(gameClock: string | undefined, statusText: string | undefined, status: number) {
+  if (status === 3) {
+    return "Final";
+  }
+  return gameClock || statusText || "";
+}
+
+function utcToBeijingTimestamp(value: string | undefined) {
+  const utcDate = value ? new Date(value) : null;
+  if (!utcDate || Number.isNaN(utcDate.getTime())) {
+    return new Date(Date.now() + BEIJING_OFFSET_MS);
+  }
+
+  return new Date(utcDate.getTime() + BEIJING_OFFSET_MS);
+}
+
 async function fetchText(url: string) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
@@ -238,6 +286,8 @@ function normalizeGameCards(cards: NbaGameCard[]) {
       status: game.gameStatus ?? 0,
       statusText: game.gameStatusText || "Scheduled",
       startTimeUTC: game.gameTimeUtc || "",
+      quarter: quarterLabel(game.period, game.gameStatus ?? 0),
+      timeLeft: timeLeftLabel(game.gameClock, game.gameStatusText, game.gameStatus ?? 0),
       homeTeam: {
         id: game.homeTeam.teamId ?? 0,
         name: game.homeTeam.teamName || game.homeTeam.teamTricode || "TBD",
@@ -247,9 +297,39 @@ function normalizeGameCards(cards: NbaGameCard[]) {
         id: game.awayTeam.teamId ?? 0,
         name: game.awayTeam.teamName || game.awayTeam.teamTricode || "TBD",
         tricode: game.awayTeam.teamTricode || ""
-      }
+      },
+      homeScore: game.homeTeam.score ?? 0,
+      awayScore: game.awayTeam.score ?? 0
     }];
   });
+}
+
+async function upsertGames(games: GameSummary[]) {
+  for (const game of games) {
+    await prisma.$executeRawUnsafe(
+      `INSERT INTO "Game" ("id", "homeTeam", "awayTeam", "homeScore", "awayScore", "quarter", "timeLeft", "status", "startTime", "createdAt", "updatedAt")
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,now() AT TIME ZONE 'Asia/Shanghai',now() AT TIME ZONE 'Asia/Shanghai')
+       ON CONFLICT ("id") DO UPDATE SET
+         "homeTeam" = EXCLUDED."homeTeam",
+         "awayTeam" = EXCLUDED."awayTeam",
+         "homeScore" = EXCLUDED."homeScore",
+         "awayScore" = EXCLUDED."awayScore",
+         "quarter" = EXCLUDED."quarter",
+         "timeLeft" = EXCLUDED."timeLeft",
+         "status" = EXCLUDED."status",
+         "startTime" = EXCLUDED."startTime",
+         "updatedAt" = now() AT TIME ZONE 'Asia/Shanghai'`,
+      game.gameId,
+      game.homeTeam.tricode || game.homeTeam.name || "TBD",
+      game.awayTeam.tricode || game.awayTeam.name || "TBD",
+      game.homeScore,
+      game.awayScore,
+      game.quarter,
+      game.timeLeft,
+      gameStatusLabel(game.status),
+      utcToBeijingTimestamp(game.startTimeUTC)
+    );
+  }
 }
 
 async function fetchGamesPage(date: string): Promise<GameDay> {
@@ -627,6 +707,8 @@ export async function GET() {
       "NBA.com games cards do not publish full scheduled Summer League rosters before tipoff, so players are pulled from the official NBA playerIndex for those teams.",
       `Per-game stats prefer ${statSeasons.current} ${SEASON_TYPE}; if unavailable, they fall back to ${statSeasons.previous} ${SEASON_TYPE}.`
     ];
+    await upsertGames(selectedGameDay.games);
+    notes.push(`Synced ${selectedGameDay.games.length} game day records into the Game table.`);
 
     try {
       const playerIndex = await fetchJson(NBA_PLAYER_INDEX_URL);
