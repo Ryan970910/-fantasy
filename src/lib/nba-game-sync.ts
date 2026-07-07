@@ -188,6 +188,16 @@ function selectRelevantGames(results: Awaited<ReturnType<typeof fetchGamesPage>>
   return results.find((result) => result.games.length > 0) || null;
 }
 
+function uniqueGamesFromResults(results: Awaited<ReturnType<typeof fetchGamesPage>>[]) {
+  const gamesById = new Map<string, SyncedGame>();
+  for (const result of results) {
+    for (const game of result.games) {
+      gamesById.set(game.id, game);
+    }
+  }
+  return Array.from(gamesById.values()).sort((left, right) => left.startTime.getTime() - right.startTime.getTime());
+}
+
 export async function syncGamesOnce(prisma: PrismaClient) {
   const results = [];
   for (let offset = 0; offset <= 3; offset += 1) {
@@ -195,11 +205,12 @@ export async function syncGamesOnce(prisma: PrismaClient) {
   }
 
   const selected = selectRelevantGames(results);
-  if (!selected) {
+  const gamesToSync = uniqueGamesFromResults(results);
+  if (!selected || gamesToSync.length === 0) {
     throw new Error("No NBA games found in the next 4 Eastern dates");
   }
 
-  for (const game of selected.games) {
+  for (const game of gamesToSync) {
     await prisma.$executeRawUnsafe(
       `INSERT INTO "Game" ("id", "homeTeam", "awayTeam", "homeScore", "awayScore", "quarter", "timeLeft", "status", "startTime", "createdAt", "updatedAt")
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,now() AT TIME ZONE 'Asia/Shanghai',now() AT TIME ZONE 'Asia/Shanghai')
@@ -229,8 +240,9 @@ export async function syncGamesOnce(prisma: PrismaClient) {
     syncedAtBeijing: new Date(Date.now() + BEIJING_OFFSET_MS).toISOString().replace("Z", ""),
     gameDate: selected.gameDate,
     sourceUrl: selected.sourceUrl,
-    count: selected.games.length,
-    games: selected.games.map((game) => ({
+    count: gamesToSync.length,
+    fetchedGameDates: results.filter((result) => result.games.length > 0).map((result) => result.gameDate),
+    games: gamesToSync.map((game) => ({
       id: game.id,
       matchup: `${game.awayTeam}@${game.homeTeam}`,
       status: game.status,
