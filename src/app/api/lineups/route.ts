@@ -17,6 +17,7 @@ type Slot = (typeof slots)[number];
 type SubmittedPlayer = {
   id?: string;
   name?: string;
+  englishName?: string;
   team?: string;
   position?: string;
   salary?: number | null;
@@ -281,7 +282,7 @@ function validateLineupWindow(
 
 function normalizePlayer(slot: Slot, player: SubmittedPlayer | null | undefined) {
   const id = String(player?.id || "").trim();
-  const name = String(player?.name || "").trim();
+  const name = String(player?.englishName || player?.name || "").trim();
   const team = String(player?.team || "").trim();
   const position = String(player?.position || slot).trim();
 
@@ -442,6 +443,7 @@ export async function GET() {
           slot: string;
           id: string;
           name: string;
+          englishName: string;
           displayName: string;
           team: string;
           position: string;
@@ -462,6 +464,7 @@ export async function GET() {
         slot: row.slot,
         id: row.playerId,
         name: row.playerName,
+        englishName: row.playerName,
         displayName: translatePlayerName(row.playerName),
         team: row.team,
         position: row.playerPosition,
@@ -491,6 +494,7 @@ export async function GET() {
         slot: string;
         id: string;
         name: string;
+        englishName: string;
         displayName: string;
         team: string;
         position: string;

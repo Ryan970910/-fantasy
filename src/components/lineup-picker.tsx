@@ -12,6 +12,7 @@ type SortMode = "fantasy" | "points" | "rebounds" | "assists" | "name";
 type PoolPlayer = {
   id: string;
   name: string;
+  englishName?: string;
   displayName?: string;
   team: string;
   teamName: string;
@@ -85,6 +86,7 @@ type SubmittedLineup = {
     slot: string;
     id: string;
     name: string;
+    englishName?: string;
     displayName?: string;
     team: string;
     position: string;
@@ -155,7 +157,7 @@ function normalizePlayerName(value: string) {
 }
 
 function playerDisplayKey(player: PoolPlayer) {
-  return `${normalizePlayerName(player.name)}:${player.team}`;
+  return `${normalizePlayerName(player.englishName || player.name)}:${player.team}`;
 }
 
 function playerDisplayName(player: { name: string; displayName?: string | null }) {
@@ -393,7 +395,7 @@ export function LineupPicker() {
         const rawPlayerId = player.id.replace(/^nba-/, "");
         const poolPlayer = uniquePlayers.find((candidate) =>
           candidate.id === rawPlayerId ||
-          (candidate.name === player.name && candidate.team === player.team)
+          ((candidate.englishName || candidate.name) === (player.englishName || player.name) && candidate.team === player.team)
         );
         nextLineup[player.slot as Slot] = poolPlayer?.id || rawPlayerId;
       }

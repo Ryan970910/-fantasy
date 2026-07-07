@@ -821,7 +821,10 @@ export async function GET() {
       if (fallbackPlayers.length > 0) {
         const lockStatus = buildLockStatus(selectedGameDay.games);
         const lockedTeams = new Set(lockStatus.lockedTeams);
+        const translatePlayerName = createPlayerNameTranslator(await loadPlayerNameTranslations());
         const players = fallbackPlayers.map((player) => {
+          const englishName = player.name;
+          const translatedName = translatePlayerName(englishName);
           const normalizedStats = {
             season: player.stats.season,
             gamesPlayed: numberOrZero(player.stats.gamesPlayed),
@@ -845,6 +848,8 @@ export async function GET() {
 
           return {
             ...player,
+            englishName,
+            displayName: translatedName,
             salary: playerSalary(normalizedStats),
             locked: lockedTeams.has(player.team),
             lockReason: lockedTeams.has(player.team) ? "Team game has started" : null,
@@ -951,9 +956,12 @@ export async function GET() {
     const players = poolPlayers.map((player) => {
       const statsSelection = averageStats.get(player.id);
       if (!statsSelection) {
+        const englishName = player.name;
+        const translatedName = translatePlayerName(englishName);
         return {
           ...player,
-          displayName: translatePlayerName(player.name),
+          englishName,
+          displayName: translatedName,
           salary: playerSalary(player.stats),
           locked: lockedTeams.has(player.team),
           lockReason: lockedTeams.has(player.team) ? "Team game has started" : null
@@ -982,9 +990,12 @@ export async function GET() {
         sourceUrl: stats.sourceUrl
       };
 
+      const englishName = player.name;
+      const translatedName = translatePlayerName(englishName);
       return {
         ...player,
-        displayName: translatePlayerName(player.name),
+        englishName,
+        displayName: translatedName,
         salary: playerSalary(statsSelection.salaryStats),
         locked: lockedTeams.has(player.team),
         lockReason: lockedTeams.has(player.team) ? "Team game has started" : null,
