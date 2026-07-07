@@ -6,8 +6,6 @@ export type PlayerNameTranslationRow = {
   zhCnName: string;
 };
 
-const transliterationJoiner = "\u00b7";
-
 export function normalizeEnglishName(value: string) {
   return value
     .normalize("NFD")
@@ -17,20 +15,6 @@ export function normalizeEnglishName(value: string) {
     .replace(/\s+/g, " ")
     .trim()
     .toLowerCase();
-}
-
-function nameParts(value: string) {
-  return value
-    .replace(/[.'\u2019]/g, "")
-    .split(/[\s-]+/)
-    .map((part) => part.trim())
-    .filter(Boolean);
-}
-
-function cleanTranslatedNamePart(value: string) {
-  return value
-    .replace(new RegExp(`^${transliterationJoiner}+|${transliterationJoiner}+$`, "g"), "")
-    .trim();
 }
 
 export async function loadPlayerNameTranslations() {
@@ -57,19 +41,6 @@ export function createPlayerNameTranslator(rows: PlayerNameTranslationRow[]) {
     const exact = byNormalizedName.get(normalizeEnglishName(englishName));
     if (exact) {
       return exact;
-    }
-
-    let translatedPartCount = 0;
-    const translatedParts = nameParts(englishName).map((part) => {
-      const translated = byNormalizedName.get(normalizeEnglishName(part));
-      if (translated) {
-        translatedPartCount += 1;
-        return cleanTranslatedNamePart(translated);
-      }
-      return part;
-    });
-    if (translatedPartCount > 0) {
-      return translatedParts.join(transliterationJoiner);
     }
 
     return englishName;
