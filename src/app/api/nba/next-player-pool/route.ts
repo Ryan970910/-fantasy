@@ -60,7 +60,7 @@ type GameDay = {
 
 type SelectedGameDay = GameDay & {
   poolGames: GameSummary[];
-  poolMode: "future-scheduled" | "scheduled" | "all-games";
+  poolMode: "current-day" | "future-scheduled" | "scheduled" | "all-games";
 };
 
 type AverageStatsRow = {
@@ -359,8 +359,21 @@ function scheduledGames(result: GameDay) {
   return result.games.filter((game) => game.status === 1);
 }
 
-function chooseNextGameDay(results: GameDay[]): SelectedGameDay | null {
+function unfinishedGames(result: GameDay) {
+  return result.games.filter((game) => game.status !== 3);
+}
+
+function chooseNextGameDay(results: GameDay[], today: string): SelectedGameDay | null {
   const now = Date.now();
+  const todayResult = results.find((result) => result.gameDate === today && result.games.length > 0);
+  if (todayResult && unfinishedGames(todayResult).length > 0) {
+    return {
+      ...todayResult,
+      poolGames: futureScheduledGames(todayResult, now),
+      poolMode: "current-day"
+    };
+  }
+
   const futureResult = results.find((result) => futureScheduledGames(result, now).length > 0);
   if (futureResult) {
     return { ...futureResult, poolGames: futureScheduledGames(futureResult, now), poolMode: "future-scheduled" };
@@ -758,7 +771,8 @@ async function loadFallbackPoolPlayers(teamTricodes: Set<string>, currentSeason:
 
 export async function GET() {
   const errors: string[] = [];
-  const dates = Array.from(new Set([selectionDate(1), selectionDate(2), selectionDate(3), selectionDate(4)]));
+  const today = selectionDate(0);
+  const dates = Array.from(new Set([today, selectionDate(1), selectionDate(2), selectionDate(3), selectionDate(4)]));
   const gameResults: GameDay[] = [];
 
   for (const date of dates) {
@@ -772,7 +786,7 @@ export async function GET() {
     }
   }
 
-  const selectedGameDay = chooseNextGameDay(gameResults);
+  const selectedGameDay = chooseNextGameDay(gameResults, today);
   if (!selectedGameDay) {
     return NextResponse.json(
       {

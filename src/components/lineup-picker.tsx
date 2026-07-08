@@ -305,8 +305,8 @@ export function LineupPicker() {
     [currentGameDate, submittedLineups]
   );
   const visibleSubmittedLineups = submittedTab === "current" ? currentGameDayLineups : historicalLineups;
-  const hasSubmittedLineup = currentGameDayLineups.length > 0;
   const hasLockedTeams = Boolean(data?.lockStatus?.lockedTeams?.length);
+  const canCreateLineup = Boolean(data && !error && uniquePlayers.some((player) => !player.locked));
   const showPicker = isCreatingLineup || Boolean(editingLineupId);
 
   const teams = useMemo(() => Array.from(new Set(uniquePlayers.map((player) => player.team))).sort(), [uniquePlayers]);
@@ -372,7 +372,7 @@ export function LineupPicker() {
   }
 
   function startEditLineup(submittedLineup: SubmittedLineup) {
-    if (submittedLineup.gameDate !== currentGameDate) {
+    if (submittedLineup.gameDate !== currentGameDate || !canCreateLineup) {
       return;
     }
 
@@ -409,6 +409,11 @@ export function LineupPicker() {
   }
 
   function startCreateLineup() {
+    if (!canCreateLineup) {
+      setSubmitMessage("No selectable players are available yet.");
+      return;
+    }
+
     setLineup({
       PG: "",
       SG: "",
@@ -738,9 +743,11 @@ export function LineupPicker() {
           <div className="lineupEmpty">
             <strong>No lineup submitted yet</strong>
             <span>Your submitted picks will show here after you press Submit.</span>
-            <button className="createLineupButton" type="button" onClick={startCreateLineup}>
-              Create
-            </button>
+            {canCreateLineup ? (
+              <button className="createLineupButton" type="button" onClick={startCreateLineup}>
+                Create
+              </button>
+            ) : null}
           </div>
         ) : null}
 
@@ -752,7 +759,7 @@ export function LineupPicker() {
                 ? "The lineup for this game day will show here after you submit it."
                 : "Older game day lineups will show here after a new game day opens."}
             </span>
-            {submittedTab === "current" ? (
+            {submittedTab === "current" && canCreateLineup ? (
               <button className="createLineupButton" type="button" onClick={startCreateLineup}>
                 Create
               </button>
@@ -764,7 +771,7 @@ export function LineupPicker() {
           <div className="submittedLineupList">
             {visibleSubmittedLineups.map((submittedLineup) => {
               const isExpanded = expandedLineupIds.has(submittedLineup.id);
-              const canEdit = submittedLineup.gameDate === currentGameDate;
+              const canEdit = submittedLineup.gameDate === currentGameDate && canCreateLineup;
               return (
                 <article
                   key={submittedLineup.id}
