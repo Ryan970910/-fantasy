@@ -214,18 +214,6 @@ model PlayerAverageStats {
   @@index([season, seasonType])
 }
 
-model PlayerNameTranslation {
-  id                    String   @id @default(cuid())
-  englishName           String
-  normalizedEnglishName String   @unique
-  zhCnName              String
-  source                String
-  sourceUrl             String
-  updatedAt             DateTime @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)"))
-
-  @@index([englishName])
-}
-
 model Matchup {
   id          String      @id @default(cuid())
   leagueId    String

@@ -2,7 +2,6 @@ import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-import { createPlayerNameTranslator, loadPlayerNameTranslations } from "@/lib/player-name-translations";
 
 export const dynamic = "force-dynamic";
 
@@ -398,7 +397,6 @@ export async function GET() {
   if (!currentUser) {
     return jsonError("Login required.", 401);
   }
-  const translatePlayerName = createPlayerNameTranslator(await loadPlayerNameTranslations());
 
   const rows = await prisma.$queryRawUnsafe<LineupRow[]>(
     `SELECT
@@ -444,7 +442,6 @@ export async function GET() {
           id: string;
           name: string;
           englishName: string;
-          displayName: string;
           team: string;
           position: string;
           salary: number;
@@ -465,7 +462,6 @@ export async function GET() {
         id: row.playerId,
         name: row.playerName,
         englishName: row.playerName,
-        displayName: translatePlayerName(row.playerName),
         team: row.team,
         position: row.playerPosition,
         salary: Number(row.salary) || 0,
@@ -495,7 +491,6 @@ export async function GET() {
         id: string;
         name: string;
         englishName: string;
-        displayName: string;
         team: string;
         position: string;
         salary: number;
