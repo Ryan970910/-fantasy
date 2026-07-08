@@ -46,7 +46,7 @@ type LiveResponse = {
 
 function formatTime(value: string | null | undefined) {
   if (!value) {
-    return "Not available";
+    return "暂无";
   }
 
   const date = new Date(value);
@@ -54,7 +54,7 @@ function formatTime(value: string | null | undefined) {
     return value;
   }
 
-  return new Intl.DateTimeFormat(undefined, {
+  return new Intl.DateTimeFormat("zh-CN", {
     month: "short",
     day: "numeric",
     hour: "2-digit",
@@ -82,13 +82,13 @@ export function NbaLiveStats() {
       const payload = (await response.json()) as LiveResponse;
 
       if (!response.ok) {
-        throw new Error(payload.error || "Unable to load NBA live stats");
+        throw new Error(payload.error || "无法加载 NBA 实时数据。");
       }
 
       setData(payload);
       setError(null);
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Unable to load NBA live stats");
+      setError(caught instanceof Error ? caught.message : "无法加载 NBA 实时数据。");
     } finally {
       setLoading(false);
     }
@@ -112,29 +112,29 @@ export function NbaLiveStats() {
     <section className="liveStats" aria-labelledby="live-stats-title">
       <div className="liveHeader">
         <div>
-          <p className="eyebrow">Official NBA feed</p>
-          <h2 id="live-stats-title">Live game stats</h2>
+          <p className="eyebrow">NBA 官方数据源</p>
+          <h2 id="live-stats-title">实时比赛数据</h2>
           <p className="liveMeta">
-            {data ? `${data.source} | Feed date ${data.gameDate || "unknown"} | Updated ${formatTime(data.fetchedAt)}` : "Loading official NBA data"}
+            {data ? `${data.source} | 数据日期 ${data.gameDate || "未知"} | 更新时间 ${formatTime(data.fetchedAt)}` : "正在加载 NBA 官方数据"}
           </p>
         </div>
         <button className="refreshButton" type="button" onClick={() => void loadLiveStats()} disabled={loading}>
           <RefreshCw size={16} aria-hidden="true" />
-          {loading ? "Refreshing" : "Refresh"}
+          {loading ? "刷新中" : "刷新"}
         </button>
       </div>
 
       {error ? (
         <div className="liveEmpty">
-          <strong>NBA live feed unavailable</strong>
+          <strong>NBA 实时数据不可用</strong>
           <span>{error}</span>
         </div>
       ) : null}
 
       {!error && !featuredGame && !loading ? (
         <div className="liveEmpty">
-          <strong>No games in the current NBA live feed</strong>
-          <span>The panel will update automatically when the official feed publishes games.</span>
+          <strong>当前 NBA 实时数据源没有比赛</strong>
+          <span>官方数据发布比赛后这里会自动更新。</span>
         </div>
       ) : null}
 
@@ -167,21 +167,21 @@ export function NbaLiveStats() {
                 <div key={`${leader.team}-${leader.name}`} className="leaderRow">
                   <Trophy size={16} aria-hidden="true" />
                   <span>{leader.name}</span>
-                  <strong>{leader.points} PTS | {leader.rebounds} REB | {leader.assists} AST</strong>
+                  <strong>{leader.points} 分 | {leader.rebounds} 板 | {leader.assists} 助</strong>
                 </div>
               ))}
             </div>
           </article>
 
           <article className="playerTableCard">
-            <h3>Top box score players</h3>
+            <h3>数据领先球员</h3>
             {featuredGame.topPlayers.length ? (
-              <div className="playerTable" role="table" aria-label="Top NBA box score players">
+              <div className="playerTable" role="table" aria-label="NBA 数据领先球员">
                 <div className="playerTableHead" role="row">
-                  <span>Player</span>
-                  <span>PTS</span>
-                  <span>REB</span>
-                  <span>AST</span>
+                  <span>球员</span>
+                  <span>得分</span>
+                  <span>篮板</span>
+                  <span>助攻</span>
                   <span>3PM</span>
                 </div>
                 {featuredGame.topPlayers.slice(0, 6).map((player) => (
@@ -198,7 +198,7 @@ export function NbaLiveStats() {
                 ))}
               </div>
             ) : (
-              <p className="liveMeta">Box score player stats are not available for this game yet.</p>
+              <p className="liveMeta">这场比赛暂时没有球员技术统计。</p>
             )}
           </article>
         </div>

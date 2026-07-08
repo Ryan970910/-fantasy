@@ -2,13 +2,13 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Fantasy NBA System",
-  description: "A Yahoo Fantasy NBA style league system."
+  title: "梦幻 NBA 系统",
+  description: "工资帽模式的梦幻 NBA 阵容系统。"
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en">
+    <html lang="zh-CN">
       <body>{children}</body>
     </html>
   );

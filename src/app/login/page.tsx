@@ -42,7 +42,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
     const redirectTo = safeRedirectPath(formData.get("next"));
 
     if (!email || !password) {
-      redirect(loginErrorUrl("Email and password are required.", redirectTo));
+      redirect(loginErrorUrl("请输入邮箱和密码。", redirectTo));
     }
 
     const user = await prisma.user.findUnique({
@@ -54,7 +54,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
     });
 
     if (!user || !(await verifyPassword(password, user.passwordHash))) {
-      redirect(loginErrorUrl("Invalid email or password.", redirectTo));
+      redirect(loginErrorUrl("邮箱或密码不正确。", redirectTo));
     }
 
     await createSession(user.id);
@@ -64,27 +64,27 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
   return (
     <main className="authShell">
       <section className="authPanel" aria-labelledby="login-title">
-        <p className="eyebrow">Fantasy NBA</p>
-        <h1 id="login-title">Log in</h1>
-        <p className="authCopy">Use your account to access live stats and lineup selection.</p>
+        <p className="eyebrow">梦幻 NBA</p>
+        <h1 id="login-title">登录</h1>
+        <p className="authCopy">登录后进入阵容选择页面。</p>
 
         {params.error ? <div className="authError">{params.error}</div> : null}
 
         <form className="authForm" action={loginAction}>
           <input type="hidden" name="next" value={nextPath} />
           <label>
-            Email
+            邮箱
             <input name="email" type="email" autoComplete="email" required />
           </label>
           <label>
-            Password
+            密码
             <input name="password" type="password" autoComplete="current-password" required />
           </label>
-          <button className="authButton" type="submit">Log in</button>
+          <button className="authButton" type="submit">登录</button>
         </form>
 
         <p className="authSwitch">
-          No account yet? <Link href={`/register?next=${encodeURIComponent(nextPath)}`}>Register</Link>
+          还没有账号？<Link href={`/register?next=${encodeURIComponent(nextPath)}`}>注册</Link>
         </p>
       </section>
     </main>

@@ -43,11 +43,11 @@ export default async function RegisterPage({ searchParams }: { searchParams: Pro
     const redirectTo = safeRedirectPath(formData.get("next"));
 
     if (!name || !email || !password) {
-      redirect(registerErrorUrl("Name, email, and password are required.", redirectTo));
+      redirect(registerErrorUrl("请输入姓名、邮箱和密码。", redirectTo));
     }
 
     if (password.length < 8) {
-      redirect(registerErrorUrl("Password must be at least 8 characters.", redirectTo));
+      redirect(registerErrorUrl("密码至少需要 8 个字符。", redirectTo));
     }
 
     const existingUser = await prisma.user.findUnique({
@@ -56,7 +56,7 @@ export default async function RegisterPage({ searchParams }: { searchParams: Pro
     });
 
     if (existingUser) {
-      redirect(registerErrorUrl("That email is already registered.", redirectTo));
+      redirect(registerErrorUrl("这个邮箱已经注册。", redirectTo));
     }
 
     try {
@@ -74,7 +74,7 @@ export default async function RegisterPage({ searchParams }: { searchParams: Pro
       await createSession(user.id);
     } catch (error) {
       console.error("Registration failed", error);
-      redirect(registerErrorUrl("Unable to create account. Please try again.", redirectTo));
+      redirect(registerErrorUrl("无法创建账号，请稍后重试。", redirectTo));
     }
 
     redirect(redirectTo);
@@ -83,31 +83,31 @@ export default async function RegisterPage({ searchParams }: { searchParams: Pro
   return (
     <main className="authShell">
       <section className="authPanel" aria-labelledby="register-title">
-        <p className="eyebrow">Fantasy NBA</p>
-        <h1 id="register-title">Create account</h1>
-        <p className="authCopy">Register before entering the fantasy NBA dashboard.</p>
+        <p className="eyebrow">梦幻 NBA</p>
+        <h1 id="register-title">创建账号</h1>
+        <p className="authCopy">注册后进入阵容选择页面。</p>
 
         {params.error ? <div className="authError">{params.error}</div> : null}
 
         <form className="authForm" action={registerAction}>
           <input type="hidden" name="next" value={nextPath} />
           <label>
-            Name
+            姓名
             <input name="name" type="text" autoComplete="name" required />
           </label>
           <label>
-            Email
+            邮箱
             <input name="email" type="email" autoComplete="email" required />
           </label>
           <label>
-            Password
+            密码
             <input name="password" type="password" autoComplete="new-password" minLength={8} required />
           </label>
-          <button className="authButton" type="submit">Register</button>
+          <button className="authButton" type="submit">注册</button>
         </form>
 
         <p className="authSwitch">
-          Already registered? <Link href={`/login?next=${encodeURIComponent(nextPath)}`}>Log in</Link>
+          已有账号？<Link href={`/login?next=${encodeURIComponent(nextPath)}`}>登录</Link>
         </p>
       </section>
     </main>

@@ -109,10 +109,10 @@ type LineupsResponse = {
 function formatGameTime(value: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) {
-    return value || "TBD";
+    return value || "待定";
   }
 
-  return new Intl.DateTimeFormat(undefined, {
+  return new Intl.DateTimeFormat("zh-CN", {
     month: "short",
     day: "numeric",
     hour: "2-digit",
@@ -123,10 +123,10 @@ function formatGameTime(value: string) {
 function formatDateTime(value: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) {
-    return value || "TBD";
+    return value || "待定";
   }
 
-  return new Intl.DateTimeFormat(undefined, {
+  return new Intl.DateTimeFormat("zh-CN", {
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -203,6 +203,35 @@ function playerGameLabel(player: PoolPlayer, games: PoolGame[]) {
   return `${game.awayTeam.tricode} vs ${game.homeTeam.tricode}`;
 }
 
+function lineupDisplayName(name: string) {
+  if (name === "My Lineup") {
+    return "我的阵容";
+  }
+
+  return name.replace(/^Lineup\s+/, "阵容 ");
+}
+
+function gameStatusLabel(value: string) {
+  const normalized = value.trim().toLowerCase();
+  if (!normalized) {
+    return "待定";
+  }
+  if (normalized.includes("final")) {
+    return "已结束";
+  }
+  if (normalized.includes("halftime")) {
+    return "中场";
+  }
+  if (normalized.includes("progress") || normalized.includes("live")) {
+    return "进行中";
+  }
+  if (normalized.includes("scheduled") || normalized.includes("not started")) {
+    return "未开始";
+  }
+
+  return value;
+}
+
 export function LineupPicker() {
   const [data, setData] = useState<PoolResponse | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -235,12 +264,12 @@ export function LineupPicker() {
       setData(payload);
 
       if (!response.ok) {
-        throw new Error(payload.error || "Unable to load next game day player pool");
+        throw new Error(payload.error || "无法加载下一比赛日球员池。");
       }
 
       setError(null);
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Unable to load next game day player pool");
+      setError(caught instanceof Error ? caught.message : "无法加载下一比赛日球员池。");
     } finally {
       setLoading(false);
     }
@@ -252,13 +281,13 @@ export function LineupPicker() {
       const payload = (await response.json()) as LineupsResponse;
 
       if (!response.ok) {
-        throw new Error(payload.error || "Unable to load submitted lineups");
+        throw new Error(payload.error || "无法加载已提交阵容。");
       }
 
       setSubmittedLineups(payload.lineups || []);
       setLineupsError(null);
     } catch (caught) {
-      setLineupsError(caught instanceof Error ? caught.message : "Unable to load submitted lineups");
+      setLineupsError(caught instanceof Error ? caught.message : "无法加载已提交阵容。");
     }
   }
 
@@ -292,7 +321,7 @@ export function LineupPicker() {
   const remainingSalary = LINEUP_SALARY_CAP - projectedLineupSalary;
   const salaryCapExceeded = projectedLineupSalary > LINEUP_SALARY_CAP;
   const salaryCapWarning = salaryCapExceeded
-    ? `Over salary cap by $${projectedLineupSalary - LINEUP_SALARY_CAP}. Remove salary before submitting.`
+    ? `超出工资帽 $${projectedLineupSalary - LINEUP_SALARY_CAP}，请调整阵容后再提交。`
     : null;
   const lineupComplete = selectedPlayers.every(Boolean);
   const currentGameDate = data?.gameDate || null;
@@ -410,7 +439,7 @@ export function LineupPicker() {
 
   function startCreateLineup() {
     if (!canCreateLineup) {
-      setSubmitMessage("No selectable players are available yet.");
+      setSubmitMessage("暂无可选球员。");
       return;
     }
 
@@ -442,7 +471,7 @@ export function LineupPicker() {
 
   async function submitLineup() {
     if (!data || !lineupComplete) {
-      setSubmitMessage("Choose one player for every slot before submitting.");
+      setSubmitMessage("请为每个位置选择一名球员。");
       return;
     }
     if (salaryCapExceeded) {
@@ -469,10 +498,10 @@ export function LineupPicker() {
       const payload = (await response.json()) as { lineupId?: string; error?: string };
 
       if (!response.ok) {
-        throw new Error(payload.error || "Unable to submit lineup.");
+        throw new Error(payload.error || "无法提交阵容。");
       }
 
-      setSubmitMessage(isEditing ? "Lineup updated." : `Lineup submitted: ${payload.lineupId}`);
+      setSubmitMessage(isEditing ? "阵容已更新。" : "阵容已提交。");
       setEditingLineupId(null);
       setIsCreatingLineup(false);
       setLineup({
@@ -484,7 +513,7 @@ export function LineupPicker() {
       });
       await loadSubmittedLineups();
     } catch (caught) {
-      setSubmitMessage(caught instanceof Error ? caught.message : "Unable to submit lineup.");
+      setSubmitMessage(caught instanceof Error ? caught.message : "无法提交阵容。");
     } finally {
       setSubmitting(false);
     }
@@ -500,7 +529,7 @@ export function LineupPicker() {
       const payload = (await response.json()) as { error?: string };
 
       if (!response.ok) {
-        throw new Error(payload.error || "Unable to delete lineup.");
+        throw new Error(payload.error || "无法删除阵容。");
       }
 
       if (editingLineupId === lineupId) {
@@ -508,10 +537,10 @@ export function LineupPicker() {
       }
       setIsCreatingLineup(false);
       clearLineup();
-      setSubmitMessage("Lineup deleted.");
+      setSubmitMessage("阵容已删除。");
       await loadSubmittedLineups();
     } catch (caught) {
-      setSubmitMessage(caught instanceof Error ? caught.message : "Unable to delete lineup.");
+      setSubmitMessage(caught instanceof Error ? caught.message : "无法删除阵容。");
     } finally {
       setSubmitting(false);
     }
@@ -522,41 +551,41 @@ export function LineupPicker() {
       {showPicker ? (
         <div className="lineupHeader">
           <div>
-            <p className="eyebrow">Next game day player pool</p>
-            <h2 id="lineup-picker-title">{editingLineupId ? "Edit your starting five" : "Create your starting five"}</h2>
+            <p className="eyebrow">下一比赛日球员池</p>
+            <h2 id="lineup-picker-title">{editingLineupId ? "编辑首发五人" : "创建首发五人"}</h2>
             <p className="liveMeta">
               {data
-                ? `${data.gameDate || "Next game day"} | ${uniquePlayers.length} players | ${data.teams.length} teams`
-                : "Loading player pool"}
+                ? `${data.gameDate || "下一比赛日"} | ${uniquePlayers.length} 名球员 | ${data.teams.length} 支球队`
+                : "正在加载球员池"}
             </p>
           </div>
           <button className="refreshButton" type="button" onClick={() => void loadPool()} disabled={loading}>
             <RefreshCw size={16} aria-hidden="true" />
-            {loading ? "Refreshing" : "Refresh"}
+            {loading ? "刷新中" : "刷新"}
           </button>
         </div>
       ) : null}
 
       {showPicker && error ? (
         <div className="liveEmpty">
-          <strong>Player pool unavailable</strong>
+          <strong>球员池不可用</strong>
           <span>{error}</span>
         </div>
       ) : null}
 
       {showPicker && hasLockedTeams ? (
         <div className="lineupLockedNotice">
-          <strong>Players locked</strong>
+          <strong>球员已锁定</strong>
           <span>{`\u5df2\u5f00\u8d5b\u7403\u961f\u7684\u7403\u5458\u5df2\u9501\u5b9a\uff0c\u8fd8\u6ca1\u5f00\u8d5b\u7684\u7403\u5458\u4ecd\u7136\u53ef\u4ee5\u9009\u62e9\u6216\u66f4\u6362\u3002`}</span>
         </div>
       ) : null}
 
       {showPicker && !error && data ? (
         <div className="lineupGrid lineupSelectionGrid">
-          <aside className="lineupRail" aria-label="Current lineup">
+          <aside className="lineupRail" aria-label="当前阵容">
             <h3>
               <UserRoundCheck size={18} aria-hidden="true" />
-              Lineup
+              阵容
             </h3>
             <div className="lineupSlotList">
               {slots.map((slot) => {
@@ -569,11 +598,11 @@ export function LineupPicker() {
                     onClick={() => setActiveSlot(slot)}
                   >
                     <span>{slot}</span>
-                    <strong>{player ? player.name : "Open"}</strong>
+                    <strong>{player ? player.name : "待选"}</strong>
                     <small>
                       {player
-                        ? `${player.team} | $${player.salary} | ${formatStatValue(player.stats.points)} PTS`
-                        : "Tap to fill"}
+                        ? `${player.team} | $${player.salary} | ${formatStatValue(player.stats.points)} 得分`
+                        : "点击选择"}
                     </small>
                   </button>
                 );
@@ -582,24 +611,24 @@ export function LineupPicker() {
 
             <div className="lineupActionsBar">
               <div className={`salaryCapMeter${salaryCapExceeded ? " over" : ""}`}>
-                <span>Salary</span>
+                <span>工资</span>
                 <strong>${projectedLineupSalary} / ${LINEUP_SALARY_CAP}</strong>
-                <small>{remainingSalary >= 0 ? `$${remainingSalary} left` : `$${Math.abs(remainingSalary)} over`}</small>
+                <small>{remainingSalary >= 0 ? `剩余 $${remainingSalary}` : `超出 $${Math.abs(remainingSalary)}`}</small>
               </div>
               <button className="clearLineupButton" type="button" onClick={clearLineup}>
-                Clear lineup
+                清空阵容
               </button>
               {editingLineupId ? (
                 <button className="cancelLineupButton" type="button" onClick={cancelEditLineup}>
-                  Cancel edit
+                  取消编辑
                 </button>
               ) : isCreatingLineup ? (
                 <button className="cancelLineupButton" type="button" onClick={cancelEditLineup}>
-                  Cancel create
+                  取消创建
                 </button>
               ) : null}
               <span className={`lineupActionScore${salaryCapExceeded ? " over" : ""}`}>
-                Fantasy {projectedLineupScore.toFixed(1)} | ${projectedLineupSalary}/${LINEUP_SALARY_CAP}
+                梦幻分 {projectedLineupScore.toFixed(1)} | ${projectedLineupSalary}/${LINEUP_SALARY_CAP}
               </span>
               <button
                 className={`lineupSubmitButton${lineupComplete && !salaryCapExceeded ? " ready" : ""}${lineupComplete && salaryCapExceeded ? " overCap" : ""}`}
@@ -607,7 +636,7 @@ export function LineupPicker() {
                 onClick={() => void submitLineup()}
                 disabled={!lineupComplete || submitting}
               >
-                {submitting ? "Saving" : editingLineupId ? "Save changes" : "Submit"}
+                {submitting ? "保存中" : editingLineupId ? "保存修改" : "提交"}
               </button>
               {submitMessage ? <small className="lineupMessage">{submitMessage}</small> : null}
             </div>
@@ -616,22 +645,22 @@ export function LineupPicker() {
           <div className="playerBoard">
             <div className="playerBoardToolbar">
               <div>
-                <strong>Choose {activeSlot}</strong>
-                <small>{availablePlayers.length} available players</small>
+                <strong>选择 {activeSlot}</strong>
+                <small>{availablePlayers.length} 名可选球员</small>
               </div>
               <div className="toolbarControls">
-                <select value={teamFilter} onChange={(event) => setTeamFilter(event.target.value)} aria-label="Filter team">
-                  <option value="ALL">All teams</option>
+                <select value={teamFilter} onChange={(event) => setTeamFilter(event.target.value)} aria-label="筛选球队">
+                  <option value="ALL">全部球队</option>
                   {teams.map((team) => (
                     <option key={team} value={team}>{team}</option>
                   ))}
                 </select>
-                <select value={sortMode} onChange={(event) => setSortMode(event.target.value as SortMode)} aria-label="Sort players">
-                  <option value="fantasy">Sort by fantasy</option>
-                  <option value="points">Sort by PTS</option>
-                  <option value="rebounds">Sort by REB</option>
-                  <option value="assists">Sort by AST</option>
-                  <option value="name">Sort by name</option>
+                <select value={sortMode} onChange={(event) => setSortMode(event.target.value as SortMode)} aria-label="球员排序">
+                  <option value="fantasy">按梦幻分排序</option>
+                  <option value="points">按得分排序</option>
+                  <option value="rebounds">按篮板排序</option>
+                  <option value="assists">按助攻排序</option>
+                  <option value="name">按姓名排序</option>
                 </select>
               </div>
             </div>
@@ -655,11 +684,11 @@ export function LineupPicker() {
                       <small>{playerGameLabel(player, data.allGamesOnDate?.length ? data.allGamesOnDate : data.games)}</small>
                     </span>
                     <span className="playerStats">
-                      <small className="playerStatsLabel">Fantasy</small>
+                      <small className="playerStatsLabel">梦幻分</small>
                       <strong>{projectedScore(player).toFixed(1)}</strong>
-                      <small>${player.salary} | {formatStatValue(player.stats.minutes ?? null)} MIN</small>
+                      <small>${player.salary} | {formatStatValue(player.stats.minutes ?? null)} 分钟</small>
                     </span>
-                    <span className="selectPill">{player.locked ? lockedLabel : selectedForActiveSlot ? "Selected" : "Select"}</span>
+                    <span className="selectPill">{player.locked ? lockedLabel : selectedForActiveSlot ? "已选" : "选择"}</span>
                   </button>
                 );
               })}
@@ -674,7 +703,7 @@ export function LineupPicker() {
             <div key={game.gameId} className="nextGame">
               <strong>{game.awayTeam.tricode} @ {game.homeTeam.tricode}</strong>
               <span>{game.eventName}</span>
-              <small>{formatGameTime(game.startTimeUTC)} - {game.statusText}</small>
+              <small>{formatGameTime(game.startTimeUTC)} - {gameStatusLabel(game.statusText)}</small>
             </div>
           ))}
         </div>
@@ -690,11 +719,11 @@ export function LineupPicker() {
             aria-describedby="salary-cap-popup-message"
             onClick={(event) => event.stopPropagation()}
           >
-            <p className="eyebrow">Salary cap</p>
-            <h3 id="salary-cap-popup-title">Lineup exceeds cap</h3>
+            <p className="eyebrow">工资帽</p>
+            <h3 id="salary-cap-popup-title">阵容超出工资帽</h3>
             <p id="salary-cap-popup-message">{salaryCapWarning}</p>
             <button type="button" onClick={() => setSalaryCapPopupOpen(false)}>
-              OK
+              确定
             </button>
           </div>
         </div>
@@ -703,13 +732,13 @@ export function LineupPicker() {
       <section className="submittedLineups" aria-labelledby="submitted-lineups-title">
         <div className="submittedLineupsHeader">
           <div>
-            <p className="eyebrow">Submitted lineup</p>
-            <h3 id="submitted-lineups-title">Your saved picks</h3>
+            <p className="eyebrow">已提交阵容</p>
+            <h3 id="submitted-lineups-title">已保存选择</h3>
           </div>
-          <span>{submittedLineups.length} submitted</span>
+          <span>已提交 {submittedLineups.length} 个</span>
         </div>
 
-        <div className="submittedLineupTabs" role="tablist" aria-label="Submitted lineups">
+        <div className="submittedLineupTabs" role="tablist" aria-label="已提交阵容">
           <button
             className={`submittedLineupTab${submittedTab === "current" ? " active" : ""}`}
             type="button"
@@ -717,7 +746,7 @@ export function LineupPicker() {
             aria-selected={submittedTab === "current"}
             onClick={() => setSubmittedTab("current")}
           >
-            Current lineup
+            当前阵容
             <span>{currentGameDayLineups.length}</span>
           </button>
           <button
@@ -727,25 +756,25 @@ export function LineupPicker() {
             aria-selected={submittedTab === "history"}
             onClick={() => setSubmittedTab("history")}
           >
-            History lineup
+            历史阵容
             <span>{historicalLineups.length}</span>
           </button>
         </div>
 
         {lineupsError ? (
           <div className="lineupEmpty">
-            <strong>Unable to load submitted lineup</strong>
+            <strong>无法加载已提交阵容</strong>
             <span>{lineupsError}</span>
           </div>
         ) : null}
 
         {!lineupsError && submittedLineups.length === 0 ? (
           <div className="lineupEmpty">
-            <strong>No lineup submitted yet</strong>
-            <span>Your submitted picks will show here after you press Submit.</span>
+            <strong>还没有提交阵容</strong>
+            <span>提交后会显示在这里。</span>
             {canCreateLineup ? (
               <button className="createLineupButton" type="button" onClick={startCreateLineup}>
-                Create
+                创建
               </button>
             ) : null}
           </div>
@@ -753,15 +782,15 @@ export function LineupPicker() {
 
         {!lineupsError && submittedLineups.length > 0 && visibleSubmittedLineups.length === 0 ? (
           <div className="lineupEmpty">
-            <strong>{submittedTab === "current" ? "No current lineup" : "No historical lineup"}</strong>
+            <strong>{submittedTab === "current" ? "暂无当前阵容" : "暂无历史阵容"}</strong>
             <span>
               {submittedTab === "current"
-                ? "The lineup for this game day will show here after you submit it."
-                : "Older game day lineups will show here after a new game day opens."}
+                ? "提交本比赛日阵容后会显示在这里。"
+                : "新比赛日开启后，旧阵容会显示在这里。"}
             </span>
             {submittedTab === "current" && canCreateLineup ? (
               <button className="createLineupButton" type="button" onClick={startCreateLineup}>
-                Create
+                创建
               </button>
             ) : null}
           </div>
@@ -784,11 +813,11 @@ export function LineupPicker() {
                     onClick={() => toggleLineupExpanded(submittedLineup.id)}
                   >
                       <span className="lineupThumbTop">
-                        <span>{submittedLineup.name}</span>
+                        <span>{lineupDisplayName(submittedLineup.name)}</span>
                         <strong>{submittedLineup.totalPoints.toFixed(1)}</strong>
                       </span>
                       <span className="lineupThumbMeta">
-                      Game day {formatDateTime(submittedLineup.gameDay)} | Salary ${submittedLineup.totalSalary || 0}/${LINEUP_SALARY_CAP}
+                      比赛日 {formatDateTime(submittedLineup.gameDay)} | 工资 $${submittedLineup.totalSalary || 0}/${LINEUP_SALARY_CAP}
                       </span>
                     <span className="lineupMiniPlayers" aria-hidden="true">
                       {slots.map((slot) => {
@@ -796,30 +825,30 @@ export function LineupPicker() {
                         return (
                           <span key={`${submittedLineup.id}-thumb-${slot}`} className="lineupMiniPlayer">
                             <span>{slot}</span>
-                            <strong>{player ? player.name : "Open"}</strong>
+                            <strong>{player ? player.name : "待选"}</strong>
                             <small>{player ? `$${player.salary || 0}` : "$0"}</small>
                           </span>
                         );
                       })}
                     </span>
-                    <span className="lineupExpandHint">{isExpanded ? "Click to collapse" : "Click to expand"}</span>
+                    <span className="lineupExpandHint">{isExpanded ? "点击收起" : "点击展开"}</span>
                   </button>
 
                   <div className="submittedLineupFooter">
-                    <small>Submitted {formatDateTime(submittedLineup.createdAt)}</small>
+                    <small>提交时间 {formatDateTime(submittedLineup.createdAt)}</small>
                     <span className="submittedLineupButtons">
                       {submittedTab === "current" && canEdit ? (
                         <button
                           className="submittedLineupDelete"
                           type="button"
                           onClick={() => {
-                            if (window.confirm("Delete this current lineup?")) {
+                            if (window.confirm("确定删除当前阵容？")) {
                               void deleteLineup(submittedLineup.id);
                             }
                           }}
                           disabled={submitting}
                         >
-                          Delete
+                          删除
                         </button>
                       ) : null}
                       <button
@@ -828,7 +857,7 @@ export function LineupPicker() {
                         onClick={() => startEditLineup(submittedLineup)}
                         disabled={!canEdit || submitting}
                       >
-                        {canEdit ? "Edit" : "Locked"}
+                        {canEdit ? "编辑" : "已锁定"}
                       </button>
                     </span>
                   </div>
@@ -843,8 +872,8 @@ export function LineupPicker() {
                             className="submittedPlayer"
                           >
                             <span>{slot}</span>
-                            <strong>{player ? player.name : "Open"}</strong>
-                            <small>{player ? `${player.team} | ${player.position}` : "No player selected"}</small>
+                            <strong>{player ? player.name : "待选"}</strong>
+                            <small>{player ? `${player.team} | ${player.position}` : "未选择球员"}</small>
                             <em>{player ? `$${player.salary || 0} | ${player.fantasyPoints.toFixed(1)}` : "$0 | 0.0"}</em>
                           </div>
                         );

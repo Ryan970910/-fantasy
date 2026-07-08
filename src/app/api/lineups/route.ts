@@ -261,7 +261,7 @@ function validateLineupWindow(
 ) {
   const validGames = games || [];
   if (validGames.length === 0) {
-    throw new Error("Game day lock data is unavailable. Refresh and try again.");
+    throw new Error("比赛日锁定数据不可用，请刷新后重试。");
   }
 
   const now = Date.now();
@@ -275,7 +275,7 @@ function validateLineupWindow(
     lockedTeams.has(player.team) && !allowedLockedPlayers.has(`${slot}:${player.id}`)
   );
   if (lockedPlayer) {
-    throw new Error(`${lockedPlayer.player.name} is locked because ${lockedPlayer.player.team} has started its game.`);
+    throw new Error(`${lockedPlayer.player.name} 已锁定，因为 ${lockedPlayer.player.team} 的比赛已经开始。`);
   }
 }
 
@@ -286,7 +286,7 @@ function normalizePlayer(slot: Slot, player: SubmittedPlayer | null | undefined)
   const position = String(player?.position || slot).trim();
 
   if (!id || !name || !team || !position) {
-    throw new Error(`Missing player data for ${slot}`);
+    throw new Error(`缺少 ${slot} 的球员数据。`);
   }
 
   const points = numberOrZero(player?.stats?.points);
@@ -395,7 +395,7 @@ async function applyStableSalaries<T extends ReturnType<typeof normalizePlayer>>
 export async function GET() {
   const currentUser = await getCurrentUser();
   if (!currentUser) {
-    return jsonError("Login required.", 401);
+    return jsonError("请先登录。", 401);
   }
 
   const rows = await prisma.$queryRawUnsafe<LineupRow[]>(
@@ -516,14 +516,14 @@ export async function GET() {
 export async function POST(request: Request) {
   const currentUser = await getCurrentUser();
   if (!currentUser) {
-    return jsonError("Login required.", 401);
+    return jsonError("请先登录。", 401);
   }
 
   let body: SubmitLineupBody;
   try {
     body = await request.json() as SubmitLineupBody;
   } catch {
-    return jsonError("Invalid lineup payload.", 400);
+    return jsonError("阵容数据格式不正确。", 400);
   }
 
   try {
@@ -534,7 +534,7 @@ export async function POST(request: Request) {
     const selectedPlayerIds = new Set(selectedPlayers.map(({ player }) => player.id));
 
     if (selectedPlayerIds.size !== slots.length) {
-      return jsonError("Each lineup slot must use a different player.", 400);
+      return jsonError("每个位置必须选择不同球员。", 400);
     }
 
     validateLineupWindow(body.games, selectedPlayers);
@@ -550,7 +550,7 @@ export async function POST(request: Request) {
     const totalPoints = selectedPlayers.reduce((sum, { player }) => sum + player.fppg, 0);
     const totalSalary = selectedPlayers.reduce((sum, { player }) => sum + player.salary, 0);
     if (totalSalary > LINEUP_SALARY_CAP) {
-      return jsonError(`Lineup salary $${totalSalary} exceeds the $${LINEUP_SALARY_CAP} cap.`, 400);
+      return jsonError(`阵容工资 $${totalSalary} 超过 $${LINEUP_SALARY_CAP} 工资帽。`, 400);
     }
 
     await prisma.$transaction(async (tx) => {
@@ -622,7 +622,7 @@ export async function POST(request: Request) {
 
       for (const { slot, player } of selectedPlayers) {
         if (!isSlot(slot)) {
-          throw new Error(`Invalid slot ${slot}`);
+          throw new Error(`无效位置 ${slot}`);
         }
 
         await tx.$executeRawUnsafe(
@@ -646,26 +646,26 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     console.error("Lineup submit failed", error);
-    return jsonError(error instanceof Error ? error.message : "Unable to submit lineup.", 400);
+    return jsonError(error instanceof Error ? error.message : "无法提交阵容。", 400);
   }
 }
 
 export async function PUT(request: Request) {
   const currentUser = await getCurrentUser();
   if (!currentUser) {
-    return jsonError("Login required.", 401);
+    return jsonError("请先登录。", 401);
   }
 
   let body: SubmitLineupBody;
   try {
     body = await request.json() as SubmitLineupBody;
   } catch {
-    return jsonError("Invalid lineup payload.", 400);
+    return jsonError("阵容数据格式不正确。", 400);
   }
 
   const lineupId = String(body.lineupId || "").trim();
   if (!lineupId) {
-    return jsonError("Missing lineup id.", 400);
+    return jsonError("缺少阵容 id。", 400);
   }
 
   try {
@@ -676,13 +676,13 @@ export async function PUT(request: Request) {
     );
 
     if (ownedLineups.length === 0) {
-      return jsonError("Lineup not found.", 404);
+      return jsonError("找不到阵容。", 404);
     }
 
     const ownedLineup = ownedLineups[0];
     const ownedGameDate = gameDateFromLineupName(ownedLineup.name);
     if (ownedGameDate && body.gameDate && ownedGameDate !== body.gameDate) {
-      return jsonError("This lineup belongs to a previous game day and is locked.", 409);
+      return jsonError("这个阵容属于之前的比赛日，已锁定。", 409);
     }
     let selectedPlayers = slots.map((slot) => ({
       slot,
@@ -691,7 +691,7 @@ export async function PUT(request: Request) {
     const selectedPlayerIds = new Set(selectedPlayers.map(({ player }) => player.id));
 
     if (selectedPlayerIds.size !== slots.length) {
-      return jsonError("Each lineup slot must use a different player.", 400);
+      return jsonError("每个位置必须选择不同球员。", 400);
     }
 
     const existingPlayers = await prisma.$queryRawUnsafe<Array<{ position: string; playerId: string }>>(
@@ -716,7 +716,7 @@ export async function PUT(request: Request) {
     const totalPoints = selectedPlayers.reduce((sum, { player }) => sum + player.fppg, 0);
     const totalSalary = selectedPlayers.reduce((sum, { player }) => sum + player.salary, 0);
     if (totalSalary > LINEUP_SALARY_CAP) {
-      return jsonError(`Lineup salary $${totalSalary} exceeds the $${LINEUP_SALARY_CAP} cap.`, 400);
+      return jsonError(`阵容工资 $${totalSalary} 超过 $${LINEUP_SALARY_CAP} 工资帽。`, 400);
     }
 
     await prisma.$transaction(async (tx) => {
@@ -798,7 +798,7 @@ export async function PUT(request: Request) {
 
       for (const { slot, player } of selectedPlayers) {
         if (!isSlot(slot)) {
-          throw new Error(`Invalid slot ${slot}`);
+          throw new Error(`无效位置 ${slot}`);
         }
 
         await tx.$executeRawUnsafe(
@@ -822,20 +822,20 @@ export async function PUT(request: Request) {
     });
   } catch (error) {
     console.error("Lineup update failed", error);
-    return jsonError(error instanceof Error ? error.message : "Unable to update lineup.", 400);
+    return jsonError(error instanceof Error ? error.message : "无法更新阵容。", 400);
   }
 }
 
 export async function DELETE(request: Request) {
   const currentUser = await getCurrentUser();
   if (!currentUser) {
-    return jsonError("Unauthorized", 401);
+    return jsonError("请先登录。", 401);
   }
 
   const url = new URL(request.url);
   const lineupId = url.searchParams.get("lineupId") || "";
   if (!lineupId) {
-    return jsonError("Missing lineupId.", 400);
+    return jsonError("缺少阵容 id。", 400);
   }
 
   try {
@@ -846,7 +846,7 @@ export async function DELETE(request: Request) {
     );
 
     if (ownedLineups.length === 0) {
-      return jsonError("Lineup not found.", 404);
+      return jsonError("找不到阵容。", 404);
     }
 
     await prisma.$transaction(async (tx) => {
@@ -867,6 +867,6 @@ export async function DELETE(request: Request) {
     });
   } catch (error) {
     console.error("Lineup delete failed", error);
-    return jsonError(error instanceof Error ? error.message : "Unable to delete lineup.", 400);
+    return jsonError(error instanceof Error ? error.message : "无法删除阵容。", 400);
   }
 }
