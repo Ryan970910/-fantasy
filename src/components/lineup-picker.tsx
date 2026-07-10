@@ -772,7 +772,7 @@ export function LineupPicker() {
           <div className="lineupEmpty">
             <strong>还没有提交阵容</strong>
             <span>提交后会显示在这里。</span>
-            {canCreateLineup ? (
+            {submittedTab === "current" && !showPicker ? (
               <button className="createLineupButton" type="button" onClick={startCreateLineup}>
                 创建
               </button>
@@ -788,7 +788,7 @@ export function LineupPicker() {
                 ? "提交本比赛日阵容后会显示在这里。"
                 : "新比赛日开启后，旧阵容会显示在这里。"}
             </span>
-            {submittedTab === "current" && canCreateLineup ? (
+            {submittedTab === "current" && !showPicker ? (
               <button className="createLineupButton" type="button" onClick={startCreateLineup}>
                 创建
               </button>
