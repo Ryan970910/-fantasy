@@ -106,6 +106,17 @@ type LineupsResponse = {
   error?: string;
 };
 
+async function readJsonResponse<T>(response: Response, fallbackMessage: string) {
+  const contentType = response.headers.get("content-type") || "";
+  if (!contentType.includes("application/json")) {
+    const body = await response.text();
+    const isHtml = /<(!doctype|html)\b/i.test(body);
+    throw new Error(isHtml ? `${fallbackMessage} 服务器返回了网页内容，请刷新或重新登录后重试。` : fallbackMessage);
+  }
+
+  return (await response.json()) as T;
+}
+
 function formatGameTime(value: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) {
@@ -260,7 +271,7 @@ export function LineupPicker() {
     setLoading(true);
     try {
       const response = await fetch("/api/nba/next-player-pool", { cache: "no-store" });
-      const payload = (await response.json()) as PoolResponse;
+      const payload = await readJsonResponse<PoolResponse>(response, "无法加载下一比赛日球员池。");
       setData(payload);
 
       if (!response.ok) {
@@ -278,7 +289,7 @@ export function LineupPicker() {
   async function loadSubmittedLineups() {
     try {
       const response = await fetch("/api/lineups", { cache: "no-store" });
-      const payload = (await response.json()) as LineupsResponse;
+      const payload = await readJsonResponse<LineupsResponse>(response, "无法加载已提交阵容。");
 
       if (!response.ok) {
         throw new Error(payload.error || "无法加载已提交阵容。");
@@ -449,7 +460,10 @@ export function LineupPicker() {
     setIsCreatingLineup(true);
     setSubmittedTab("current");
     setActiveSlot("PG");
-    setSubmitMessage(canCreateLineup ? null : "正在加载或暂无可选球员，请刷新后重试。");
+    setSubmitMessage(canCreateLineup ? null : "正在重新加载球员池，请稍候。");
+    if (!canCreateLineup) {
+      void loadPool();
+    }
   }
 
   function toggleLineupExpanded(lineupId: string) {
