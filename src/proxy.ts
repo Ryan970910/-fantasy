@@ -1,14 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { SESSION_COOKIE } from "@/lib/session-cookie";
 
-const PUBLIC_PATHS = ["/login", "/register", "/api/nba"];
+const AUTH_PAGES = ["/login", "/register"];
+const PUBLIC_PATHS = [...AUTH_PAGES, "/api/nba"];
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const isPublicPath = PUBLIC_PATHS.some((path) => pathname === path || pathname.startsWith(`${path}/`));
+  const isAuthPage = AUTH_PAGES.some((path) => pathname === path || pathname.startsWith(`${path}/`));
   const hasSessionCookie = Boolean(request.cookies.get(SESSION_COOKIE)?.value);
 
-  if (isPublicPath && hasSessionCookie) {
+  // Authenticated users should not revisit auth screens. Public API routes must
+  // remain API responses, otherwise client fetches receive the home HTML page.
+  if (isAuthPage && hasSessionCookie) {
     return NextResponse.redirect(new URL("/", request.url));
   }
 
