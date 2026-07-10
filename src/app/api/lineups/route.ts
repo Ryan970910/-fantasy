@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { loadPlayerNameTranslations, translatePlayerName } from "@/lib/player-name-translations";
 
 export const dynamic = "force-dynamic";
 
@@ -426,6 +427,7 @@ export async function GET() {
      ORDER BY l."createdAt" DESC, array_position(ARRAY['PG','SG','SF','PF','C'], lp."position")`,
     currentUser.id
   );
+  const playerNameTranslations = await loadPlayerNameTranslations(prisma);
 
   const lineups = Array.from(
     rows.reduce((lineupMap, row) => {
@@ -460,7 +462,7 @@ export async function GET() {
       existing.players.push({
         slot: row.slot,
         id: row.playerId,
-        name: row.playerName,
+        name: translatePlayerName(row.playerName, playerNameTranslations),
         englishName: row.playerName,
         team: row.team,
         position: row.playerPosition,
