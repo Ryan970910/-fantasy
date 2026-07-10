@@ -111,10 +111,39 @@ async function readJsonResponse<T>(response: Response, fallbackMessage: string) 
   if (!contentType.includes("application/json")) {
     const body = await response.text();
     const isHtml = /<(!doctype|html)\b/i.test(body);
-    throw new Error(isHtml ? `${fallbackMessage} 服务器返回了网页内容，请刷新或重新登录后重试。` : fallbackMessage);
+    const responseType = contentType || "未知类型";
+    const detail = `状态 ${response.status}，类型 ${responseType}`;
+    throw new Error(isHtml ? `${fallbackMessage} 服务器返回了网页内容（${detail}），请刷新或重新登录后重试。` : `${fallbackMessage} ${detail}`);
   }
 
   return (await response.json()) as T;
+}
+
+async function fetchJsonResponse<T>(url: string, fallbackMessage: string) {
+  let lastError: unknown = null;
+
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    const requestUrl = new URL(url, window.location.origin);
+    if (attempt > 0) {
+      requestUrl.searchParams.set("_retry", String(Date.now()));
+    }
+
+    try {
+      const response = await fetch(requestUrl.toString(), {
+        cache: "no-store",
+        credentials: "same-origin",
+        headers: {
+          Accept: "application/json"
+        }
+      });
+      const payload = await readJsonResponse<T>(response, fallbackMessage);
+      return { response, payload };
+    } catch (caught) {
+      lastError = caught;
+    }
+  }
+
+  throw lastError instanceof Error ? lastError : new Error(fallbackMessage);
 }
 
 function formatGameTime(value: string) {
@@ -270,8 +299,10 @@ export function LineupPicker() {
   async function loadPool() {
     setLoading(true);
     try {
-      const response = await fetch("/api/nba/next-player-pool", { cache: "no-store" });
-      const payload = await readJsonResponse<PoolResponse>(response, "无法加载下一比赛日球员池。");
+      const { response, payload } = await fetchJsonResponse<PoolResponse>(
+        "/api/nba/next-player-pool",
+        "无法加载下一比赛日球员池。"
+      );
       setData(payload);
 
       if (!response.ok) {
@@ -288,8 +319,10 @@ export function LineupPicker() {
 
   async function loadSubmittedLineups() {
     try {
-      const response = await fetch("/api/lineups", { cache: "no-store" });
-      const payload = await readJsonResponse<LineupsResponse>(response, "无法加载已提交阵容。");
+      const { response, payload } = await fetchJsonResponse<LineupsResponse>(
+        "/api/lineups",
+        "无法加载已提交阵容。"
+      );
 
       if (!response.ok) {
         throw new Error(payload.error || "无法加载已提交阵容。");
