@@ -438,11 +438,6 @@ export function LineupPicker() {
   }
 
   function startCreateLineup() {
-    if (!canCreateLineup) {
-      setSubmitMessage("暂无可选球员。");
-      return;
-    }
-
     setLineup({
       PG: "",
       SG: "",
@@ -454,7 +449,7 @@ export function LineupPicker() {
     setIsCreatingLineup(true);
     setSubmittedTab("current");
     setActiveSlot("PG");
-    setSubmitMessage(null);
+    setSubmitMessage(canCreateLineup ? null : "正在加载或暂无可选球员，请刷新后重试。");
   }
 
   function toggleLineupExpanded(lineupId: string) {
