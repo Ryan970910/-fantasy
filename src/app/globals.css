@@ -2919,3 +2919,478 @@ body {
   .selectPill { border-radius: 0; }
   .lineupActionsBar { border-top: 4px solid var(--street-lime); background: #101114; }
 }
+
+/* Muted streetball training ground: the court is the one deliberate focal point. */
+:root {
+  --street-ink: #17181a;
+  --street-asphalt: #24262a;
+  --street-paper: #d9d7d1;
+  --street-lime: #8fa66b;
+  --street-red: #a85a50;
+  --street-blue: #5d7890;
+  --street-orange: #b77a43;
+}
+
+body {
+  background:
+    radial-gradient(circle at 15% 18%, rgb(168 90 80 / 7%) 0 2px, transparent 3px),
+    radial-gradient(circle at 86% 72%, rgb(93 120 144 / 8%) 0 3px, transparent 4px),
+    repeating-linear-gradient(15deg, transparent 0 28px, rgb(255 255 255 / 2%) 29px 30px),
+    #17181a;
+}
+
+@media (min-width: 861px) {
+  .appTopbar {
+    min-height: 60px;
+    border-bottom: 2px solid #8fa66b;
+    background: #17181a;
+    box-shadow: 0 3px 0 #5d7890, 0 12px 28px rgb(0 0 0 / 28%);
+  }
+
+  .appTopbar strong {
+    color: #e9e6df;
+    font-size: 25px;
+    text-shadow: 2px 2px 0 #5d7890;
+  }
+
+  .appTopbar strong::before {
+    border-color: #d9d7d1;
+    background:
+      linear-gradient(58deg, transparent 45%, #17181a 46% 52%, transparent 53%),
+      linear-gradient(-45deg, transparent 46%, #17181a 47% 52%, transparent 53%),
+      #b77a43;
+    box-shadow: 2px 2px 0 #5d7890;
+  }
+
+  .brandCluster > span,
+  .appTopbar .refreshButton { color: #d9d7d1; }
+  .appTopbar .refreshButton { border-color: #8fa66b; background: #25272b; box-shadow: 3px 3px 0 #5d7890; }
+
+  .lineupPicker.pickerActive { padding-bottom: 106px; }
+
+  .lineupGrid.lineupSelectionGrid {
+    height: calc(100dvh - 60px);
+    min-height: 650px;
+    grid-template-columns: 190px minmax(0, 1fr);
+    grid-template-rows: minmax(295px, 0.9fr) minmax(310px, 0.95fr);
+    background: #202226;
+  }
+
+  .lineupRail {
+    grid-row: 1 / 3;
+    padding: 12px 10px;
+    border-right: 2px solid rgb(217 215 209 / 62%);
+    background:
+      repeating-linear-gradient(0deg, transparent 0 62px, rgb(255 255 255 / 4%) 63px 64px),
+      #1c1e21;
+  }
+
+  .lineupRail h3 {
+    margin: 0 3px 10px;
+    color: #d9d7d1;
+    font-size: 19px;
+    letter-spacing: 0.025em;
+  }
+
+  .lineupRail h3 b { color: #8fa66b; font-size: 13px; }
+  .lineupSlotList { gap: 7px; }
+
+  .lineupSlotButton {
+    min-height: 0;
+    padding: 10px 9px 10px 64px;
+    border: 1px solid rgb(217 215 209 / 40%);
+    background: #282a2e;
+    box-shadow: none;
+  }
+
+  .lineupSlotButton:nth-child(even) { background: #25272b; }
+  .lineupSlotButton span {
+    left: 13px;
+    width: 40px;
+    height: 40px;
+    border-width: 2px;
+    color: #e7e5de;
+    background: #5d7890;
+    box-shadow: 2px 2px 0 #17181a;
+    font-size: 17px;
+  }
+
+  .lineupSlotButton strong { color: #e7e5de; font-size: 15px; }
+  .lineupSlotButton small { margin-top: 4px; color: #aeb0ad; font-size: 11px; }
+  .lineupSlotButton.active { border-color: #8fa66b; box-shadow: inset 4px 0 0 #8fa66b; }
+
+  .courtStage {
+    grid-column: 2;
+    grid-row: 1;
+    padding: 12px 26px 10px;
+    border-right: 0;
+    border-bottom: 2px solid rgb(217 215 209 / 46%);
+    background:
+      radial-gradient(ellipse at 50% 55%, rgb(183 122 67 / 13%), transparent 35%),
+      radial-gradient(ellipse at 20% 80%, rgb(93 120 144 / 13%), transparent 25%),
+      repeating-linear-gradient(146deg, transparent 0 34px, rgb(255 255 255 / 3%) 35px 36px),
+      #202226;
+  }
+
+  .courtStage::before { border-top-color: rgb(168 90 80 / 46%); border-top-width: 9px; }
+  .courtStage::after { border-color: #8fa66b; color: #8fa66b; background: #202226; }
+
+  .courtStageHeader {
+    color: #e4e0d8;
+    font-size: clamp(31px, 2.5vw, 48px);
+    text-shadow: 3px 3px 0 #5d7890;
+  }
+
+  .courtStageHeader::before,
+  .courtStageHeader::after { width: min(8vw, 88px); border-top: 4px solid #8fa66b; }
+  .courtStageHeader small { color: #a9b993; }
+
+  .courtDiagram {
+    width: min(72%, 540px);
+    min-height: 235px;
+    height: min(330px, calc(100dvh - 470px));
+    border: 3px solid #d9d7d1;
+    background:
+      linear-gradient(90deg, transparent 49.4%, rgb(217 215 209 / 65%) 49.7% 50.3%, transparent 50.6%),
+      radial-gradient(circle at 50% 88%, rgb(168 90 80 / 20%), transparent 20%),
+      #292b2f;
+    box-shadow: 7px 7px 0 rgb(0 0 0 / 24%), inset 0 0 0 4px rgb(93 120 144 / 15%);
+  }
+
+  .courtDiagram::before { border-width: 2px; }
+  .courtDiagram::after { border-width: 2px; border-color: #8fa66b; }
+  .courtKey { border-width: 2px; }
+  .courtHoop { border-color: #b77a43; }
+  .courtPlayer { width: 49px; height: 49px; border-width: 3px; color: #f1efe8; background: #5d7890; box-shadow: 3px 3px 0 #17181a; font-size: 18px; }
+  .courtPlayer:nth-of-type(odd) { background: #8fa66b; box-shadow: 3px 3px 0 #17181a; }
+  .courtPlayer em { top: 57px; color: #e9e6df; font-size: 11px; }
+  .courtRoute { border-top-width: 4px; border-top-color: #b77a43; }
+  .courtBall { width: 19px; height: 19px; border-width: 2px; background: #b77a43; box-shadow: 3px 3px 0 #a85a50; }
+
+  .playerBoard {
+    grid-column: 2;
+    grid-row: 2;
+    grid-template-rows: 76px minmax(0, 1fr);
+    border-left: 0;
+    background: #d9d7d1;
+  }
+
+  .playerBoardToolbar {
+    display: grid;
+    padding: 10px 16px;
+    grid-template-columns: minmax(150px, 0.45fr) minmax(0, 1fr);
+    align-items: center;
+    border-bottom: 2px solid #8fa66b;
+    background: #25272b;
+  }
+
+  .playerBoardTitle { display: grid !important; gap: 2px; }
+  .playerBoardToolbar strong { color: #e9e6df; font-size: 24px; text-shadow: 2px 2px 0 #5d7890; }
+  .playerBoardToolbar small { color: #aebd9d; font-size: 10px; }
+  .toolbarControls { gap: 9px; }
+  .toolbarControls select { min-height: 36px; border: 2px solid #b9b7af; color: #e7e5de; background: #1b1d20; font-size: 13px; }
+
+  .playerColumnHeadings { display: none; }
+  .playerRows {
+    display: grid;
+    padding: 10px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    overflow-y: auto;
+    background:
+      repeating-linear-gradient(45deg, transparent 0 32px, rgb(0 0 0 / 2%) 33px 34px),
+      #d9d7d1;
+  }
+
+  .playerChoice {
+    grid-template-columns: 44px minmax(0, 1fr);
+    grid-template-rows: auto auto auto;
+    min-height: 122px;
+    padding: 9px;
+    gap: 5px 8px;
+    border: 1px solid rgb(23 24 26 / 26%);
+    background: #eeece6;
+    box-shadow: 3px 3px 0 rgb(23 24 26 / 15%);
+  }
+
+  .playerChoice:hover { background: #e4e6dc; }
+  .playerChoice.selected { box-shadow: inset 4px 0 0 #8fa66b, 3px 3px 0 rgb(23 24 26 / 15%); background: #e4e8dc; }
+  .positionTag { min-width: 38px; min-height: 31px; border-color: #17181a; color: #f1efe8; background: #5d7890; box-shadow: none; font-size: 12px; }
+  .playerChoiceMain strong { font-size: 15px; line-height: 1.05; }
+  .playerChoiceMain small { font-size: 10px; }
+  .playerStats { grid-column: 1 / 2; grid-row: 2 / 4; align-content: center; }
+  .playerStats .playerStatsLabel { font-size: 9px; }
+  .playerStats strong { color: #a85a50; font-size: 23px; }
+  .playerStats small { font-size: 9px; }
+  .selectPill { grid-column: 2; grid-row: 3; min-height: 28px; align-self: end; border: 1px solid #17181a; color: #f1efe8; background: #5d7890; box-shadow: none; font-size: 13px; }
+
+  .lineupActionsBar {
+    min-height: 104px;
+    padding: 12px 26px;
+    grid-template-columns: 140px 210px minmax(100px, 1fr) 150px 150px 180px;
+    gap: 14px;
+    border-top: 2px solid #8fa66b;
+    background: #1b1d20;
+    box-shadow: 0 -5px 0 #5d7890, 0 -14px 28px rgb(0 0 0 / 32%);
+  }
+
+  .lineupActionScore { color: #e9e6df; font-size: 36px; text-shadow: 2px 2px 0 #5d7890; }
+  .lineupActionScore small { color: #aebd9d; font-size: 12px; }
+  .salaryCapMeter { min-height: 58px; border-right: 2px solid rgb(217 215 209 / 48%); }
+  .salaryCapMeter span { color: #aebd9d; font-size: 12px; }
+  .salaryCapMeter strong { color: #d6c48b; font-size: 29px; }
+  .salaryGauge { border: 2px solid #b9b7af; background: #17181a; }
+  .salaryGauge span { background: #8fa66b; box-shadow: none; }
+  .clearLineupButton,
+  .cancelLineupButton,
+  .lineupSubmitButton { min-height: 52px; border: 2px solid #b9b7af; color: #e7e5de; background: #25272b; box-shadow: none; font-size: 19px; }
+  .cancelLineupButton { background: #4e5254; }
+  .lineupSubmitButton.ready { background: #5d7890; box-shadow: none; }
+}
+
+@media (max-width: 860px) {
+  .appTopbar { border-bottom-color: #8fa66b; }
+  .appTopbar strong { color: #e9e6df; text-shadow: 2px 2px 0 #5d7890; }
+  .playerBoardToolbar { border-bottom-color: #8fa66b; background: #25272b; }
+  .playerBoardToolbar small { color: #aebd9d; }
+  .toolbarControls select { border-color: #b9b7af; }
+  .playerChoice { background: #eeece6; }
+  .lineupActionsBar { border-top-color: #8fa66b; background: #1b1d20; }
+}
+
+/* Rebuilt game-day draft board: a quiet courtside work surface, not a mural. */
+:root {
+  --draft-ink: #10202d;
+  --draft-slate: #233647;
+  --draft-cement: #e5e5df;
+  --draft-rule: #c8cbc5;
+  --draft-sage: #78906c;
+  --draft-brick: #a45852;
+  --draft-text: #17212b;
+}
+
+body {
+  color: var(--draft-text);
+  background:
+    radial-gradient(circle at 75% 12%, rgb(120 144 108 / 8%), transparent 23%),
+    linear-gradient(180deg, #dfe1dd 0 52%, #ced1cc 52% 100%);
+}
+
+@media (min-width: 861px) {
+  .shell {
+    background:
+      linear-gradient(90deg, rgb(16 32 45 / 3%) 1px, transparent 1px),
+      linear-gradient(0deg, rgb(16 32 45 / 3%) 1px, transparent 1px),
+      #dfe1dd;
+    background-size: 48px 48px;
+  }
+
+  .shell::before,
+  .shell::after { display: none; }
+
+  .appTopbar {
+    min-height: 62px;
+    padding: 0 34px;
+    border: 0;
+    border-bottom: 1px solid rgb(229 229 223 / 17%);
+    background: var(--draft-ink);
+    box-shadow: none;
+  }
+
+  .appTopbar strong {
+    color: #f5f5f0;
+    font-family: Impact, "Arial Black", "Noto Sans SC", sans-serif;
+    font-size: 24px;
+    letter-spacing: 0.04em;
+    text-shadow: none;
+  }
+
+  .appTopbar strong::before {
+    width: 28px;
+    height: 28px;
+    margin-right: 10px;
+    border: 2px solid #dfe1dd;
+    border-radius: 50%;
+    background:
+      linear-gradient(55deg, transparent 45%, #dfe1dd 46% 50%, transparent 51%),
+      linear-gradient(-55deg, transparent 45%, #dfe1dd 46% 50%, transparent 51%),
+      var(--draft-brick);
+    box-shadow: none;
+  }
+
+  .brandCluster > span {
+    padding-left: 14px;
+    border-left: 1px solid rgb(229 229 223 / 24%);
+    color: #aebbb1;
+    font-family: Arial, "Noto Sans SC", sans-serif;
+    font-size: 12px;
+    letter-spacing: 0.04em;
+  }
+
+  .appTopbar .refreshButton {
+    min-height: 32px;
+    padding: 0 12px;
+    border: 1px solid rgb(229 229 223 / 38%);
+    border-radius: 3px;
+    color: #e5e5df;
+    background: transparent;
+    box-shadow: none;
+    font-family: Arial, "Noto Sans SC", sans-serif;
+    font-size: 12px;
+  }
+
+  .lineupPicker.pickerActive { padding-bottom: 94px; }
+
+  .lineupGrid.lineupSelectionGrid {
+    height: calc(100dvh - 62px);
+    min-height: 640px;
+    grid-template-columns: minmax(620px, 1fr) 342px;
+    grid-template-rows: minmax(0, 1.08fr) minmax(240px, 0.72fr);
+    background: transparent;
+  }
+
+  .playerBoard {
+    grid-column: 1;
+    grid-row: 1 / 3;
+    grid-template-rows: 98px minmax(0, 1fr);
+    border: 0;
+    border-right: 1px solid var(--draft-rule);
+    border-radius: 0;
+    background: var(--draft-cement);
+  }
+
+  .playerBoardToolbar {
+    display: grid;
+    padding: 16px 28px;
+    grid-template-columns: minmax(210px, 0.65fr) minmax(360px, 1fr);
+    align-items: center;
+    border-bottom: 1px solid rgb(229 229 223 / 19%);
+    background: var(--draft-ink);
+  }
+
+  .playerBoardTitle { display: grid !important; gap: 4px; }
+  .playerBoardToolbar strong {
+    color: #f4f4ee;
+    font-family: Impact, "Arial Black", "Noto Sans SC", sans-serif;
+    font-size: 31px;
+    letter-spacing: 0.045em;
+    text-shadow: none;
+  }
+  .playerBoardToolbar small { color: #aebbb1; font-family: Arial, "Noto Sans SC", sans-serif; font-size: 12px; }
+  .toolbarControls { gap: 10px; }
+  .toolbarControls select { min-height: 38px; border: 1px solid rgb(229 229 223 / 42%); border-radius: 3px; color: #e5e5df; background: #1b2d3c; font-family: Arial, "Noto Sans SC", sans-serif; font-size: 13px; }
+
+  .playerColumnHeadings { display: none; }
+  .playerRows { display: grid; padding: 0; grid-template-columns: 1fr; gap: 0; overflow-y: auto; background: #e5e5df; }
+  .playerChoice {
+    grid-template-columns: 52px minmax(0, 1.5fr) minmax(138px, 0.55fr) 104px;
+    grid-template-rows: 1fr;
+    min-height: 86px;
+    padding: 12px 26px;
+    gap: 14px;
+    border: 0;
+    border-bottom: 1px solid var(--draft-rule);
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .playerChoice:hover { background: #daddd6; }
+  .playerChoice.selected { box-shadow: inset 5px 0 0 var(--draft-sage); background: #d6ddd3; }
+  .positionTag { min-width: 38px; min-height: 32px; border: 1px solid var(--draft-slate); border-radius: 3px; color: var(--draft-slate); background: transparent; box-shadow: none; font-family: Arial, "Noto Sans SC", sans-serif; font-size: 12px; }
+  .playerChoiceMain { gap: 5px; }
+  .playerChoiceMain strong { color: var(--draft-text); font-family: Arial, "Noto Sans SC", sans-serif; font-size: 20px; font-weight: 800; line-height: 1.05; letter-spacing: 0; }
+  .playerChoiceMain small,
+  .playerStats small { color: #66716d; font-family: Arial, "Noto Sans SC", sans-serif; font-size: 12px; }
+  .playerStats { grid-column: 3; grid-row: 1; align-content: center; gap: 2px; }
+  .playerStats .playerStatsLabel { color: #66716d; font-family: Arial, "Noto Sans SC", sans-serif; font-size: 10px; }
+  .playerStats strong { color: var(--draft-brick); font-family: Arial, sans-serif; font-size: 25px; }
+  .selectPill { grid-column: 4; grid-row: 1; min-height: 34px; border: 0; border-radius: 3px; color: #f7f7f1; background: var(--draft-slate); box-shadow: none; font-family: Arial, "Noto Sans SC", sans-serif; font-size: 13px; }
+
+  .lineupRail {
+    grid-column: 2;
+    grid-row: 1;
+    display: flex;
+    min-height: 0;
+    padding: 18px;
+    flex-direction: column;
+    border: 0;
+    border-bottom: 1px solid rgb(229 229 223 / 14%);
+    border-radius: 0;
+    background: var(--draft-slate);
+  }
+
+  .lineupRail h3 { margin: 0 0 14px; color: #f3f2ec; font-family: Arial, "Noto Sans SC", sans-serif; font-size: 17px; }
+  .lineupRail h3 b { color: #b8c7b0; font-size: 12px; }
+  .lineupSlotList { display: grid; min-height: 0; flex: 1; grid-template-rows: repeat(5, minmax(0, 1fr)); gap: 7px; overflow: visible; border: 0; }
+  .lineupSlotButton { min-height: 0; padding: 8px 10px 8px 48px; border: 1px solid rgb(229 229 223 / 17%); border-radius: 3px; background: rgb(16 32 45 / 48%); box-shadow: none; }
+  .lineupSlotButton:nth-child(even) { background: rgb(16 32 45 / 48%); }
+  .lineupSlotButton span { top: 50%; left: 11px; width: 27px; height: 27px; border: 0; border-radius: 50%; color: #f3f2ec; background: var(--draft-sage); box-shadow: none; font-family: Arial, sans-serif; font-size: 10px; transform: translateY(-50%); }
+  .lineupSlotButton strong { color: #f3f2ec; font-family: Arial, "Noto Sans SC", sans-serif; font-size: 13px; line-height: 1.05; }
+  .lineupSlotButton small { margin-top: 3px; color: #acb8b0; font-family: Arial, "Noto Sans SC", sans-serif; font-size: 10px; }
+  .lineupSlotButton.active { border-color: #99ae8c; background: rgb(120 144 108 / 17%); box-shadow: inset 3px 0 0 #99ae8c; }
+
+  .courtStage {
+    grid-column: 2;
+    grid-row: 2;
+    min-height: 0;
+    padding: 12px 18px 16px;
+    border: 0;
+    border-radius: 0;
+    background:
+      radial-gradient(circle at 50% 64%, rgb(120 144 108 / 16%), transparent 38%),
+      #172a39;
+  }
+
+  .courtStage::before,
+  .courtStage::after { display: none; }
+  .courtStageHeader { padding: 0 0 8px; color: #dfe5d9; font-family: Arial, "Noto Sans SC", sans-serif; font-size: 15px; font-weight: 800; letter-spacing: 0.08em; text-align: left; text-shadow: none; }
+  .courtStageHeader::before,
+  .courtStageHeader::after { display: none; }
+  .courtStageHeader small { right: 0; bottom: 11px; color: #9cb092; font-family: Arial, "Noto Sans SC", sans-serif; font-size: 10px; }
+  .courtDiagram { width: min(100%, 285px); min-height: 150px; height: min(190px, calc(100dvh - 560px)); border: 2px solid rgb(229 229 223 / 62%); border-radius: 3px; background: linear-gradient(90deg, transparent 49.5%, rgb(229 229 223 / 43%) 49.7% 50.3%, transparent 50.5%), #1f3545; box-shadow: none; }
+  .courtDiagram::before { bottom: 18%; width: 63%; height: 28%; border-width: 1px; border-color: rgb(229 229 223 / 62%); }
+  .courtDiagram::after { top: 35%; width: 65%; height: 35%; border-width: 1px; border-color: rgb(229 229 223 / 40%); }
+  .courtKey { border-width: 1px; border-color: rgb(229 229 223 / 60%); }
+  .courtHoop { width: 17px; height: 12px; border-width: 2px; border-color: #b8c7b0; }
+  .courtPlayer { width: 31px; height: 31px; border: 2px solid #dfe5d9; color: #f3f2ec; background: var(--draft-sage); box-shadow: none; font-family: Arial, sans-serif; font-size: 11px; }
+  .courtPlayer:nth-of-type(odd) { background: var(--draft-brick); box-shadow: none; }
+  .courtPlayer em { top: 37px; width: 86px; color: #dfe5d9; font-family: Arial, "Noto Sans SC", sans-serif; font-size: 8px; text-shadow: none; }
+  .courtRoute { border-top: 2px dashed #b8c7b0; filter: none; }
+  .courtBall { width: 12px; height: 12px; border: 1px solid #dfe5d9; background: #b77a43; box-shadow: none; }
+
+  .lineupActionsBar {
+    min-height: 94px;
+    padding: 12px 28px;
+    grid-template-columns: 112px 190px minmax(100px, 1fr) 140px 140px 170px;
+    gap: 14px;
+    border: 0;
+    border-top: 1px solid rgb(229 229 223 / 20%);
+    background: var(--draft-ink);
+    box-shadow: 0 -8px 20px rgb(0 0 0 / 22%);
+  }
+
+  .lineupActionScore { color: #f2f2ed; font-family: Arial, sans-serif; font-size: 30px; font-weight: 800; text-shadow: none; }
+  .lineupActionScore small { color: #aebbb1; font-family: Arial, "Noto Sans SC", sans-serif; font-size: 10px; }
+  .salaryCapMeter { min-height: 50px; border-right: 1px solid rgb(229 229 223 / 20%); }
+  .salaryCapMeter span { color: #aebbb1; font-family: Arial, "Noto Sans SC", sans-serif; font-size: 10px; }
+  .salaryCapMeter strong { color: #d5d2aa; font-family: Arial, sans-serif; font-size: 25px; }
+  .salaryGauge { border: 1px solid rgb(229 229 223 / 35%); border-radius: 99px; background: #243746; }
+  .salaryGauge span { background: var(--draft-sage); box-shadow: none; }
+  .clearLineupButton,
+  .cancelLineupButton,
+  .lineupSubmitButton { min-height: 44px; border: 1px solid rgb(229 229 223 / 46%); border-radius: 3px; color: #edf0eb; background: transparent; box-shadow: none; font-family: Arial, "Noto Sans SC", sans-serif; font-size: 14px; }
+  .cancelLineupButton { background: #3a4752; }
+  .lineupSubmitButton.ready { background: var(--draft-sage); box-shadow: none; }
+}
+
+@media (max-width: 860px) {
+  body { background: #dfe1dd; }
+  .shell { background: #dfe1dd; }
+  .appTopbar { border-bottom-color: #78906c; background: #10202d; }
+  .appTopbar strong { color: #f4f4ee; text-shadow: none; }
+  .playerBoardToolbar { border-bottom-color: #78906c; background: #10202d; }
+  .playerBoardToolbar strong { color: #f4f4ee; text-shadow: none; }
+  .toolbarControls select { border-color: rgb(229 229 223 / 42%); background: #1b2d3c; }
+  .playerChoice { background: #e5e5df; }
+  .lineupActionsBar { border-top-color: #78906c; background: #10202d; }
+}
