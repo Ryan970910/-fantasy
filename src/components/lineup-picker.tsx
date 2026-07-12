@@ -372,6 +372,7 @@ export function LineupPicker() {
     ? `超出工资帽 $${projectedLineupSalary - LINEUP_SALARY_CAP}，请调整阵容后再提交。`
     : null;
   const lineupComplete = selectedPlayers.every(Boolean);
+  const selectedPlayerCount = selectedPlayers.filter(Boolean).length;
   const currentGameDate = data?.gameDate || null;
   const currentGameDayLineups = useMemo(
     () => submittedLineups.filter((submittedLineup) => submittedLineup.gameDate && submittedLineup.gameDate === currentGameDate),
@@ -631,8 +632,11 @@ export function LineupPicker() {
           <div className="lineupGrid lineupSelectionGrid">
           <aside className="lineupRail" aria-label="当前阵容">
             <h3>
-              <UserRoundCheck size={18} aria-hidden="true" />
-              阵容
+              <span>
+                <UserRoundCheck size={18} aria-hidden="true" />
+                我的阵容
+              </span>
+              <b>{selectedPlayerCount} / 5</b>
             </h3>
             <div className="lineupSlotList">
               {slots.map((slot) => {
@@ -682,9 +686,9 @@ export function LineupPicker() {
 
           <div className="playerBoard">
             <div className="playerBoardToolbar">
-              <div>
-                <strong>选择 {activeSlot}</strong>
-                <small>{availablePlayers.length} 名可选球员</small>
+              <div className="playerBoardTitle">
+                <strong>选择球员</strong>
+                <small>当前选择：{activeSlot} · {availablePlayers.length} 名可选</small>
               </div>
               <div className="toolbarControls">
                 <select value={teamFilter} onChange={(event) => setTeamFilter(event.target.value)} aria-label="筛选球队">
@@ -701,6 +705,16 @@ export function LineupPicker() {
                   <option value="name">按姓名排序</option>
                 </select>
               </div>
+            </div>
+
+            <div className="playerColumnHeadings" aria-hidden="true">
+              <span>位置</span>
+              <span>球员</span>
+              <span>对阵</span>
+              <span>梦幻分</span>
+              <span>平均 MIN</span>
+              <span>薪资</span>
+              <span>操作</span>
             </div>
 
             <div key={activeSlot} className="playerRows">
@@ -735,15 +749,18 @@ export function LineupPicker() {
           </div>
 
           <div className="lineupActionsBar">
+          <span className={`lineupActionScore${salaryCapExceeded ? " over" : ""}`}>
+            <small>梦幻分</small>
+            {projectedLineupScore.toFixed(1)}
+          </span>
           <div className={`salaryCapMeter${salaryCapExceeded ? " over" : ""}`}>
             <span>薪资使用</span>
             <strong>${projectedLineupSalary} / ${LINEUP_SALARY_CAP}</strong>
             <small>{remainingSalary >= 0 ? `剩余 $${remainingSalary}` : `超出 $${Math.abs(remainingSalary)}`}</small>
           </div>
-          <span className={`lineupActionScore${salaryCapExceeded ? " over" : ""}`}>
-            <small>梦幻分</small>
-            {projectedLineupScore.toFixed(1)}
-          </span>
+          <div className={`salaryGauge${salaryCapExceeded ? " over" : ""}`} aria-label={`薪资使用 $${projectedLineupSalary} / $${LINEUP_SALARY_CAP}`}>
+            <span style={{ width: `${Math.min(100, (projectedLineupSalary / LINEUP_SALARY_CAP) * 100)}%` }} />
+          </div>
           <button className="clearLineupButton" type="button" onClick={clearLineup}>
             清空阵容
           </button>
