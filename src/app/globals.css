@@ -3393,4 +3393,52 @@ body {
   .toolbarControls select { border-color: rgb(229 229 223 / 42%); background: #1b2d3c; }
   .playerChoice { background: #e5e5df; }
   .lineupActionsBar { border-top-color: #78906c; background: #10202d; }
+
+  .lineupPicker.pickerActive { padding-bottom: 94px; }
+  .lineupGrid.lineupSelectionGrid {
+    display: grid;
+    min-height: calc(100dvh - 58px);
+    padding: 0;
+    grid-template-columns: 1fr;
+    grid-template-rows: 104px minmax(0, 1fr);
+    background: #dfe1dd;
+  }
+
+  .lineupRail {
+    position: relative;
+    top: auto;
+    display: block;
+    grid-column: 1;
+    grid-row: 1;
+    padding: 9px 10px 10px;
+    border: 0;
+    border-bottom: 1px solid #b8beb7;
+    border-radius: 0;
+    background: #233647;
+  }
+
+  .lineupRail h3 { display: flex; margin: 0 2px 6px; color: #f4f4ee; font-family: Arial, "Noto Sans SC", sans-serif; font-size: 12px; }
+  .lineupRail h3 b { color: #b8c7b0; font-size: 11px; }
+  .lineupSlotList { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; overflow: visible; }
+  .lineupSlotButton { display: grid; min-height: 62px; padding: 6px 3px; justify-items: center; border: 1px solid rgb(229 229 223 / 18%); border-radius: 3px; color: #f4f4ee; background: rgb(16 32 45 / 52%); text-align: center; }
+  .lineupSlotButton span { position: static; display: block; width: auto; height: auto; transform: none; border: 0; border-radius: 0; color: #b8c7b0; background: transparent; box-shadow: none; font-family: Arial, sans-serif; font-size: 10px; }
+  .lineupSlotButton strong { overflow: hidden; width: 100%; color: #f4f4ee; font-family: Arial, "Noto Sans SC", sans-serif; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+  .lineupSlotButton small { display: none; }
+  .lineupSlotButton.active { border-color: #9aae90; background: rgb(120 144 108 / 20%); box-shadow: inset 0 -2px 0 #9aae90; }
+
+  .courtStage { display: none; }
+  .playerBoard { grid-column: 1; grid-row: 2; border: 0; border-radius: 0; background: #e5e5df; }
+  .playerBoardToolbar { padding: 10px 14px; border-bottom: 1px solid #b8beb7; }
+  .playerBoardToolbar strong { font-size: 21px; }
+  .toolbarControls select { min-height: 36px; font-size: 12px; }
+  .playerChoice { border-bottom-color: #c8cbc5; }
+  .positionTag { border-color: #5d7890; color: #f4f4ee; background: #5d7890; }
+  .playerStats strong { color: #a45852; }
+  .selectPill { border: 0; color: #f4f4ee; background: #5d7890; box-shadow: none; }
+  .lineupActionsBar { min-height: 94px; border-top: 1px solid rgb(229 229 223 / 25%); }
+  .clearLineupButton,
+  .cancelLineupButton,
+  .lineupSubmitButton { border: 1px solid rgb(229 229 223 / 46%); border-radius: 3px; color: #edf0eb; background: transparent; box-shadow: none; }
+  .cancelLineupButton { background: #3a4752; }
+  .lineupSubmitButton.ready { background: #78906c; }
 }
