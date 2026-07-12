@@ -670,7 +670,8 @@ export function LineupPicker() {
                 const player = selectedPlayersBySlot[slot];
                 return (
                   <span className={`courtPlayer courtPlayer${index + 1}`} key={slot}>
-                    {player ? playerLabel(player).slice(0, 1) : slot}
+                    <b>{slot}</b>
+                    <em>{player ? playerLabel(player) : `待选 ${slot}`}</em>
                   </span>
                 );
               })}

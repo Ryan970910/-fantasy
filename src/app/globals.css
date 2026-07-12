@@ -2067,14 +2067,31 @@ body {
   }
 
   .courtStageHeader {
-    padding: 0 0 16px;
+    position: relative;
+    padding: 0 0 18px;
     color: #e5bd70;
     font-family: Georgia, "Songti SC", serif;
-    font-size: 27px;
+    font-size: 40px;
+    line-height: 1;
     letter-spacing: 0.14em;
+    text-align: center;
+  }
+
+  .courtStageHeader::before,
+  .courtStageHeader::after {
+    display: inline-block;
+    width: 72px;
+    height: 16px;
+    margin: 0 18px 7px;
+    content: "";
+    border-top: 1px solid rgb(215 173 99 / 58%);
+    border-radius: 50%;
   }
 
   .courtStageHeader small {
+    position: absolute;
+    right: 0;
+    bottom: 24px;
     color: #7ccaa8;
     font-family: "Noto Sans SC", sans-serif;
     font-size: 12px;
@@ -2097,7 +2114,30 @@ body {
 
   .courtKey { border-color: rgb(215 173 99 / 48%); }
   .courtHoop { top: 10%; width: 16px; height: 16px; border-color: #e3ba71; }
-  .courtPlayer { width: 56px; height: 56px; font-size: 18px; }
+  .courtPlayer {
+    width: 56px;
+    height: 56px;
+    overflow: visible;
+    font-size: 18px;
+  }
+
+  .courtPlayer b { font: inherit; }
+
+  .courtPlayer em {
+    position: absolute;
+    top: 65px;
+    left: 50%;
+    width: 140px;
+    color: #e9e0cf;
+    font-family: Georgia, "Songti SC", serif;
+    font-size: 12px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: 1.15;
+    text-align: center;
+    text-shadow: 0 2px 4px #050b13;
+    transform: translateX(-50%);
+  }
   .courtPlayer1 { top: 28%; left: 66%; }
   .courtPlayer2 { top: 39%; left: 18%; }
   .courtPlayer3 { top: 57%; left: 47%; }
