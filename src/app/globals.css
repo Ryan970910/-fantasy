@@ -2555,3 +2555,367 @@ body {
 @media (max-width: 860px) {
   .playerColumnHeadings { display: none; }
 }
+
+/* Streetball court: asphalt, taped posters, spray paint, and hand-drawn energy. */
+:root {
+  --street-ink: #101114;
+  --street-asphalt: #181a1f;
+  --street-paper: #f0eee8;
+  --street-lime: #c7ff23;
+  --street-red: #ff3d31;
+  --street-blue: #1686ff;
+  --street-orange: #ff8a1f;
+}
+
+body {
+  color: #f7f6f0;
+  font-family: Inter, Arial, Helvetica, sans-serif;
+  background:
+    radial-gradient(circle at 15% 18%, rgb(255 61 49 / 13%) 0 2px, transparent 3px),
+    radial-gradient(circle at 86% 72%, rgb(22 134 255 / 18%) 0 3px, transparent 4px),
+    repeating-linear-gradient(15deg, transparent 0 22px, rgb(255 255 255 / 2%) 23px 24px),
+    #111216;
+}
+
+.shell::before {
+  background:
+    repeating-linear-gradient(110deg, transparent 0 84px, rgb(255 255 255 / 3%) 85px 87px),
+    linear-gradient(90deg, transparent 0 50%, rgb(255 255 255 / 2%) 50% 51%, transparent 51%);
+}
+
+.shell::after {
+  top: auto;
+  bottom: -22vw;
+  width: min(1250px, 96vw);
+  border: 3px dashed rgb(199 255 35 / 14%);
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 16px rgb(22 134 255 / 4%);
+  transform: translateX(-50%) rotate(-9deg);
+}
+
+.authShell {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 17% 23%, rgb(255 61 49 / 28%), transparent 24%),
+    radial-gradient(ellipse at 77% 72%, rgb(22 134 255 / 25%), transparent 28%),
+    repeating-linear-gradient(-18deg, transparent 0 38px, rgb(255 255 255 / 3%) 39px 40px),
+    #111216;
+}
+
+.authPanel {
+  border: 3px solid #f3f1eb;
+  border-radius: 0;
+  color: #141518;
+  background:
+    linear-gradient(135deg, transparent 0 12px, #f4f0e7 13px),
+    #f4f0e7;
+  box-shadow: 12px 12px 0 #1686ff, -5px -5px 0 #ff3d31;
+}
+
+.authPanel h1,
+.authForm label,
+.authSwitch a { color: #111216; }
+.authPanel h1 { font-family: Impact, "Arial Black", "Noto Sans SC", sans-serif; letter-spacing: 0.04em; text-transform: uppercase; }
+.authCopy,
+.authSwitch { color: #55545a; }
+.eyebrow { color: #ff3d31; font-family: Impact, "Arial Black", sans-serif; }
+.authForm input { border: 2px solid #141518; border-radius: 0; color: #141518; background: #fffdf8; }
+.authButton { border: 2px solid #141518; border-radius: 0; background: #c7ff23; color: #101114; box-shadow: 5px 5px 0 #1686ff; }
+
+@media (min-width: 861px) {
+  .appTopbar {
+    min-height: 70px;
+    border-bottom: 4px solid var(--street-lime);
+    background:
+      linear-gradient(106deg, #101114 0 61%, #191b20 61% 100%),
+      #101114;
+    box-shadow: 0 5px 0 #ff3d31, 0 18px 36px rgb(0 0 0 / 38%);
+  }
+
+  .appTopbar strong {
+    color: #f8f7f1;
+    font-family: Impact, "Arial Black", "Noto Sans SC", sans-serif;
+    font-size: 30px;
+    font-weight: 900;
+    letter-spacing: 0.055em;
+    text-shadow: 3px 3px 0 #ff3d31, 5px 5px 0 #1686ff;
+  }
+
+  .appTopbar strong::before {
+    width: 38px;
+    height: 38px;
+    border: 3px solid #f5f4ed;
+    border-radius: 50%;
+    background:
+      linear-gradient(58deg, transparent 45%, #101114 46% 52%, transparent 53%),
+      linear-gradient(-45deg, transparent 46%, #101114 47% 52%, transparent 53%),
+      var(--street-orange);
+    box-shadow: 3px 3px 0 var(--street-blue);
+  }
+
+  .brandCluster > span {
+    border-left: 0;
+    color: var(--street-lime);
+    font-family: "Arial Black", "Noto Sans SC", sans-serif;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .appTopbar .refreshButton {
+    min-height: 38px;
+    border: 2px solid #f4f2e9;
+    border-radius: 0;
+    color: #101114;
+    background: var(--street-lime);
+    box-shadow: 4px 4px 0 var(--street-red);
+    font-family: "Arial Black", "Noto Sans SC", sans-serif;
+  }
+
+  .lineupPicker.pickerActive { padding-bottom: 116px; }
+
+  .lineupGrid.lineupSelectionGrid {
+    grid-template-columns: clamp(270px, 24vw, 405px) minmax(430px, 1fr) clamp(500px, 35vw, 590px);
+    background: #121317;
+  }
+
+  .lineupRail {
+    border-right: 3px solid #f5f3ec;
+    background:
+      linear-gradient(167deg, transparent 0 60%, rgb(22 134 255 / 22%) 60% 61%, transparent 61%),
+      repeating-linear-gradient(0deg, transparent 0 73px, rgb(255 255 255 / 5%) 74px 75px),
+      #1a1c21;
+  }
+
+  .lineupRail h3,
+  .lineupRail h3 b {
+    color: #f7f5ed;
+    font-family: Impact, "Arial Black", "Noto Sans SC", sans-serif;
+    letter-spacing: 0.06em;
+  }
+
+  .lineupRail h3 b { color: var(--street-lime); }
+
+  .lineupSlotList {
+    gap: 10px;
+    border: 0;
+    background: transparent;
+  }
+
+  .lineupSlotButton {
+    min-height: 96px;
+    border: 2px solid rgb(244 242 233 / 74%);
+    border-radius: 0;
+    background:
+      linear-gradient(118deg, rgb(255 61 49 / 21%) 0 34%, transparent 34%),
+      #202329;
+    box-shadow: 5px 5px 0 rgb(0 0 0 / 32%);
+  }
+
+  .lineupSlotButton:nth-child(even) {
+    background:
+      linear-gradient(118deg, rgb(22 134 255 / 24%) 0 34%, transparent 34%),
+      #202329;
+  }
+
+  .lineupSlotButton span {
+    border-color: #101114;
+    color: #101114;
+    background: var(--street-lime);
+    box-shadow: 4px 4px 0 var(--street-red), 0 0 0 5px rgb(199 255 35 / 13%);
+    font-family: Impact, "Arial Black", sans-serif;
+    font-size: 27px;
+  }
+
+  .lineupSlotButton strong {
+    color: #f7f5ed;
+    font-family: Impact, "Arial Black", "Noto Sans SC", sans-serif;
+    letter-spacing: 0.025em;
+  }
+
+  .lineupSlotButton small { color: #c6c7c6; font-family: "Arial Black", "Noto Sans SC", sans-serif; }
+  .lineupSlotButton.active { border-color: var(--street-lime); box-shadow: inset 7px 0 0 var(--street-lime), 6px 6px 0 var(--street-blue); }
+
+  .courtStage {
+    overflow: hidden;
+    border-right: 3px solid #f5f3ec;
+    background:
+      radial-gradient(ellipse at 50% 43%, rgb(255 138 31 / 17%), transparent 30%),
+      radial-gradient(ellipse at 20% 80%, rgb(22 134 255 / 24%), transparent 24%),
+      repeating-linear-gradient(146deg, transparent 0 30px, rgb(255 255 255 / 3%) 31px 32px),
+      #16181d;
+  }
+
+  .courtStage::before {
+    position: absolute;
+    top: 22%;
+    left: -8%;
+    width: 44%;
+    height: 26%;
+    content: "";
+    border-top: 14px solid rgb(255 61 49 / 72%);
+    border-radius: 48%;
+    filter: blur(0.3px);
+    transform: rotate(-28deg);
+  }
+
+  .courtStage::after {
+    right: 16px;
+    bottom: 16px;
+    width: auto;
+    height: auto;
+    padding: 6px 8px;
+    border: 2px solid var(--street-lime);
+    color: var(--street-lime);
+    background: #101114;
+    font-family: Impact, "Arial Black", sans-serif;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    writing-mode: horizontal-tb;
+    transform: rotate(-6deg);
+  }
+
+  .courtStageHeader {
+    z-index: 2;
+    color: #f7f5ed;
+    font-family: Impact, "Arial Black", "Noto Sans SC", sans-serif;
+    font-size: clamp(40px, 3.6vw, 68px);
+    letter-spacing: 0.08em;
+    text-shadow: 4px 4px 0 var(--street-red), 7px 7px 0 var(--street-blue);
+  }
+
+  .courtStageHeader::before,
+  .courtStageHeader::after {
+    width: min(10vw, 108px);
+    border-top: 6px solid var(--street-lime);
+    border-radius: 0;
+    transform: skewX(-27deg);
+  }
+
+  .courtStageHeader small { color: var(--street-lime); font-family: "Arial Black", "Noto Sans SC", sans-serif; }
+
+  .courtDiagram {
+    z-index: 1;
+    border: 5px solid #f5f3ec;
+    border-radius: 50% 50% 5px 5px;
+    background:
+      linear-gradient(90deg, transparent 49.2%, rgb(245 243 236 / 83%) 49.5% 50.5%, transparent 50.8%),
+      radial-gradient(circle at 50% 88%, rgb(255 61 49 / 36%), transparent 18%),
+      repeating-linear-gradient(18deg, transparent 0 28px, rgb(255 255 255 / 4%) 29px 30px),
+      #202328;
+    box-shadow: 12px 12px 0 rgb(0 0 0 / 28%), inset 0 0 0 6px rgb(22 134 255 / 19%);
+  }
+
+  .courtDiagram::before { border-color: rgb(245 243 236 / 86%); border-width: 4px; }
+  .courtDiagram::after { border-color: var(--street-lime); border-width: 4px; }
+  .courtKey { border-color: #f5f3ec; border-width: 4px; }
+  .courtHoop { border-color: var(--street-orange); box-shadow: 0 0 0 4px rgb(255 138 31 / 21%); }
+
+  .courtPlayer {
+    border: 4px solid #101114;
+    color: #101114;
+    background: var(--street-lime);
+    box-shadow: 5px 5px 0 var(--street-blue), 0 0 0 6px rgb(199 255 35 / 15%);
+    font-family: Impact, "Arial Black", sans-serif;
+    font-size: 24px;
+  }
+
+  .courtPlayer:nth-of-type(odd) { background: #ffde3b; box-shadow: 5px 5px 0 var(--street-red), 0 0 0 6px rgb(255 222 59 / 13%); }
+  .courtPlayer em { color: #f7f5ed; font-family: "Arial Black", "Noto Sans SC", sans-serif; font-size: 12px; text-shadow: 2px 2px 0 #101114; }
+  .courtRoute { border-top: 6px dashed var(--street-orange); filter: drop-shadow(3px 3px 0 rgb(16 17 20 / 60%)); }
+  .courtBall { border: 3px solid #101114; background: var(--street-orange); box-shadow: 4px 4px 0 var(--street-red), 0 0 24px rgb(255 138 31 / 85%); }
+
+  .playerBoard {
+    border-left: 0;
+    background:
+      repeating-linear-gradient(0deg, transparent 0 37px, rgb(16 17 20 / 4%) 38px 39px),
+      var(--street-paper);
+  }
+
+  .playerBoardToolbar {
+    border-bottom: 5px solid var(--street-lime);
+    background:
+      linear-gradient(102deg, var(--street-red) 0 18%, transparent 18% 100%),
+      #15171b;
+  }
+
+  .playerBoardToolbar strong {
+    color: #f7f5ed;
+    font-family: Impact, "Arial Black", "Noto Sans SC", sans-serif;
+    font-size: 38px;
+    letter-spacing: 0.1em;
+    text-shadow: 3px 3px 0 var(--street-blue);
+  }
+
+  .playerBoardToolbar small { color: var(--street-lime); font-family: "Arial Black", "Noto Sans SC", sans-serif; }
+  .toolbarControls select { border: 3px solid #f7f5ed; border-radius: 0; color: #f7f5ed; background: #101114; font-family: "Arial Black", "Noto Sans SC", sans-serif; }
+
+  .playerColumnHeadings {
+    border-bottom: 3px solid #101114;
+    color: #101114;
+    background: #ffde3b;
+    font-family: "Arial Black", "Noto Sans SC", sans-serif;
+  }
+
+  .playerRows { background: var(--street-paper); }
+  .playerChoice {
+    border-bottom: 2px solid rgb(16 17 20 / 20%);
+    background:
+      linear-gradient(105deg, transparent 0 62%, rgb(22 134 255 / 5%) 62% 63%, transparent 63%),
+      var(--street-paper);
+  }
+
+  .playerChoice:hover { background: #d9ff84; }
+  .playerChoice.selected { box-shadow: inset 8px 0 0 var(--street-red); background: #e7ffd0; }
+  .positionTag { border: 2px solid #101114; border-radius: 0; color: #f7f5ed; background: var(--street-blue); box-shadow: 3px 3px 0 #101114; font-family: "Arial Black", sans-serif; }
+  .playerChoiceMain strong { color: #101114; font-family: Impact, "Arial Black", "Noto Sans SC", sans-serif; letter-spacing: 0.015em; }
+  .playerChoiceMain small,
+  .playerStats small { color: #56585c; font-family: "Arial Black", "Noto Sans SC", sans-serif; }
+  .playerStats .playerStatsLabel { color: #101114; font-family: "Arial Black", "Noto Sans SC", sans-serif; }
+  .playerStats strong { color: var(--street-red); font-family: Impact, "Arial Black", sans-serif; font-size: 26px; }
+  .selectPill { border: 2px solid #101114; border-radius: 0; background: var(--street-red); box-shadow: 3px 3px 0 #101114; font-family: Impact, "Arial Black", "Noto Sans SC", sans-serif; }
+
+  .lineupActionsBar {
+    min-height: 116px;
+    border-top: 5px solid var(--street-lime);
+    background:
+      linear-gradient(96deg, var(--street-red) 0 18%, transparent 18% 100%),
+      repeating-linear-gradient(-12deg, transparent 0 28px, rgb(255 255 255 / 4%) 29px 30px),
+      #111216;
+    box-shadow: 0 -9px 0 var(--street-blue), 0 -20px 40px rgb(0 0 0 / 42%);
+  }
+
+  .lineupActionScore { color: #f7f5ed; font-family: Impact, "Arial Black", sans-serif; text-shadow: 4px 4px 0 var(--street-red); }
+  .lineupActionScore small { color: var(--street-lime); font-family: "Arial Black", "Noto Sans SC", sans-serif; }
+  .salaryCapMeter { border-right: 3px solid #f7f5ed; }
+  .salaryCapMeter span { color: var(--street-lime); font-family: "Arial Black", "Noto Sans SC", sans-serif; }
+  .salaryCapMeter strong { color: #ffde3b; font-family: Impact, "Arial Black", sans-serif; }
+  .salaryGauge { border: 3px solid #f7f5ed; border-radius: 0; background: #101114; }
+  .salaryGauge span { background: repeating-linear-gradient(90deg, var(--street-lime) 0 16px, #ffde3b 16px 24px); box-shadow: 0 0 16px rgb(199 255 35 / 54%); }
+  .clearLineupButton,
+  .cancelLineupButton,
+  .lineupSubmitButton { border: 3px solid #f7f5ed; border-radius: 0; color: #101114; background: #f7f5ed; box-shadow: 5px 5px 0 var(--street-blue); font-family: Impact, "Arial Black", "Noto Sans SC", sans-serif; }
+  .cancelLineupButton { background: #ffde3b; box-shadow: 5px 5px 0 var(--street-orange); }
+  .lineupSubmitButton.ready { color: #f7f5ed; background: var(--street-red); box-shadow: 5px 5px 0 var(--street-blue); }
+}
+
+@media (max-width: 860px) {
+  .shell,
+  .authShell { background: #111216; }
+  .appTopbar { border-bottom: 3px solid var(--street-lime); background: #101114; }
+  .appTopbar strong { font-family: Impact, "Arial Black", "Noto Sans SC", sans-serif; text-shadow: 2px 2px 0 var(--street-red); }
+  .lineupHeader,
+  .submittedLineups,
+  .lineupRail,
+  .playerBoard { border-radius: 0; }
+  .lineupRail { background: #1a1c21; }
+  .lineupSlotButton { border-radius: 0; }
+  .playerBoardToolbar { background: #15171b; border-bottom: 4px solid var(--street-lime); }
+  .playerBoardToolbar strong { color: #f7f5ed; font-family: Impact, "Arial Black", "Noto Sans SC", sans-serif; }
+  .toolbarControls select { border-radius: 0; color: #f7f5ed; background: #101114; }
+  .playerChoice { background: var(--street-paper); }
+  .positionTag,
+  .selectPill { border-radius: 0; }
+  .lineupActionsBar { border-top: 4px solid var(--street-lime); background: #101114; }
+}
