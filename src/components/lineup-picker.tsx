@@ -684,6 +684,27 @@ export function LineupPicker() {
             </div>
           </aside>
 
+          <div className="courtStage" aria-label="五人上阵战术板">
+            <div className="courtStageHeader">
+              <span>五人上阵</span>
+              <small>战术演练</small>
+            </div>
+            <div className="courtDiagram" aria-hidden="true">
+              <span className="courtKey" />
+              <span className="courtHoop" />
+              {slots.map((slot, index) => {
+                const player = selectedPlayersBySlot[slot];
+                return (
+                  <span className={`courtPlayer courtPlayer${index + 1}`} key={slot}>
+                    {player ? player.name.slice(0, 1) : slot}
+                  </span>
+                );
+              })}
+              <span className="courtRoute" />
+              <span className="courtBall" />
+            </div>
+          </div>
+
           <div className="playerBoard">
             <div className="playerBoardToolbar">
               <div>

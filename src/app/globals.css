@@ -1602,3 +1602,290 @@ button:disabled {
     grid-template-columns: 1fr;
   }
 }
+
+/* Jianghu court theme: the data-dense roster stays practical while the selected five become the arena. */
+:root {
+  --nba-blue: #1f5c86;
+  --nba-blue-dark: #102342;
+  --nba-red: #b91f36;
+  --court-light: #d7ad63;
+  --panel: #0d1928;
+  --line: rgb(207 170 104 / 28%);
+  --muted: #b9b4a6;
+  --text: #f6f0e5;
+  --shadow: 0 24px 56px rgb(0 0 0 / 40%);
+}
+
+body {
+  font-family: "Noto Sans SC", "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+  background:
+    linear-gradient(90deg, rgb(215 173 99 / 6%) 1px, transparent 1px),
+    linear-gradient(0deg, rgb(215 173 99 / 4%) 1px, transparent 1px),
+    radial-gradient(circle at 50% -15%, #1b3550 0, #08111d 50%, #050a12 100%);
+  background-size: 74px 74px, 74px 74px, auto;
+}
+
+.shell::before {
+  background:
+    radial-gradient(ellipse at 50% 0%, rgb(215 173 99 / 10%), transparent 44%),
+    linear-gradient(90deg, transparent calc(50% - 1px), rgb(215 173 99 / 9%) calc(50% - 1px) calc(50% + 1px), transparent calc(50% + 1px));
+}
+
+.shell::after {
+  top: 138px;
+  width: min(920px, 92vw);
+  border-color: rgb(215 173 99 / 14%);
+  border-radius: 50% 50% 8% 8%;
+  box-shadow: inset 0 0 0 1px rgb(185 31 54 / 10%);
+}
+
+.appTopbar strong {
+  color: #f3d28b;
+  font-family: Georgia, "Songti SC", serif;
+  font-size: 26px;
+  letter-spacing: 0.08em;
+  text-transform: none;
+}
+
+.appTopbar strong::before {
+  width: 18px;
+  height: 22px;
+  margin-right: 8px;
+  border: 1px solid rgb(215 173 99 / 65%);
+  background: linear-gradient(90deg, #1f5c86 0 50%, #b91f36 50% 100%);
+  box-shadow: none;
+}
+
+.refreshButton {
+  border-color: rgb(215 173 99 / 36%);
+  color: #f3e3bb;
+  background: rgb(13 25 40 / 88%);
+}
+
+.lineupHeader {
+  position: relative;
+  overflow: hidden;
+  border-color: rgb(215 173 99 / 32%);
+  background:
+    linear-gradient(90deg, rgb(185 31 54 / 13%), transparent 34%),
+    linear-gradient(180deg, rgb(16 35 66 / 98%), rgb(8 17 29 / 98%));
+}
+
+.lineupHeader::after {
+  position: absolute;
+  right: 22%;
+  bottom: -58px;
+  width: 170px;
+  height: 110px;
+  content: "";
+  border: 1px solid rgb(215 173 99 / 22%);
+  border-bottom: 0;
+  border-radius: 100% 100% 0 0;
+  transform: skewX(-12deg);
+}
+
+.eyebrow { color: #e3ba71; letter-spacing: 0.13em; }
+
+.lineupGrid.lineupSelectionGrid {
+  grid-template-columns: 220px minmax(300px, 0.72fr) minmax(470px, 1.28fr);
+  gap: 0;
+  padding: 0;
+  border-color: rgb(215 173 99 / 34%);
+  background: #0d1928;
+}
+
+.lineupRail {
+  z-index: 1;
+  height: 100%;
+  padding: 14px;
+  border: 0;
+  border-right: 1px solid rgb(215 173 99 / 24%);
+  border-radius: 0;
+  background: linear-gradient(180deg, rgb(21 40 63 / 98%), rgb(7 14 24 / 98%));
+}
+
+.lineupRail h3 { color: #f0d294; font-family: Georgia, "Songti SC", serif; }
+
+.lineupSlotButton {
+  min-height: 69px;
+  border-color: rgb(215 173 99 / 20%);
+  border-radius: 4px;
+  color: #e9e0cf;
+  background: rgb(4 12 22 / 40%);
+}
+
+.lineupSlotButton span, .lineupSlotButton small { color: #b9aa8b; }
+.lineupSlotButton strong { color: #f5efe4; font-size: 15px; }
+.lineupSlotButton.active {
+  border-color: rgb(50 180 137 / 75%);
+  background: linear-gradient(90deg, rgb(28 151 109 / 20%), rgb(11 25 37 / 78%));
+  box-shadow: inset 4px 0 0 #24b27f, 0 0 18px rgb(36 178 127 / 12%);
+}
+
+.courtStage {
+  display: grid;
+  min-width: 0;
+  align-content: center;
+  gap: 12px;
+  padding: 20px;
+  border-right: 1px solid rgb(215 173 99 / 20%);
+  background: radial-gradient(ellipse at 50% 34%, rgb(35 100 91 / 18%), transparent 56%);
+}
+
+.courtStageHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #e3ba71;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.11em;
+}
+
+.courtStageHeader small { color: #81caae; font-size: 10px; letter-spacing: 0; }
+
+.courtDiagram {
+  position: relative;
+  min-height: 330px;
+  overflow: hidden;
+  border: 1px solid rgb(215 173 99 / 28%);
+  border-radius: 60% 60% 6px 6px;
+  background:
+    radial-gradient(ellipse at 50% 12%, rgb(215 173 99 / 10%), transparent 30%),
+    linear-gradient(90deg, transparent 49.5%, rgb(215 173 99 / 18%) 50%, transparent 50.5%),
+    #091422;
+}
+
+.courtKey {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 54%;
+  height: 42%;
+  border: 1px solid rgb(215 173 99 / 34%);
+  border-top: 0;
+  transform: translateX(-50%);
+}
+
+.courtHoop {
+  position: absolute;
+  top: 9%;
+  left: calc(50% - 6px);
+  width: 12px;
+  height: 12px;
+  border: 2px solid #d7ad63;
+  border-radius: 50%;
+}
+
+.courtPlayer {
+  position: absolute;
+  z-index: 2;
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border: 1px solid rgb(128 234 190 / 75%);
+  border-radius: 50%;
+  color: #e9fff5;
+  background: #14765a;
+  box-shadow: 0 0 0 4px rgb(34 195 139 / 10%), 0 0 15px rgb(52 211 153 / 48%);
+  font-size: 11px;
+  font-weight: 900;
+  animation: courtPulse 2.7s ease-in-out infinite;
+}
+
+.courtPlayer1 { top: 26%; left: 63%; animation-delay: 0s; }
+.courtPlayer2 { top: 34%; left: 22%; animation-delay: 0.35s; }
+.courtPlayer3 { top: 54%; left: 48%; animation-delay: 0.7s; }
+.courtPlayer4 { bottom: 15%; left: 20%; animation-delay: 1.05s; }
+.courtPlayer5 { right: 16%; bottom: 12%; animation-delay: 1.4s; }
+
+.courtRoute {
+  position: absolute;
+  z-index: 1;
+  right: 16%;
+  bottom: 19%;
+  width: 70%;
+  height: 63%;
+  border-top: 2px dashed rgb(215 173 99 / 75%);
+  border-radius: 50%;
+  transform: rotate(-40deg);
+}
+
+.courtBall {
+  position: absolute;
+  z-index: 3;
+  width: 12px;
+  height: 12px;
+  border: 1px solid #ffbe52;
+  border-radius: 50%;
+  background: #e87d1b;
+  box-shadow: 0 0 12px rgb(232 125 27 / 88%);
+  animation: ballRun 4.8s ease-in-out infinite;
+}
+
+@keyframes courtPulse { 0%, 100% { transform: scale(1); filter: brightness(1); } 50% { transform: scale(1.11); filter: brightness(1.25); } }
+@keyframes ballRun { 0% { right: 19%; bottom: 25%; } 45% { right: 42%; bottom: 43%; } 100% { top: 15%; right: 48%; } }
+
+.playerBoard {
+  border: 0;
+  border-left: 1px solid rgb(215 173 99 / 28%);
+  border-radius: 0;
+  background: #f2ecdf;
+}
+
+.playerBoardToolbar {
+  border-bottom-color: #d8cdbb;
+  background: #ece3d2;
+  box-shadow: inset 0 -1px 0 rgb(215 173 99 / 35%);
+}
+
+.playerBoardToolbar strong, .playerChoiceMain strong, .playerStats .playerStatsLabel { color: #1a2637; }
+.toolbarControls select { border-color: #bda77d; border-radius: 4px; color: #263143; background: #fffdf7; }
+.playerChoice { min-height: 84px; border-bottom-color: #d8cdbb; background: #f8f3e8; }
+.playerChoice:hover { background: #f1e6cf; }
+.playerChoice.selected { box-shadow: inset 4px 0 0 #18835f, inset 0 0 0 1px rgb(215 173 99 / 45%); background: #e7f0e5; }
+.positionTag { border-radius: 3px; background: #1e5b84; }
+.playerStats strong { color: #ad7317; }
+.playerChoiceMain small, .playerStats small { color: #667085; }
+.selectPill { border-radius: 4px; background: #b91f36; }
+
+.lineupActionsBar { padding-top: 14px; border-top: 1px solid rgb(215 173 99 / 20%); }
+.salaryCapMeter { border-color: rgb(215 173 99 / 28%); border-radius: 4px; color: #f0e7d8; background: rgb(4 12 22 / 42%); }
+.salaryCapMeter strong { color: #f0d294; }
+.salaryCapMeter span, .salaryCapMeter small { color: #baad94; }
+.clearLineupButton, .cancelLineupButton { border-color: #b87732; border-radius: 4px; color: #f0d294; background: transparent; }
+.lineupSubmitButton.ready { border-color: rgb(215 173 99 / 55%); border-radius: 4px; background: linear-gradient(90deg, #9d1f35, #b91f36 58%, #1b5d86); box-shadow: 0 10px 24px rgb(185 31 54 / 26%); }
+
+.submittedLineups { border-color: rgb(215 173 99 / 30%); border-radius: 4px; background: linear-gradient(90deg, rgb(185 31 54 / 12%), transparent 34%), rgb(8 17 29 / 92%); }
+.submittedLineupCard, .lineupEmpty { border-color: rgb(215 173 99 / 21%); border-radius: 4px; background: rgb(16 30 47 / 76%); }
+.submittedLineupTab { border-radius: 4px; }
+.submittedLineupTabs { border-color: rgb(215 173 99 / 24%); border-radius: 4px; }
+.submittedLineupTab.active { color: #162132; background: #f1e6cf; }
+.submittedLineupEdit, .submittedLineupDelete, .createLineupButton { border-radius: 4px; }
+
+@media (max-width: 1100px) and (min-width: 861px) {
+  .lineupGrid.lineupSelectionGrid { grid-template-columns: 190px minmax(310px, 0.7fr) minmax(420px, 1.3fr); }
+  .courtPlayer { width: 26px; height: 26px; font-size: 10px; }
+}
+
+@media (max-width: 860px) {
+  .shell { background: #08111d; }
+  .lineupGrid.lineupSelectionGrid { grid-template-columns: 96px minmax(0, 1fr); }
+  .lineupRail { background: #0b1728; border-right-color: rgb(215 173 99 / 24%); }
+  .lineupSlotButton { min-height: 92px; background: transparent; border-bottom-color: rgb(215 173 99 / 16%); }
+  .lineupSlotButton.active { background: rgb(27 92 83 / 42%); box-shadow: inset 4px 0 0 #24b27f; }
+  .lineupSlotButton span { color: #d3ae70; }
+  .lineupSlotButton strong { color: #f6f0e5; }
+  .courtStage { display: none; }
+  .playerBoard { border-left: 0; }
+  .playerBoardToolbar { background: #ece3d2; }
+  .lineupActionsBar { border-top-color: rgb(215 173 99 / 33%); background: rgb(248 243 233 / 97%); }
+  .lineupActionScore { color: #283343; }
+  .lineupActionsBar .clearLineupButton, .lineupActionsBar .cancelLineupButton { border-color: #a53a49; color: #9d1f35; background: #fffdf7; }
+  .lineupSubmitButton.ready { background: linear-gradient(90deg, #9d1f35, #1b5d86); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .courtPlayer, .courtBall { animation: none; }
+}

@@ -19,7 +19,7 @@ export default async function Home() {
     <main className="shell">
       <header className="appTopbar">
         <div>
-          <strong>梦幻 NBA</strong>
+          <strong>梦幻篮球</strong>
           <span>{currentUser.name} - {currentUser.email}</span>
         </div>
         <form action={logoutAction}>

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { loadPlayerNameTranslations, translatePlayerName } from "@/lib/player-name-translations";
+import { preferredDisplayPosition, preferredFantasySlots } from "@/lib/player-position-overrides";
 
 export const dynamic = "force-dynamic";
 
@@ -140,14 +141,6 @@ type AverageStatsSelection = {
   displayStats: AverageStatsRow;
   salaryStats: AverageStatsRow;
 };
-
-const slotEligibility = {
-  PG: ["G", "PG"],
-  SG: ["G", "SG"],
-  SF: ["F", "SF"],
-  PF: ["F", "PF"],
-  C: ["C"]
-} as const;
 
 function selectionDate(offsetDays = 0) {
   const now = new Date();
@@ -391,13 +384,6 @@ function chooseNextGameDay(results: GameDay[], today: string): SelectedGameDay |
   }
 
   return null;
-}
-
-function eligibleSlots(position: string) {
-  const normalized = position.toUpperCase();
-  return Object.entries(slotEligibility)
-    .filter(([, tokens]) => tokens.some((token) => normalized.includes(token)))
-    .map(([slot]) => slot);
 }
 
 function seasonLabel(startYear: number) {
@@ -749,8 +735,9 @@ async function loadFallbackPoolPlayers(teamTricodes: Set<string>, currentSeason:
     if (!selected) {
       return [];
     }
-    const position = fallbackPositions.get(`${normalizeName(selected.playerName)}:${selected.team}`) || "";
-    const slots = eligibleSlots(position);
+    const nbaPosition = fallbackPositions.get(`${normalizeName(selected.playerName)}:${selected.team}`) || "";
+    const position = preferredDisplayPosition(selected.playerName, nbaPosition);
+    const slots = preferredFantasySlots(selected.playerName, nbaPosition);
     if (!slots.length) {
       return [];
     }
@@ -820,8 +807,16 @@ export async function GET() {
       "NBA.com games cards do not publish full scheduled Summer League rosters before tipoff, so players are pulled from the official NBA playerIndex for those teams.",
       `Per-game stats prefer ${statSeasons.current} ${SEASON_TYPE}; if unavailable, they fall back to ${statSeasons.previous} ${SEASON_TYPE}.`
     ];
-    await upsertGames(selectedGameDay.games);
-    notes.push(`Synced ${selectedGameDay.games.length} game day records into the Game table.`);
+    try {
+      await upsertGames(selectedGameDay.games);
+      notes.push(`Synced ${selectedGameDay.games.length} game day records into the Game table.`);
+    } catch (error) {
+      // A transient database connection failure must not make an otherwise valid NBA player pool unavailable.
+      console.error("Game table sync failed while building player pool", error);
+      notes.push(
+        `Game table sync is temporarily unavailable (${error instanceof Error ? error.message : "unknown error"}); the scheduled sync will retry.`
+      );
+    }
 
     try {
       const playerIndex = await fetchJson(NBA_PLAYER_INDEX_URL);
@@ -909,7 +904,9 @@ export async function GET() {
       .filter((row) => row[19] === 1)
       .filter((row) => candidateTeamTricodes.has(row[9]))
       .map((row) => {
-        const position = row[11] || "";
+        const playerName = `${row[2]} ${row[1]}`;
+        const nbaPosition = row[11] || "";
+        const position = preferredDisplayPosition(playerName, nbaPosition);
         const stats = {
           season: "playerIndex",
           gamesPlayed: 0,
@@ -932,14 +929,14 @@ export async function GET() {
         };
         return {
           id: String(row[0]),
-          name: `${row[2]} ${row[1]}`,
+          name: playerName,
           slug: row[3],
           team: row[9],
           teamName: `${row[7]} ${row[8]}`.trim(),
           jersey: row[10] || "",
           position,
           height: row[12] || "",
-          eligibleSlots: eligibleSlots(position),
+          eligibleSlots: preferredFantasySlots(playerName, nbaPosition),
           salary: playerSalary(stats),
           stats
         };
