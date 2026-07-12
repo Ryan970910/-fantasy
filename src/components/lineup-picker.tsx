@@ -199,7 +199,9 @@ function playerDisplayKey(player: PoolPlayer) {
 }
 
 function playerLabel(player: Pick<PoolPlayer, "name" | "englishName"> | null) {
-  return player?.englishName || player?.name || "待选";
+  // `name` is the translated display label. Keep `englishName` as the identity
+  // fallback only; it must not override a Chinese name returned by the API.
+  return player?.name || player?.englishName || "待选";
 }
 
 function dedupePlayersForDisplay(players: PoolPlayer[]) {
