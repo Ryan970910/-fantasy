@@ -198,6 +198,10 @@ function playerDisplayKey(player: PoolPlayer) {
   return `${normalizePlayerName(player.englishName || player.name)}:${player.team}`;
 }
 
+function playerLabel(player: Pick<PoolPlayer, "name" | "englishName"> | null) {
+  return player?.englishName || player?.name || "待选";
+}
+
 function dedupePlayersForDisplay(players: PoolPlayer[]) {
   const seen = new Set<string>();
   return players.filter((player) => {
@@ -623,7 +627,8 @@ export function LineupPicker() {
       ) : null}
 
       {showPicker && !error && data ? (
-        <div className="lineupGrid lineupSelectionGrid">
+        <>
+          <div className="lineupGrid lineupSelectionGrid">
           <aside className="lineupRail" aria-label="当前阵容">
             <h3>
               <UserRoundCheck size={18} aria-hidden="true" />
@@ -640,7 +645,7 @@ export function LineupPicker() {
                     onClick={() => setActiveSlot(slot)}
                   >
                     <span>{slot}</span>
-                    <strong>{player ? player.name : "待选"}</strong>
+                    <strong>{playerLabel(player)}</strong>
                     <small>
                       {player
                         ? `${player.team} | $${player.salary} | ${formatStatValue(player.stats.points)} 得分`
@@ -651,37 +656,6 @@ export function LineupPicker() {
               })}
             </div>
 
-            <div className="lineupActionsBar">
-              <div className={`salaryCapMeter${salaryCapExceeded ? " over" : ""}`}>
-                <span>工资</span>
-                <strong>${projectedLineupSalary} / ${LINEUP_SALARY_CAP}</strong>
-                <small>{remainingSalary >= 0 ? `剩余 $${remainingSalary}` : `超出 $${Math.abs(remainingSalary)}`}</small>
-              </div>
-              <button className="clearLineupButton" type="button" onClick={clearLineup}>
-                清空阵容
-              </button>
-              {editingLineupId ? (
-                <button className="cancelLineupButton" type="button" onClick={cancelEditLineup}>
-                  取消编辑
-                </button>
-              ) : isCreatingLineup ? (
-                <button className="cancelLineupButton" type="button" onClick={cancelEditLineup}>
-                  取消创建
-                </button>
-              ) : null}
-              <span className={`lineupActionScore${salaryCapExceeded ? " over" : ""}`}>
-                梦幻分 {projectedLineupScore.toFixed(1)} | ${projectedLineupSalary}/${LINEUP_SALARY_CAP}
-              </span>
-              <button
-                className={`lineupSubmitButton${lineupComplete && !salaryCapExceeded ? " ready" : ""}${lineupComplete && salaryCapExceeded ? " overCap" : ""}`}
-                type="button"
-                onClick={() => void submitLineup()}
-                disabled={!lineupComplete || submitting}
-              >
-                {submitting ? "保存中" : editingLineupId ? "保存修改" : "提交"}
-              </button>
-              {submitMessage ? <small className="lineupMessage">{submitMessage}</small> : null}
-            </div>
           </aside>
 
           <div className="courtStage" aria-label="五人上阵战术板">
@@ -696,7 +670,7 @@ export function LineupPicker() {
                 const player = selectedPlayersBySlot[slot];
                 return (
                   <span className={`courtPlayer courtPlayer${index + 1}`} key={slot}>
-                    {player ? player.name.slice(0, 1) : slot}
+                    {player ? playerLabel(player).slice(0, 1) : slot}
                   </span>
                 );
               })}
@@ -743,7 +717,7 @@ export function LineupPicker() {
                   >
                     <span className="positionTag">{player.position || activeSlot}</span>
                     <span className="playerChoiceMain">
-                      <strong>{player.name}</strong>
+                      <strong>{playerLabel(player)}</strong>
                       <small>{playerGameLabel(player, data.allGamesOnDate?.length ? data.allGamesOnDate : data.games)}</small>
                     </span>
                     <span className="playerStats">
@@ -757,7 +731,41 @@ export function LineupPicker() {
               })}
             </div>
           </div>
-        </div>
+          </div>
+
+          <div className="lineupActionsBar">
+          <div className={`salaryCapMeter${salaryCapExceeded ? " over" : ""}`}>
+            <span>薪资使用</span>
+            <strong>${projectedLineupSalary} / ${LINEUP_SALARY_CAP}</strong>
+            <small>{remainingSalary >= 0 ? `剩余 $${remainingSalary}` : `超出 $${Math.abs(remainingSalary)}`}</small>
+          </div>
+          <span className={`lineupActionScore${salaryCapExceeded ? " over" : ""}`}>
+            <small>梦幻分</small>
+            {projectedLineupScore.toFixed(1)}
+          </span>
+          <button className="clearLineupButton" type="button" onClick={clearLineup}>
+            清空阵容
+          </button>
+          {editingLineupId ? (
+            <button className="cancelLineupButton" type="button" onClick={cancelEditLineup}>
+              取消编辑
+            </button>
+          ) : isCreatingLineup ? (
+            <button className="cancelLineupButton" type="button" onClick={cancelEditLineup}>
+              取消创建
+            </button>
+          ) : null}
+          <button
+            className={`lineupSubmitButton${lineupComplete && !salaryCapExceeded ? " ready" : ""}${lineupComplete && salaryCapExceeded ? " overCap" : ""}`}
+            type="button"
+            onClick={() => void submitLineup()}
+            disabled={!lineupComplete || submitting}
+          >
+            {submitting ? "保存中" : editingLineupId ? "保存修改" : "保存阵容"}
+          </button>
+          {submitMessage ? <small className="lineupMessage">{submitMessage}</small> : null}
+          </div>
+        </>
       ) : null}
 
       {showPicker && data?.games.length ? (
