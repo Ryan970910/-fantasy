@@ -1907,7 +1907,7 @@ body {
     min-height: 68px;
     margin: 0;
     padding: 0 30px;
-    grid-template-columns: minmax(280px, 1fr) auto minmax(130px, 1fr);
+    grid-template-columns: minmax(280px, 1fr) minmax(130px, 1fr);
     gap: 24px;
     align-items: center;
     border-bottom: 1px solid rgb(215 173 99 / 34%);
@@ -1943,23 +1943,6 @@ body {
     color: #d4c09a;
     font-family: Georgia, "Songti SC", serif;
     font-size: 17px;
-  }
-
-  .jianghuNav {
-    display: flex;
-    gap: 30px;
-    align-items: center;
-    justify-content: center;
-    color: #d1af70;
-    font-family: Georgia, "Songti SC", serif;
-    font-size: 15px;
-    white-space: nowrap;
-  }
-
-  .jianghuNav span::before {
-    margin-right: 12px;
-    color: #b91f36;
-    content: "◇";
   }
 
   .appTopbar form { justify-self: end; }
@@ -2100,8 +2083,9 @@ body {
 
   .courtDiagram {
     width: min(100%, 610px);
-    min-height: 0;
-    height: min(100%, 610px);
+    min-height: 420px;
+    height: min(610px, calc(100dvh - 270px));
+    aspect-ratio: 0.9;
     place-self: center;
     border-color: rgb(215 173 99 / 46%);
     border-radius: 50% 50% 6px 6px;
@@ -2202,7 +2186,6 @@ body {
 }
 
 @media (max-width: 1180px) and (min-width: 861px) {
-  .jianghuNav { gap: 16px; font-size: 13px; }
   .lineupGrid.lineupSelectionGrid { grid-template-columns: 230px minmax(350px, 1.05fr) minmax(450px, 1.35fr); }
   .lineupSlotButton { min-height: 100px; padding-left: 78px; }
   .lineupSlotButton span { left: 14px; width: 46px; height: 46px; }
