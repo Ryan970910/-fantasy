@@ -3500,6 +3500,7 @@ body {
   }
 
   .lineupRail {
+    height: 100%;
     padding: 20px 22px;
   }
 
@@ -3515,6 +3516,7 @@ body {
   .lineupSlotButton small { font-size: 11px; }
 
   .courtStage {
+    height: 100%;
     padding: 16px 26px 22px;
   }
 
