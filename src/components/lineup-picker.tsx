@@ -1,6 +1,6 @@
 "use client";
 
-import { RefreshCw, UserRoundCheck } from "lucide-react";
+import { UserRoundCheck } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 const slots = ["PG", "SG", "SF", "PF", "C"] as const;
@@ -146,20 +146,6 @@ async function fetchJsonResponse<T>(url: string, fallbackMessage: string) {
   throw lastError instanceof Error ? lastError : new Error(fallbackMessage);
 }
 
-function formatGameTime(value: string) {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return value || "待定";
-  }
-
-  return new Intl.DateTimeFormat("zh-CN", {
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit"
-  }).format(date);
-}
-
 function formatDateTime(value: string) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) {
@@ -255,27 +241,6 @@ function lineupDisplayName(name: string) {
   }
 
   return name.replace(/^Lineup\s+/, "阵容 ");
-}
-
-function gameStatusLabel(value: string) {
-  const normalized = value.trim().toLowerCase();
-  if (!normalized) {
-    return "待定";
-  }
-  if (normalized.includes("final")) {
-    return "已结束";
-  }
-  if (normalized.includes("halftime")) {
-    return "中场";
-  }
-  if (normalized.includes("progress") || normalized.includes("live")) {
-    return "进行中";
-  }
-  if (normalized.includes("scheduled") || normalized.includes("not started")) {
-    return "未开始";
-  }
-
-  return value;
 }
 
 export function LineupPicker() {
@@ -389,6 +354,11 @@ export function LineupPicker() {
   const hasLockedTeams = Boolean(data?.lockStatus?.lockedTeams?.length);
   const canCreateLineup = Boolean(data && !error && uniquePlayers.some((player) => !player.locked));
   const showPicker = isCreatingLineup || Boolean(editingLineupId);
+
+  useEffect(() => {
+    document.body.classList.toggle("pickerScreenLocked", showPicker);
+    return () => document.body.classList.remove("pickerScreenLocked");
+  }, [showPicker]);
 
   const teams = useMemo(() => Array.from(new Set(uniquePlayers.map((player) => player.team))).sort(), [uniquePlayers]);
 
@@ -597,25 +567,7 @@ export function LineupPicker() {
   }
 
   return (
-    <section className={`lineupPicker${showPicker ? " pickerActive" : ""}`} aria-labelledby="lineup-picker-title">
-      {showPicker ? (
-        <div className="lineupHeader">
-          <div>
-            <p className="eyebrow">下一比赛日球员池</p>
-            <h2 id="lineup-picker-title">{editingLineupId ? "编辑首发五人" : "创建首发五人"}</h2>
-            <p className="liveMeta">
-              {data
-                ? `${data.gameDate || "下一比赛日"} | ${uniquePlayers.length} 名球员 | ${data.teams.length} 支球队`
-                : "正在加载球员池"}
-            </p>
-          </div>
-          <button className="refreshButton" type="button" onClick={() => void loadPool()} disabled={loading}>
-            <RefreshCw size={16} aria-hidden="true" />
-            {loading ? "刷新中" : "刷新"}
-          </button>
-        </div>
-      ) : null}
-
+    <section className={`lineupPicker${showPicker ? " pickerActive" : ""}`} aria-label="阵容编辑">
       {showPicker && error ? (
         <div className="liveEmpty">
           <strong>球员池不可用</strong>
@@ -664,29 +616,6 @@ export function LineupPicker() {
             </div>
 
           </aside>
-
-          <div className="courtStage" aria-label="五人上阵战术板">
-            <div className="courtStageHeader">
-              <span>五人上阵</span>
-              <small>战术演练</small>
-            </div>
-            <div className="courtDiagram" aria-hidden="true">
-              <span className="courtKey" />
-              <span className="courtHoop" />
-              {slots.map((slot, index) => {
-                const player = selectedPlayersBySlot[slot];
-                return (
-                  <span className={`courtPlayer courtPlayer${index + 1}`} key={slot}>
-                    <b>{slot}</b>
-                    <em>{player ? playerLabel(player) : `待选 ${slot}`}</em>
-                  </span>
-                );
-              })}
-              <span className="courtRoute" />
-              <span className="courtBall" />
-            </div>
-          </div>
-
           <div className="playerBoard">
             <div className="playerBoardToolbar">
               <div className="playerBoardTitle">
@@ -739,9 +668,9 @@ export function LineupPicker() {
                       <small>{playerGameLabel(player, data.allGamesOnDate?.length ? data.allGamesOnDate : data.games)}</small>
                     </span>
                     <span className="playerStats">
-                      <small className="playerStatsLabel">梦幻分</small>
-                      <strong>{projectedScore(player).toFixed(1)}</strong>
-                      <small>${player.salary} | {formatStatValue(player.stats.minutes ?? null)} 分钟</small>
+                      <small className="playerStatsLabel">身价</small>
+                      <strong>${player.salary}</strong>
+                      <small>梦幻分 {projectedScore(player).toFixed(1)} | {formatStatValue(player.stats.minutes ?? null)} 分钟</small>
                     </span>
                     <span className="selectPill">{player.locked ? lockedLabel : selectedForActiveSlot ? "已选" : "选择"}</span>
                   </button>
@@ -787,18 +716,6 @@ export function LineupPicker() {
           {submitMessage ? <small className="lineupMessage">{submitMessage}</small> : null}
           </div>
         </>
-      ) : null}
-
-      {showPicker && data?.games.length ? (
-        <div className="nextGames">
-          {data.games.map((game) => (
-            <div key={game.gameId} className="nextGame">
-              <strong>{game.awayTeam.tricode} @ {game.homeTeam.tricode}</strong>
-              <span>{game.eventName}</span>
-              <small>{formatGameTime(game.startTimeUTC)} - {gameStatusLabel(game.statusText)}</small>
-            </div>
-          ))}
-        </div>
       ) : null}
 
       {salaryCapPopupOpen && salaryCapWarning ? (

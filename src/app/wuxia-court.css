@@ -30,6 +30,8 @@ body {
   background-size: 36px 36px;
 }
 
+body.pickerScreenLocked { overflow: hidden; }
+
 button,
 select,
 input { font-family: inherit; }
@@ -126,7 +128,11 @@ input:focus-visible {
   padding: 0;
 }
 
-.lineupPicker.pickerActive { padding-bottom: 112px; }
+.lineupPicker.pickerActive {
+  height: calc(100dvh - 56px);
+  overflow: hidden;
+  padding-bottom: calc(100px + env(safe-area-inset-bottom));
+}
 
 .lineupHeader {
   display: flex;
@@ -208,8 +214,12 @@ input:focus-visible {
   min-height: 0;
   padding: 0;
   grid-template-columns: 1fr;
-  grid-template-rows: 198px 102px auto;
+  grid-template-rows: 102px minmax(0, 1fr);
   background: var(--wu-paper);
+}
+
+.lineupPicker.pickerActive .lineupGrid.lineupSelectionGrid {
+  height: calc(100dvh - 156px - env(safe-area-inset-bottom));
 }
 
 .courtStage {
@@ -335,7 +345,7 @@ input:focus-visible {
   min-height: 0;
   padding: 9px 10px 10px;
   grid-column: 1;
-  grid-row: 2;
+  grid-row: 1;
   border: 0;
   border-bottom: 1px solid var(--wu-rule);
   border-radius: 0;
@@ -413,18 +423,20 @@ input:focus-visible {
 
 .playerBoard {
   display: grid;
+  height: 100%;
+  max-height: 100%;
   min-height: 0;
+  overflow: hidden;
   grid-column: 1;
-  grid-row: 3;
-  grid-template-rows: auto auto;
+  grid-row: 2;
+  grid-template-rows: auto minmax(0, 1fr);
   border: 0;
   border-radius: 0;
   background: var(--wu-paper);
 }
 
 .playerBoardToolbar {
-  position: sticky;
-  top: 56px;
+  position: static;
   z-index: 30;
   display: grid;
   padding: 9px 10px 10px;
@@ -478,7 +490,9 @@ input:focus-visible {
   padding: 0;
   grid-template-columns: 1fr;
   gap: 0;
-  overflow: visible;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
   background: var(--wu-paper);
 }
 
@@ -605,7 +619,8 @@ input:focus-visible {
   left: 0;
   z-index: 70;
   display: grid;
-  min-height: 100px;
+  height: calc(100px + env(safe-area-inset-bottom));
+  min-height: 0;
   padding: 9px 10px calc(9px + env(safe-area-inset-bottom));
   grid-template-columns: 0.8fr 1fr 1fr;
   grid-template-areas:
@@ -844,10 +859,19 @@ input:focus-visible {
 }
 
 @media (min-width: 720px) {
+  .lineupPicker.pickerActive {
+    height: calc(100dvh - 56px);
+    padding-bottom: 82px;
+  }
+
   .lineupGrid.lineupSelectionGrid {
-    min-height: calc(100dvh - 148px);
+    min-height: 0;
     grid-template-columns: minmax(320px, 0.88fr) minmax(480px, 1.35fr);
-    grid-template-rows: minmax(300px, 0.95fr) minmax(260px, 0.75fr);
+    grid-template-rows: minmax(0, 1fr);
+  }
+
+  .lineupPicker.pickerActive .lineupGrid.lineupSelectionGrid {
+    height: calc(100dvh - 138px);
   }
 
   .lineupRail {
@@ -907,7 +931,7 @@ input:focus-visible {
     min-height: 0;
     overflow: hidden;
     grid-column: 2;
-    grid-row: 1 / 3;
+    grid-row: 1;
     grid-template-rows: 94px minmax(0, 1fr);
   }
 
@@ -926,7 +950,8 @@ input:focus-visible {
   .selectPill { min-height: 36px; font-size: 12px; }
 
   .lineupActionsBar {
-    min-height: 82px;
+    height: 82px;
+    min-height: 0;
     padding: 11px 22px;
     grid-template-columns: 132px 210px minmax(150px, 1fr) 126px 126px 160px;
     grid-template-areas: "score salary gauge clear cancel submit";
@@ -951,11 +976,12 @@ input:focus-visible {
   .lineupHeader h2 { font-size: 31px; }
 
   .lineupGrid.lineupSelectionGrid {
-    height: calc(100dvh - 152px);
-    min-height: 680px;
+    min-height: 0;
     grid-template-columns: minmax(430px, 0.92fr) minmax(680px, 1.48fr);
-    grid-template-rows: minmax(380px, 1.1fr) minmax(280px, 0.9fr);
+    grid-template-rows: minmax(0, 1fr);
   }
+
+  .lineupPicker.pickerActive .lineupGrid.lineupSelectionGrid { height: calc(100dvh - 138px); }
 
   .lineupRail { padding: 22px 26px; }
   .lineupSlotList { gap: 9px; }
