@@ -316,6 +316,7 @@ export function LineupPicker() {
       }
 
       setError(null);
+      setSubmitMessage(null);
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "无法加载下一比赛日球员池。");
     } finally {
