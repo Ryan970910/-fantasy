@@ -20,7 +20,7 @@ export default async function Home() {
       <header className="appTopbar">
         <div className="brandCluster">
           <strong>梦幻篮球</strong>
-          <span>阵容编辑</span>
+          <span>五人上阵</span>
         </div>
         <form action={logoutAction}>
           <button className="refreshButton" type="submit">退出</button>
