@@ -501,7 +501,7 @@ export function LineupPicker() {
     setIsCreatingLineup(true);
     setSubmittedTab("current");
     setActiveSlot("PG");
-    setSubmitMessage(canCreateLineup ? null : "正在重新加载球员池，请稍候。");
+    setSubmitMessage(null);
     if (!canCreateLineup) {
       void loadPool();
     }
