@@ -3465,7 +3465,7 @@ body {
   }
 
   .lineupActionScore small { color: #aebbb1; font-size: 10px; }
-  .salaryCapMeter { grid-area: salary; min-height: 0; padding: 0; border: 0; align-content: center; }
+  .salaryCapMeter { display: grid; grid-area: salary; min-height: 0; padding: 0; border: 0; align-content: center; }
   .salaryCapMeter span,
   .salaryCapMeter small { display: none; }
   .salaryCapMeter strong { color: #d5d2aa; font-size: 15px; white-space: nowrap; }
