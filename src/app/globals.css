@@ -3481,6 +3481,7 @@ body {
 /* Wide screens use a balanced 60/40 draft board instead of a dominant player list. */
 @media (min-width: 1200px) {
   .lineupGrid.lineupSelectionGrid {
+    gap: 0;
     grid-template-columns: minmax(720px, 3fr) minmax(480px, 2fr);
     grid-template-rows: minmax(350px, 1fr) minmax(300px, 1fr);
   }
