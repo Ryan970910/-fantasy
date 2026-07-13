@@ -68,6 +68,7 @@ type PoolResponse = {
     lockedTeams: string[];
   };
   teams: string[];
+  teamTranslations?: Record<string, string>;
   players: PoolPlayer[];
   notes?: string[];
   error?: string;
@@ -223,16 +224,20 @@ function projectedScore(player: PoolPlayer) {
   );
 }
 
-function playerGameLabel(player: PoolPlayer, games: PoolGame[]) {
+function teamLabel(team: string, translations?: Record<string, string>) {
+  return translations?.[team] || team;
+}
+
+function playerGameLabel(player: PoolPlayer, games: PoolGame[], translations?: Record<string, string>) {
   const game = games.find((candidate) =>
     candidate.homeTeam.tricode === player.team || candidate.awayTeam.tricode === player.team
   );
 
   if (!game) {
-    return player.team;
+    return teamLabel(player.team, translations);
   }
 
-  return `${game.awayTeam.tricode} vs ${game.homeTeam.tricode}`;
+  return `${teamLabel(game.awayTeam.tricode, translations)} vs ${teamLabel(game.homeTeam.tricode, translations)}`;
 }
 
 function lineupDisplayName(name: string) {
@@ -607,7 +612,7 @@ export function LineupPicker() {
                     <strong>{playerLabel(player)}</strong>
                     <small>
                       {player
-                        ? `${player.team} | $${player.salary} | ${formatStatValue(player.stats.points)} 得分`
+                        ? `${teamLabel(player.team, data?.teamTranslations)} | $${player.salary} | ${formatStatValue(player.stats.points)} 得分`
                         : "点击选择"}
                     </small>
                   </button>
@@ -626,7 +631,7 @@ export function LineupPicker() {
                 <select value={teamFilter} onChange={(event) => setTeamFilter(event.target.value)} aria-label="筛选球队">
                   <option value="ALL">全部球队</option>
                   {teams.map((team) => (
-                    <option key={team} value={team}>{team}</option>
+                    <option key={team} value={team}>{teamLabel(team, data?.teamTranslations)}</option>
                   ))}
                 </select>
                 <select value={sortMode} onChange={(event) => setSortMode(event.target.value as SortMode)} aria-label="球员排序">
@@ -665,7 +670,7 @@ export function LineupPicker() {
                     <span className="positionTag">{player.position || activeSlot}</span>
                     <span className="playerChoiceMain">
                       <strong>{playerLabel(player)}</strong>
-                      <small>{playerGameLabel(player, data.allGamesOnDate?.length ? data.allGamesOnDate : data.games)}</small>
+                      <small>{playerGameLabel(player, data.allGamesOnDate?.length ? data.allGamesOnDate : data.games, data.teamTranslations)}</small>
                     </span>
                     <span className="playerStats">
                       <small className="playerStatsLabel">身价</small>
@@ -882,7 +887,7 @@ export function LineupPicker() {
                           >
                             <span>{slot}</span>
                             <strong>{player ? player.name : "待选"}</strong>
-                            <small>{player ? `${player.team} | ${player.position}` : "未选择球员"}</small>
+                            <small>{player ? `${teamLabel(player.team, data?.teamTranslations)} | ${player.position}` : "未选择球员"}</small>
                             <em>{player ? `$${player.salary || 0} | ${player.fantasyPoints.toFixed(1)}` : "$0 | 0.0"}</em>
                           </div>
                         );

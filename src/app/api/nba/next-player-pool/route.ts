@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { loadPlayerNameTranslations, translatePlayerName } from "@/lib/player-name-translations";
 import { preferredDisplayPosition, preferredFantasySlots } from "@/lib/player-position-overrides";
+import { loadTeamNameTranslations } from "@/lib/team-name-translations";
 
 export const dynamic = "force-dynamic";
 
@@ -795,6 +796,7 @@ export async function GET() {
   try {
     const statSeasons = defaultStatSeasons();
     const playerNameTranslations = await loadPlayerNameTranslations(prisma);
+    const teamTranslations = await loadTeamNameTranslations(prisma);
     const candidateTeamTricodes = new Set(
       selectedGameDay.poolGames.flatMap((game) => [game.homeTeam.tricode, game.awayTeam.tricode]).filter(Boolean)
     );
@@ -885,6 +887,7 @@ export async function GET() {
           statSeasons,
           lockStatus,
           teams: Array.from(fallbackTeams).sort(),
+          teamTranslations,
           players,
           notes: [
             ...notes,
@@ -1028,6 +1031,7 @@ export async function GET() {
       statSeasons,
       lockStatus,
       teams: Array.from(teamTricodes).sort(),
+      teamTranslations,
       players,
       notes
     });

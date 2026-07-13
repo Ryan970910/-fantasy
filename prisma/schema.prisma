@@ -225,6 +225,26 @@ model PlayerNameTranslation {
   @@index([englishName])
 }
 
+model TeamNameTranslation {
+  id          String   @id @default(cuid())
+  tricode     String   @unique
+  chineseName String
+  source      String
+  updatedAt   DateTime @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)"))
+}
+
+model CronExecution {
+  id          String   @id @default(cuid())
+  job         String
+  trigger     String   @default("manual")
+  status      String   @default("running")
+  details     String   @default("")
+  startedAt   DateTime @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)"))
+  completedAt DateTime @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)"))
+
+  @@index([job, startedAt])
+}
+
 model Matchup {
   id          String      @id @default(cuid())
   leagueId    String

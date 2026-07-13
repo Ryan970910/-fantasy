@@ -199,15 +199,14 @@ function uniqueGamesFromResults(results: Awaited<ReturnType<typeof fetchGamesPag
 }
 
 export async function syncGamesOnce(prisma: PrismaClient) {
-  const results = [];
-  for (let offset = 0; offset <= 3; offset += 1) {
-    results.push(await fetchGamesPage(easternDate(offset)));
-  }
+  const results = await Promise.all(
+    Array.from({ length: 5 }, (_, index) => fetchGamesPage(easternDate(index - 1)))
+  );
 
   const selected = selectRelevantGames(results);
   const gamesToSync = uniqueGamesFromResults(results);
   if (!selected || gamesToSync.length === 0) {
-    throw new Error("No NBA games found in the next 4 Eastern dates");
+    throw new Error("No NBA games found from the previous Eastern date through the next 3 dates");
   }
 
   for (const game of gamesToSync) {

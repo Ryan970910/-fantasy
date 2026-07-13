@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { SESSION_COOKIE } from "@/lib/session-cookie";
 
 const AUTH_PAGES = ["/login", "/register"];
-const PUBLIC_PATHS = [...AUTH_PAGES, "/api/nba"];
+const PUBLIC_PATHS = [...AUTH_PAGES, "/api/nba", "/api/cron"];
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -10,8 +10,8 @@ export function proxy(request: NextRequest) {
   const isAuthPage = AUTH_PAGES.some((path) => pathname === path || pathname.startsWith(`${path}/`));
   const hasSessionCookie = Boolean(request.cookies.get(SESSION_COOKIE)?.value);
 
-  // Authenticated users should not revisit auth screens. Public API routes must
-  // remain API responses, otherwise client fetches receive the home HTML page.
+  // Cron endpoints authenticate with CRON_SECRET inside their route handlers;
+  // redirecting them here prevents Vercel Cron from ever reaching that check.
   if (isAuthPage && hasSessionCookie) {
     return NextResponse.redirect(new URL("/", request.url));
   }
