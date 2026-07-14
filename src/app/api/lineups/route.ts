@@ -9,8 +9,8 @@ export const dynamic = "force-dynamic";
 const slots = ["PG", "SG", "SF", "PF", "C"] as const;
 const BEIJING_OFFSET_MS = 8 * 60 * 60 * 1000;
 const LINEUP_SALARY_CAP = 125;
-const MIN_PLAYER_SALARY = 5;
-const MAX_PLAYER_SALARY = 45;
+const MIN_PLAYER_SALARY = 10;
+const MAX_PLAYER_SALARY = 60;
 
 type Slot = (typeof slots)[number];
 
@@ -140,14 +140,14 @@ function fantasyScore(stats: NonNullable<SubmittedPlayer["stats"]>) {
 }
 
 function playerSalaryFromStats(stats: NonNullable<SubmittedPlayer["stats"]>) {
-  const rawSalary = Math.round(5 + fantasyScore(stats) * 0.85 + numberOrZero(stats.minutes) * 0.2);
+  const rawSalary = Math.round(10 + fantasyScore(stats) * 1.0625 + numberOrZero(stats.minutes) * 0.25);
   const gamesPlayed = numberOrZero((stats as { gamesPlayed?: number | null }).gamesPlayed);
   const sampleMaxSalary = gamesPlayed > 0 && gamesPlayed < 3
-    ? 12
+    ? 19
     : gamesPlayed > 0 && gamesPlayed < 10
-      ? 20
+      ? 29
       : gamesPlayed > 0 && gamesPlayed < 20
-        ? 35
+        ? 48
         : MAX_PLAYER_SALARY;
 
   return clamp(rawSalary, MIN_PLAYER_SALARY, sampleMaxSalary);

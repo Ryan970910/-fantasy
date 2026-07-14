@@ -12,8 +12,8 @@ const BBR_PER_GAME_URL = "https://www.basketball-reference.com/leagues/NBA_{year
 const REQUEST_TIMEOUT_MS = 8000;
 const SEASON_TYPE = "Regular Season";
 const BEIJING_OFFSET_MS = 8 * 60 * 60 * 1000;
-const MIN_PLAYER_SALARY = 5;
-const MAX_PLAYER_SALARY = 45;
+const MIN_PLAYER_SALARY = 10;
+const MAX_PLAYER_SALARY = 60;
 
 type NbaGameCard = {
   cardData?: {
@@ -449,14 +449,14 @@ function fantasyScore(stats: {
 }
 
 function playerSalary(stats: Parameters<typeof fantasyScore>[0] & { minutes?: unknown }) {
-  const rawSalary = Math.round(5 + fantasyScore(stats) * 0.85 + numberOrZero(stats.minutes) * 0.2);
+  const rawSalary = Math.round(10 + fantasyScore(stats) * 1.0625 + numberOrZero(stats.minutes) * 0.25);
   const gamesPlayed = numberOrZero((stats as { gamesPlayed?: unknown }).gamesPlayed);
   const sampleMaxSalary = gamesPlayed > 0 && gamesPlayed < 3
-    ? 12
+    ? 19
     : gamesPlayed > 0 && gamesPlayed < 10
-      ? 20
+      ? 29
       : gamesPlayed > 0 && gamesPlayed < 20
-        ? 35
+        ? 48
         : MAX_PLAYER_SALARY;
 
   return clamp(rawSalary, MIN_PLAYER_SALARY, sampleMaxSalary);
