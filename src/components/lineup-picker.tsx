@@ -1,6 +1,6 @@
 "use client";
 
-import { UserRoundCheck } from "lucide-react";
+import { Search, UserRoundCheck, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 const slots = ["PG", "SG", "SF", "PF", "C"] as const;
@@ -181,6 +181,20 @@ function normalizePlayerName(value: string) {
     .toLowerCase();
 }
 
+function normalizePlayerSearchText(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[\s.'\u2019·‐‑‒–—﹘﹣－-]/g, "")
+    .toLowerCase();
+}
+
+export function playerMatchesNameSearch(player: Pick<PoolPlayer, "name" | "englishName">, query: string) {
+  const normalizedQuery = normalizePlayerSearchText(query);
+  return !normalizedQuery || [player.name, player.englishName || ""]
+    .some((name) => normalizePlayerSearchText(name).includes(normalizedQuery));
+}
+
 function playerDisplayKey(player: PoolPlayer) {
   return `${normalizePlayerName(player.englishName || player.name)}:${player.team}`;
 }
@@ -264,6 +278,7 @@ export function LineupPicker() {
   const [activeSlot, setActiveSlot] = useState<Slot>("PG");
   const [sortMode, setSortMode] = useState<SortMode>("fantasy");
   const [teamFilter, setTeamFilter] = useState("ALL");
+  const [playerNameQuery, setPlayerNameQuery] = useState("");
   const [lineup, setLineup] = useState<Record<Slot, string>>({
     PG: "",
     SG: "",
@@ -372,6 +387,7 @@ export function LineupPicker() {
     const players = uniquePlayers
       .filter((player) => player.eligibleSlots.includes(activeSlot))
       .filter((player) => teamFilter === "ALL" || player.team === teamFilter)
+      .filter((player) => playerMatchesNameSearch(player, playerNameQuery))
       .filter((player) => !selectedIds.has(player.id) || player.id === activeSelectedId);
 
     return dedupePlayersForDisplay([...players]).sort((left, right) => {
@@ -389,7 +405,7 @@ export function LineupPicker() {
       }
       return statValue(right.stats.points) - statValue(left.stats.points) || left.name.localeCompare(right.name);
     });
-  }, [activeSlot, lineup, selectedIds, sortMode, teamFilter, uniquePlayers]);
+  }, [activeSlot, lineup, playerNameQuery, selectedIds, sortMode, teamFilter, uniquePlayers]);
 
   function choosePlayer(playerId: string) {
     const currentPlayer = uniquePlayers.find((player) => player.id === lineup[activeSlot]);
@@ -628,6 +644,23 @@ export function LineupPicker() {
                 <small>当前选择：{activeSlot} · {availablePlayers.length} 名可选</small>
               </div>
               <div className="toolbarControls">
+                <div className="playerSearchField">
+                  <Search size={17} aria-hidden="true" />
+                  <input
+                    type="search"
+                    value={playerNameQuery}
+                    onChange={(event) => setPlayerNameQuery(event.target.value)}
+                    placeholder="搜索中文或英文名"
+                    aria-label="搜索球员姓名"
+                    autoComplete="off"
+                    spellCheck={false}
+                  />
+                  {playerNameQuery ? (
+                    <button type="button" onClick={() => setPlayerNameQuery("")} aria-label="清除姓名搜索">
+                      <X size={16} aria-hidden="true" />
+                    </button>
+                  ) : null}
+                </div>
                 <select value={teamFilter} onChange={(event) => setTeamFilter(event.target.value)} aria-label="筛选球队">
                   <option value="ALL">全部球队</option>
                   {teams.map((team) => (
@@ -655,6 +688,12 @@ export function LineupPicker() {
             </div>
 
             <div key={activeSlot} className="playerRows">
+              {availablePlayers.length === 0 ? (
+                <div className="playerSearchEmpty">
+                  <strong>找不到符合条件的球员</strong>
+                  <span>请尝试其他姓名、球队或位置</span>
+                </div>
+              ) : null}
               {availablePlayers.map((player) => {
                 const selectedForActiveSlot = lineup[activeSlot] === player.id;
                 const activeSlotLocked = Boolean(uniquePlayers.find((candidate) => candidate.id === lineup[activeSlot])?.locked);
