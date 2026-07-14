@@ -2,6 +2,13 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { loadPlayerNameTranslations, translatePlayerName } from "@/lib/player-name-translations";
 import { preferredDisplayPosition, preferredFantasySlots } from "@/lib/player-position-overrides";
+import {
+  fantasyScore,
+  isOfficialNbaPlayerId,
+  playerSalary,
+  selectDisplayStats,
+  selectPricingStats
+} from "@/lib/player-pricing";
 import { loadTeamNameTranslations } from "@/lib/team-name-translations";
 
 export const dynamic = "force-dynamic";
@@ -12,8 +19,6 @@ const BBR_PER_GAME_URL = "https://www.basketball-reference.com/leagues/NBA_{year
 const REQUEST_TIMEOUT_MS = 8000;
 const SEASON_TYPE = "Regular Season";
 const BEIJING_OFFSET_MS = 8 * 60 * 60 * 1000;
-const MIN_PLAYER_SALARY = 10;
-const MAX_PLAYER_SALARY = 60;
 
 type NbaGameCard = {
   cardData?: {
@@ -140,7 +145,10 @@ type PoolPlayerIdentity = {
 
 type AverageStatsSelection = {
   displayStats: AverageStatsRow;
-  salaryStats: AverageStatsRow;
+  pricingStats: {
+    current: AverageStatsRow;
+    previous: AverageStatsRow | null;
+  };
 };
 
 function selectionDate(offsetDays = 0) {
@@ -411,132 +419,6 @@ function numberOrZero(value: unknown) {
   return Number.isFinite(number) ? number : 0;
 }
 
-function clamp(value: number, min: number, max: number) {
-  return Math.min(max, Math.max(min, value));
-}
-
-function fantasyScore(stats: {
-  points?: unknown;
-  assists?: unknown;
-  steals?: unknown;
-  blocks?: unknown;
-  turnovers?: unknown;
-  threesMade?: unknown;
-  fieldGoalsMade?: unknown;
-  fieldGoalsAttempted?: unknown;
-  freeThrowsMade?: unknown;
-  freeThrowsAttempted?: unknown;
-  offensiveRebounds?: unknown;
-  defensiveRebounds?: unknown;
-}) {
-  const missedFieldGoals = Math.max(0, numberOrZero(stats.fieldGoalsAttempted) - numberOrZero(stats.fieldGoalsMade));
-  const missedFreeThrows = Math.max(0, numberOrZero(stats.freeThrowsAttempted) - numberOrZero(stats.freeThrowsMade));
-
-  return (
-    numberOrZero(stats.points) +
-    numberOrZero(stats.threesMade) * 0.5 +
-    numberOrZero(stats.fieldGoalsMade) * 0.4 -
-    missedFieldGoals +
-    numberOrZero(stats.freeThrowsMade) * 0.2 -
-    missedFreeThrows * 0.5 +
-    numberOrZero(stats.offensiveRebounds) +
-    numberOrZero(stats.defensiveRebounds) * 0.7 +
-    numberOrZero(stats.assists) * 1.5 +
-    numberOrZero(stats.steals) * 2 +
-    numberOrZero(stats.blocks) * 1.8 -
-    numberOrZero(stats.turnovers)
-  );
-}
-
-function playerSalary(stats: Parameters<typeof fantasyScore>[0] & { minutes?: unknown }) {
-  const rawSalary = Math.round(10 + fantasyScore(stats) * 1.0625 + numberOrZero(stats.minutes) * 0.25);
-  const gamesPlayed = numberOrZero((stats as { gamesPlayed?: unknown }).gamesPlayed);
-  const sampleMaxSalary = gamesPlayed > 0 && gamesPlayed < 3
-    ? 19
-    : gamesPlayed > 0 && gamesPlayed < 10
-      ? 29
-      : gamesPlayed > 0 && gamesPlayed < 20
-        ? 48
-        : MAX_PLAYER_SALARY;
-
-  return clamp(rawSalary, MIN_PLAYER_SALARY, sampleMaxSalary);
-}
-
-function hasDetailedFantasyStats(row: AverageStatsRow) {
-  return [
-    row.threesMade,
-    row.fieldGoalsMade,
-    row.fieldGoalsAttempted,
-    row.freeThrowsMade,
-    row.freeThrowsAttempted,
-    row.offensiveRebounds,
-    row.defensiveRebounds
-  ].some((value) => numberOrZero(value) > 0);
-}
-
-function isOfficialNbaPlayerId(value: string) {
-  return /^\d+$/.test(value);
-}
-
-function compareStatsRows(left: AverageStatsRow, right: AverageStatsRow) {
-  const leftDetailed = hasDetailedFantasyStats(left) ? 1 : 0;
-  const rightDetailed = hasDetailedFantasyStats(right) ? 1 : 0;
-  if (leftDetailed !== rightDetailed) {
-    return rightDetailed - leftDetailed;
-  }
-
-  const leftOfficial = isOfficialNbaPlayerId(left.nbaPlayerId) ? 1 : 0;
-  const rightOfficial = isOfficialNbaPlayerId(right.nbaPlayerId) ? 1 : 0;
-  if (leftOfficial !== rightOfficial) {
-    return rightOfficial - leftOfficial;
-  }
-
-  return numberOrZero(right.gamesPlayed) - numberOrZero(left.gamesPlayed);
-}
-
-function choosePreferredStatsRow(rows: AverageStatsRow[], currentSeason: string, previousSeason: string) {
-  const pick = (season: string, requireGames: boolean) =>
-    rows
-      .filter((row) => row.season === season && (!requireGames || numberOrZero(row.gamesPlayed) > 0))
-      .sort(compareStatsRows)[0] || null;
-
-  return (
-    pick(currentSeason, true) ||
-    pick(previousSeason, true) ||
-    pick(currentSeason, false) ||
-    pick(previousSeason, false)
-  );
-}
-
-function choosePricingStatsRow(rows: AverageStatsRow[], currentSeason: string, previousSeason: string) {
-  const current = rows
-    .filter((row) => row.season === currentSeason && numberOrZero(row.gamesPlayed) > 0)
-    .sort(compareStatsRows)[0] || null;
-  const previous = rows
-    .filter((row) => row.season === previousSeason && numberOrZero(row.gamesPlayed) > 0)
-    .sort(compareStatsRows)[0] || null;
-
-  if (!current) {
-    return previous || choosePreferredStatsRow(rows, currentSeason, previousSeason);
-  }
-  if (!previous) {
-    return current;
-  }
-
-  const currentGames = numberOrZero(current.gamesPlayed);
-  const currentFantasy = fantasyScore(current);
-  const previousFantasy = fantasyScore(previous);
-
-  if (currentGames < 10) {
-    return previous;
-  }
-  if (currentGames < 20 && previousFantasy > 0 && currentFantasy < previousFantasy * 0.85) {
-    return previous;
-  }
-
-  return current;
-}
-
 function canonicalPlayerId(rows: AverageStatsRow[], selected: AverageStatsRow) {
   return (
     rows.find((row) => row.season === selected.season && isOfficialNbaPlayerId(row.nbaPlayerId))?.nbaPlayerId ||
@@ -688,9 +570,9 @@ async function loadAverageStats(players: Array<{ id: string; name: string; team:
           rowKeys.add(key);
           return true;
         });
-        const displayStats = choosePreferredStatsRow(playerRows, currentSeason, previousSeason);
-        const salaryStats = choosePricingStatsRow(playerRows, currentSeason, previousSeason);
-        return displayStats && salaryStats ? [[player.id, { displayStats, salaryStats }]] : [];
+        const displayStats = selectDisplayStats(playerRows, currentSeason, previousSeason);
+        const pricingStats = selectPricingStats(playerRows, currentSeason, previousSeason);
+        return displayStats && pricingStats ? [[player.id, { displayStats, pricingStats }]] : [];
       }));
   } catch (error) {
     console.error("Player average stats lookup failed", error);
@@ -732,7 +614,7 @@ async function loadFallbackPoolPlayers(teamTricodes: Set<string>, currentSeason:
   const fallbackPositions = await loadFallbackPositions(teamTricodes, currentSeason, previousSeason);
 
   return dedupePoolPlayers(Array.from(byNameAndTeam.values()).flatMap((playerRows): FallbackPoolPlayer[] => {
-    const selected = choosePreferredStatsRow(playerRows, currentSeason, previousSeason);
+    const selected = selectDisplayStats(playerRows, currentSeason, previousSeason);
     if (!selected) {
       return [];
     }
@@ -833,34 +715,43 @@ export async function GET() {
       if (fallbackPlayers.length > 0) {
         const lockStatus = buildLockStatus(selectedGameDay.games);
         const lockedTeams = new Set(lockStatus.lockedTeams);
+        const averageStats = await loadAverageStats(
+          fallbackPlayers.map((player) => ({ id: player.id, name: player.name, team: player.team })),
+          statSeasons.current,
+          statSeasons.previous
+        );
         const players = fallbackPlayers.map((player) => {
+          const statsSelection = averageStats.get(player.id);
           const englishName = player.name;
+          const stats = statsSelection?.displayStats || player.stats;
           const normalizedStats = {
-            season: player.stats.season,
-            gamesPlayed: numberOrZero(player.stats.gamesPlayed),
-            minutes: numberOrZero(player.stats.minutes),
-            points: numberOrZero(player.stats.points),
-            rebounds: numberOrZero(player.stats.rebounds),
-            assists: numberOrZero(player.stats.assists),
-            steals: numberOrZero(player.stats.steals),
-            blocks: numberOrZero(player.stats.blocks),
-            turnovers: numberOrZero(player.stats.turnovers),
-            threesMade: numberOrZero(player.stats.threesMade),
-            fieldGoalsMade: numberOrZero(player.stats.fieldGoalsMade),
-            fieldGoalsAttempted: numberOrZero(player.stats.fieldGoalsAttempted),
-            freeThrowsMade: numberOrZero(player.stats.freeThrowsMade),
-            freeThrowsAttempted: numberOrZero(player.stats.freeThrowsAttempted),
-            offensiveRebounds: numberOrZero(player.stats.offensiveRebounds),
-            defensiveRebounds: numberOrZero(player.stats.defensiveRebounds),
-            source: player.stats.source,
-            sourceUrl: player.stats.sourceUrl
+            season: stats.season,
+            gamesPlayed: numberOrZero(stats.gamesPlayed),
+            minutes: numberOrZero(stats.minutes),
+            points: numberOrZero(stats.points),
+            rebounds: numberOrZero(stats.rebounds),
+            assists: numberOrZero(stats.assists),
+            steals: numberOrZero(stats.steals),
+            blocks: numberOrZero(stats.blocks),
+            turnovers: numberOrZero(stats.turnovers),
+            threesMade: numberOrZero(stats.threesMade),
+            fieldGoalsMade: numberOrZero(stats.fieldGoalsMade),
+            fieldGoalsAttempted: numberOrZero(stats.fieldGoalsAttempted),
+            freeThrowsMade: numberOrZero(stats.freeThrowsMade),
+            freeThrowsAttempted: numberOrZero(stats.freeThrowsAttempted),
+            offensiveRebounds: numberOrZero(stats.offensiveRebounds),
+            defensiveRebounds: numberOrZero(stats.defensiveRebounds),
+            source: stats.source,
+            sourceUrl: stats.sourceUrl
           };
 
           return {
             ...player,
             name: translatePlayerName(englishName, playerNameTranslations),
             englishName,
-            salary: playerSalary(normalizedStats),
+            salary: statsSelection
+              ? playerSalary(statsSelection.pricingStats.current, statsSelection.pricingStats.previous)
+              : playerSalary(normalizedStats),
             locked: lockedTeams.has(player.team),
             lockReason: lockedTeams.has(player.team) ? "Team game has started" : null,
             stats: normalizedStats
@@ -1006,7 +897,7 @@ export async function GET() {
         ...player,
         name: translatePlayerName(englishName, playerNameTranslations),
         englishName,
-        salary: playerSalary(statsSelection.salaryStats),
+        salary: playerSalary(statsSelection.pricingStats.current, statsSelection.pricingStats.previous),
         locked: lockedTeams.has(player.team),
         lockReason: lockedTeams.has(player.team) ? "Team game has started" : null,
         stats: normalizedStats

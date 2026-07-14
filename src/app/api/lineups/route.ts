@@ -1,6 +1,11 @@
 import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
+import {
+  fantasyScore,
+  playerSalary,
+  selectPricingStats
+} from "@/lib/player-pricing";
 import { prisma } from "@/lib/prisma";
 import { loadPlayerNameTranslations, translatePlayerName } from "@/lib/player-name-translations";
 
@@ -9,8 +14,6 @@ export const dynamic = "force-dynamic";
 const slots = ["PG", "SG", "SF", "PF", "C"] as const;
 const BEIJING_OFFSET_MS = 8 * 60 * 60 * 1000;
 const LINEUP_SALARY_CAP = 125;
-const MIN_PLAYER_SALARY = 10;
-const MAX_PLAYER_SALARY = 60;
 
 type Slot = (typeof slots)[number];
 
@@ -115,44 +118,6 @@ function numberOrZero(value: number | null | undefined) {
   return typeof value === "number" && Number.isFinite(value) ? value : 0;
 }
 
-function clamp(value: number, min: number, max: number) {
-  return Math.min(max, Math.max(min, value));
-}
-
-function fantasyScore(stats: NonNullable<SubmittedPlayer["stats"]>) {
-  const missedFieldGoals = Math.max(0, numberOrZero(stats.fieldGoalsAttempted) - numberOrZero(stats.fieldGoalsMade));
-  const missedFreeThrows = Math.max(0, numberOrZero(stats.freeThrowsAttempted) - numberOrZero(stats.freeThrowsMade));
-
-  return (
-    numberOrZero(stats.points) +
-    numberOrZero(stats.threesMade) * 0.5 +
-    numberOrZero(stats.fieldGoalsMade) * 0.4 -
-    missedFieldGoals +
-    numberOrZero(stats.freeThrowsMade) * 0.2 -
-    missedFreeThrows * 0.5 +
-    numberOrZero(stats.offensiveRebounds) +
-    numberOrZero(stats.defensiveRebounds) * 0.7 +
-    numberOrZero(stats.assists) * 1.5 +
-    numberOrZero(stats.steals) * 2 +
-    numberOrZero(stats.blocks) * 1.8 -
-    numberOrZero(stats.turnovers)
-  );
-}
-
-function playerSalaryFromStats(stats: NonNullable<SubmittedPlayer["stats"]>) {
-  const rawSalary = Math.round(10 + fantasyScore(stats) * 1.0625 + numberOrZero(stats.minutes) * 0.25);
-  const gamesPlayed = numberOrZero((stats as { gamesPlayed?: number | null }).gamesPlayed);
-  const sampleMaxSalary = gamesPlayed > 0 && gamesPlayed < 3
-    ? 19
-    : gamesPlayed > 0 && gamesPlayed < 10
-      ? 29
-      : gamesPlayed > 0 && gamesPlayed < 20
-        ? 48
-        : MAX_PLAYER_SALARY;
-
-  return clamp(rawSalary, MIN_PLAYER_SALARY, sampleMaxSalary);
-}
-
 function normalizeName(value: string) {
   return value
     .normalize("NFD")
@@ -177,53 +142,6 @@ function defaultStatSeasons() {
     current: seasonLabel(currentStartYear),
     previous: seasonLabel(currentStartYear - 1)
   };
-}
-
-function compareStatsRows(left: AverageStatsRow, right: AverageStatsRow) {
-  return numberOrZero(right.gamesPlayed) - numberOrZero(left.gamesPlayed);
-}
-
-function choosePreferredStatsRow(rows: AverageStatsRow[], currentSeason: string, previousSeason: string) {
-  const pick = (season: string, requireGames: boolean) =>
-    rows
-      .filter((row) => row.season === season && (!requireGames || numberOrZero(row.gamesPlayed) > 0))
-      .sort(compareStatsRows)[0] || null;
-
-  return (
-    pick(currentSeason, true) ||
-    pick(previousSeason, true) ||
-    pick(currentSeason, false) ||
-    pick(previousSeason, false)
-  );
-}
-
-function choosePricingStatsRow(rows: AverageStatsRow[], currentSeason: string, previousSeason: string) {
-  const current = rows
-    .filter((row) => row.season === currentSeason && numberOrZero(row.gamesPlayed) > 0)
-    .sort(compareStatsRows)[0] || null;
-  const previous = rows
-    .filter((row) => row.season === previousSeason && numberOrZero(row.gamesPlayed) > 0)
-    .sort(compareStatsRows)[0] || null;
-
-  if (!current) {
-    return previous || choosePreferredStatsRow(rows, currentSeason, previousSeason);
-  }
-  if (!previous) {
-    return current;
-  }
-
-  const currentGames = numberOrZero(current.gamesPlayed);
-  const currentFantasy = fantasyScore(current);
-  const previousFantasy = fantasyScore(previous);
-
-  if (currentGames < 10) {
-    return previous;
-  }
-  if (currentGames < 20 && previousFantasy > 0 && currentFantasy < previousFantasy * 0.85) {
-    return previous;
-  }
-
-  return current;
 }
 
 function beijingNow() {
@@ -303,7 +221,7 @@ function normalizePlayer(slot: Slot, player: SubmittedPlayer | null | undefined)
   const freeThrowsAttempted = numberOrZero(player?.stats?.freeThrowsAttempted);
   const offensiveRebounds = numberOrZero(player?.stats?.offensiveRebounds);
   const defensiveRebounds = numberOrZero(player?.stats?.defensiveRebounds);
-  const salary = playerSalaryFromStats(player?.stats || {});
+  const salary = playerSalary(player?.stats || {});
 
   return {
     id: `nba-${id}`,
@@ -385,10 +303,10 @@ async function applyStableSalaries<T extends ReturnType<typeof normalizePlayer>>
       return true;
     });
 
-    const pricingStats = choosePricingStatsRow(candidates, seasons.current, seasons.previous);
+    const pricingStats = selectPricingStats(candidates, seasons.current, seasons.previous);
     return {
       ...player,
-      salary: pricingStats ? playerSalaryFromStats(pricingStats) : player.salary
+      salary: pricingStats ? playerSalary(pricingStats.current, pricingStats.previous) : player.salary
     };
   });
 }
