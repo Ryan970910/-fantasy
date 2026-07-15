@@ -1,6 +1,13 @@
 import { describe, expect, it } from "vitest";
 
-import { playerMatchesNameSearch, savedLineupPlayerFallback } from "./lineup-picker";
+import { formatDateTime, playerMatchesNameSearch, savedLineupPlayerFallback } from "./lineup-picker";
+
+describe("formatDateTime", () => {
+  it("formats both UTC instants and database Beijing timestamps as Beijing time", () => {
+    expect(formatDateTime("2026-07-15T10:22:00.000Z")).toContain("18:22");
+    expect(formatDateTime("2026-07-15T18:22:00.000")).toContain("18:22");
+  });
+});
 
 describe("playerMatchesNameSearch", () => {
   const player = { name: "卢卡·东契奇", englishName: "Luka Doncic" };

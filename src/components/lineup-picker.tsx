@@ -176,13 +176,15 @@ async function fetchJsonResponse<T>(url: string, fallbackMessage: string) {
   throw lastError instanceof Error ? lastError : new Error(fallbackMessage);
 }
 
-function formatDateTime(value: string) {
-  const date = new Date(value);
+export function formatDateTime(value: string) {
+  const normalizedValue = /(?:Z|[+-]\d{2}:?\d{2})$/i.test(value) ? value : `${value}+08:00`;
+  const date = new Date(normalizedValue);
   if (Number.isNaN(date.getTime())) {
     return value || "待定";
   }
 
   return new Intl.DateTimeFormat("zh-CN", {
+    timeZone: "Asia/Shanghai",
     year: "numeric",
     month: "short",
     day: "numeric",

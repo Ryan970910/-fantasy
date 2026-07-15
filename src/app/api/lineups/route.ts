@@ -62,8 +62,8 @@ type LineupRow = {
   lineupName: string;
   totalSalary: number;
   totalPoints: number;
-  gameDay: Date;
-  createdAt: Date;
+  gameDay: string;
+  createdAt: string;
   slot: string;
   playerId: string;
   playerName: string;
@@ -314,8 +314,8 @@ export async function GET() {
        l."name" AS "lineupName",
        l."totalSalary" AS "totalSalary",
        l."totalPoints" AS "totalPoints",
-       l."gameDay" AS "gameDay",
-       l."createdAt" AS "createdAt",
+       to_char(l."gameDay", 'YYYY-MM-DD"T"HH24:MI:SS.MS') AS "gameDay",
+       to_char(l."createdAt", 'YYYY-MM-DD"T"HH24:MI:SS.MS') AS "createdAt",
        lp."position" AS "slot",
        p."id" AS "playerId",
        p."name" AS "playerName",
@@ -346,8 +346,8 @@ export async function GET() {
         gameDate: gameDateFromLineupName(row.lineupName),
         totalSalary: Number(row.totalSalary) || 0,
         totalPoints: Number(row.totalPoints) || 0,
-        gameDay: row.gameDay.toISOString(),
-        createdAt: row.createdAt.toISOString(),
+        gameDay: row.gameDay,
+        createdAt: row.createdAt,
         players: [] as Array<{
           slot: string;
           id: string;
