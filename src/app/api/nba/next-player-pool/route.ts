@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { allGamesStarted, gameHasStarted, lockedTeamCodes, nbaGameDate } from "@/lib/game-window";
 import { loadPlayerNameTranslations, translatePlayerName } from "@/lib/player-name-translations";
 import { preferredDisplayPosition, preferredFantasySlots } from "@/lib/player-position-overrides";
 import {
@@ -150,22 +151,6 @@ type AverageStatsSelection = {
     previous: AverageStatsRow | null;
   };
 };
-
-function selectionDate(offsetDays = 0) {
-  const now = new Date();
-  now.setUTCDate(now.getUTCDate() + offsetDays);
-  const parts = new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Asia/Hong_Kong",
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit"
-  }).formatToParts(now);
-
-  const year = parts.find((part) => part.type === "year")?.value;
-  const month = parts.find((part) => part.type === "month")?.value;
-  const day = parts.find((part) => part.type === "day")?.value;
-  return `${year}-${month}-${day}`;
-}
 
 function gameStatusLabel(status: number) {
   if (status === 1) {
@@ -354,37 +339,15 @@ async function fetchGamesPage(date: string): Promise<GameDay> {
   };
 }
 
-function futureScheduledGames(result: GameDay, now: number) {
-  return result.games.filter((game) => game.status === 1 && Date.parse(game.startTimeUTC) >= now);
-}
-
-function scheduledGames(result: GameDay) {
-  return result.games.filter((game) => game.status === 1);
-}
-
-function unfinishedGames(result: GameDay) {
-  return result.games.filter((game) => game.status !== 3);
-}
-
 function chooseNextGameDay(results: GameDay[], today: string): SelectedGameDay | null {
   const now = Date.now();
-  const todayResult = results.find((result) => result.gameDate === today && result.games.length > 0);
-  if (todayResult && unfinishedGames(todayResult).length > 0) {
+  const activeResult = results.find((result) => result.games.length > 0 && !allGamesStarted(result.games, now));
+  if (activeResult) {
     return {
-      ...todayResult,
-      poolGames: futureScheduledGames(todayResult, now),
-      poolMode: "current-day"
+      ...activeResult,
+      poolGames: activeResult.games.filter((game) => !gameHasStarted(game, now)),
+      poolMode: activeResult.gameDate === today ? "current-day" : "future-scheduled"
     };
-  }
-
-  const futureResult = results.find((result) => futureScheduledGames(result, now).length > 0);
-  if (futureResult) {
-    return { ...futureResult, poolGames: futureScheduledGames(futureResult, now), poolMode: "future-scheduled" };
-  }
-
-  const scheduledResult = results.find((result) => scheduledGames(result).length > 0);
-  if (scheduledResult) {
-    return { ...scheduledResult, poolGames: scheduledGames(scheduledResult), poolMode: "scheduled" };
   }
 
   const anyResult = results.find((result) => result.games.length > 0);
@@ -490,25 +453,14 @@ async function loadFallbackPositions(teamTricodes: Set<string>, currentSeason: s
   return positions;
 }
 
-function gameStarted(game: GameSummary, now = Date.now()) {
-  const startTime = Date.parse(game.startTimeUTC);
-  return game.status !== 1 || (Number.isFinite(startTime) && startTime <= now);
-}
-
 function buildLockStatus(games: GameSummary[]) {
   const now = Date.now();
   const validStartTimes = games
     .map((game) => Date.parse(game.startTimeUTC))
     .filter((time) => Number.isFinite(time));
   const firstGameStartTime = validStartTimes.length > 0 ? Math.min(...validStartTimes) : null;
-  const firstGameStarted = games.some((game) => gameStarted(game, now)) ||
-    (firstGameStartTime !== null && firstGameStartTime <= now);
-  const lockedTeams = new Set(
-    games
-      .filter((game) => gameStarted(game, now))
-      .flatMap((game) => [game.homeTeam.tricode, game.awayTeam.tricode])
-      .filter(Boolean)
-  );
+  const firstGameStarted = games.some((game) => gameHasStarted(game, now));
+  const lockedTeams = lockedTeamCodes(games, now);
 
   return {
     lockedAt: new Date(now).toISOString(),
@@ -642,8 +594,15 @@ async function loadFallbackPoolPlayers(teamTricodes: Set<string>, currentSeason:
 
 export async function GET() {
   const errors: string[] = [];
-  const today = selectionDate(0);
-  const dates = Array.from(new Set([today, selectionDate(1), selectionDate(2), selectionDate(3), selectionDate(4)]));
+  const today = nbaGameDate();
+  const dates = Array.from(new Set([
+    nbaGameDate(-1),
+    today,
+    nbaGameDate(1),
+    nbaGameDate(2),
+    nbaGameDate(3),
+    nbaGameDate(4)
+  ]));
   const gameResults: GameDay[] = [];
 
   for (const date of dates) {
@@ -680,7 +639,7 @@ export async function GET() {
     const playerNameTranslations = await loadPlayerNameTranslations(prisma);
     const teamTranslations = await loadTeamNameTranslations(prisma);
     const candidateTeamTricodes = new Set(
-      selectedGameDay.poolGames.flatMap((game) => [game.homeTeam.tricode, game.awayTeam.tricode]).filter(Boolean)
+      selectedGameDay.games.flatMap((game) => [game.homeTeam.tricode, game.awayTeam.tricode]).filter(Boolean)
     );
     let rows: PlayerIndexRow[] = [];
     let playersSourceUrl = NBA_PLAYER_INDEX_URL;
@@ -758,10 +717,10 @@ export async function GET() {
           };
         });
         const fallbackTeams = new Set(players.map((player) => player.team));
-        const rosterReadyGames = selectedGameDay.poolGames.filter(
+        const rosterReadyGames = selectedGameDay.games.filter(
           (game) => fallbackTeams.has(game.homeTeam.tricode) && fallbackTeams.has(game.awayTeam.tricode)
         );
-        const ignoredGames = selectedGameDay.poolGames.filter(
+        const ignoredGames = selectedGameDay.games.filter(
           (game) => !fallbackTeams.has(game.homeTeam.tricode) || !fallbackTeams.has(game.awayTeam.tricode)
         );
 
@@ -839,10 +798,10 @@ export async function GET() {
       .sort((a, b) => a.team.localeCompare(b.team) || a.name.localeCompare(b.name));
 
     const teamsWithPlayers = new Set(candidatePlayers.map((player) => player.team));
-    const rosterReadyGames = selectedGameDay.poolGames.filter(
+    const rosterReadyGames = selectedGameDay.games.filter(
       (game) => teamsWithPlayers.has(game.homeTeam.tricode) && teamsWithPlayers.has(game.awayTeam.tricode)
     );
-    const ignoredGames = selectedGameDay.poolGames.filter(
+    const ignoredGames = selectedGameDay.games.filter(
       (game) => !teamsWithPlayers.has(game.homeTeam.tricode) || !teamsWithPlayers.has(game.awayTeam.tricode)
     );
     const teamTricodes = new Set(

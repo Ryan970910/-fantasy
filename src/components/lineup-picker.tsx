@@ -107,6 +107,35 @@ type LineupsResponse = {
   error?: string;
 };
 
+export function savedLineupPlayerFallback(
+  player: SubmittedLineup["players"][number],
+  lockedTeams: Set<string>
+): PoolPlayer {
+  const locked = lockedTeams.has(player.team);
+  return {
+    id: player.id.replace(/^nba-/, ""),
+    name: player.name,
+    englishName: player.englishName,
+    team: player.team,
+    teamName: player.team,
+    jersey: "",
+    position: player.position,
+    height: "",
+    salary: player.salary,
+    eligibleSlots: [player.slot],
+    locked,
+    lockReason: locked ? "Team game has started" : null,
+    stats: {
+      points: player.stats.points,
+      rebounds: player.stats.rebounds,
+      assists: player.stats.assists,
+      steals: player.stats.steals,
+      blocks: player.stats.blocks,
+      turnovers: player.stats.turnovers
+    }
+  };
+}
+
 async function readJsonResponse<T>(response: Response, fallbackMessage: string) {
   const contentType = response.headers.get("content-type") || "";
   if (!contentType.includes("application/json")) {
@@ -333,9 +362,14 @@ export function LineupPicker() {
   }, []);
 
   const selectedIds = useMemo(() => new Set(Object.values(lineup).filter(Boolean)), [lineup]);
+  const editingLineupPlayers = useMemo(() => {
+    const editingLineup = submittedLineups.find((candidate) => candidate.id === editingLineupId);
+    const lockedTeams = new Set(data?.lockStatus?.lockedTeams || []);
+    return editingLineup?.players.map((player) => savedLineupPlayerFallback(player, lockedTeams)) || [];
+  }, [data?.lockStatus?.lockedTeams, editingLineupId, submittedLineups]);
   const uniquePlayers = useMemo(() => {
-    return dedupePlayersForDisplay(data?.players || []);
-  }, [data?.players]);
+    return dedupePlayersForDisplay([...(data?.players || []), ...editingLineupPlayers]);
+  }, [data?.players, editingLineupPlayers]);
   const selectedPlayers = useMemo(
     () => slots.map((slot) => uniquePlayers.find((player) => player.id === lineup[slot]) || null),
     [lineup, uniquePlayers]

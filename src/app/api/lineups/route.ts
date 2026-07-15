@@ -1,6 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { NextResponse } from "next/server";
 import { getCurrentUser } from "@/lib/auth";
+import { lockedTeamCodes } from "@/lib/game-window";
 import {
   fantasyScore,
   playerSalary,
@@ -168,11 +169,6 @@ function earliestBeijingGameTime(games: SubmitLineupBody["games"], gameDate: str
   return beijingNow();
 }
 
-function submittedGameStarted(game: NonNullable<SubmitLineupBody["games"]>[number], now = Date.now()) {
-  const startTime = game.startTimeUTC ? Date.parse(game.startTimeUTC) : Number.NaN;
-  return (typeof game.status === "number" && game.status !== 1) || (Number.isFinite(startTime) && startTime <= now);
-}
-
 function validateLineupWindow(
   games: SubmitLineupBody["games"],
   players: Array<{ slot: Slot; player: ReturnType<typeof normalizePlayer> }>,
@@ -184,12 +180,7 @@ function validateLineupWindow(
   }
 
   const now = Date.now();
-  const lockedTeams = new Set(
-    validGames
-      .filter((game) => submittedGameStarted(game, now))
-      .flatMap((game) => [game.homeTeam?.tricode, game.awayTeam?.tricode])
-      .filter((team): team is string => Boolean(team))
-  );
+  const lockedTeams = lockedTeamCodes(validGames, now);
   const lockedPlayer = players.find(({ slot, player }) =>
     lockedTeams.has(player.team) && !allowedLockedPlayers.has(`${slot}:${player.id}`)
   );
