@@ -1093,6 +1093,35 @@ button:disabled {
   font-size: 12px;
 }
 
+.historyDatePicker {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border: 1px solid rgb(215 173 99 / 24%);
+  color: #f0d294;
+  background: rgb(4 12 22 / 42%);
+  font-weight: 800;
+}
+
+.historyDatePicker > span {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.historyDatePicker input {
+  min-height: 38px;
+  padding: 0 10px;
+  border: 1px solid rgb(215 173 99 / 38%);
+  border-radius: 2px;
+  color: #172220;
+  background: #f1e6cf;
+  font: inherit;
+  font-weight: 800;
+}
+
 .submittedLineupSummary {
   display: grid;
   gap: 10px;
@@ -1471,6 +1500,15 @@ button:disabled {
     flex: 1;
     justify-content: center;
     padding: 0 10px;
+  }
+
+  .historyDatePicker {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .historyDatePicker input {
+    width: 100%;
   }
 
   .submittedLineupList {

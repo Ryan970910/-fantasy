@@ -1,6 +1,20 @@
 import { describe, expect, it } from "vitest";
 
-import { formatDateTime, playerMatchesNameSearch, savedLineupPlayerFallback } from "./lineup-picker";
+import { formatDateTime, historicalGameDates, playerMatchesNameSearch, savedLineupPlayerFallback } from "./lineup-picker";
+
+describe("historicalGameDates", () => {
+  it("returns distinct previous game dates with the latest first", () => {
+    const lineups = [
+      { gameDate: "2026-07-15" },
+      { gameDate: "2026-07-14" },
+      { gameDate: "2026-07-10" },
+      { gameDate: "2026-07-14" },
+      { gameDate: null }
+    ];
+
+    expect(historicalGameDates(lineups, "2026-07-15")).toEqual(["2026-07-14", "2026-07-10"]);
+  });
+});
 
 describe("formatDateTime", () => {
   it("formats both UTC instants and database Beijing timestamps as Beijing time", () => {

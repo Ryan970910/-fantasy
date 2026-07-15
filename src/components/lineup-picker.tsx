@@ -1,6 +1,6 @@
 "use client";
 
-import { Search, UserRoundCheck, X } from "lucide-react";
+import { CalendarDays, Search, UserRoundCheck, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 const slots = ["PG", "SG", "SF", "PF", "C"] as const;
@@ -106,6 +106,16 @@ type LineupsResponse = {
   lineups: SubmittedLineup[];
   error?: string;
 };
+
+export function historicalGameDates(lineups: Array<{ gameDate: string | null }>, currentGameDate: string | null) {
+  return Array.from(
+    new Set(
+      lineups
+        .map((lineup) => lineup.gameDate)
+        .filter((gameDate): gameDate is string => Boolean(gameDate && gameDate !== currentGameDate))
+    )
+  ).sort((left, right) => right.localeCompare(left));
+}
 
 export function savedLineupPlayerFallback(
   player: SubmittedLineup["players"][number],
@@ -305,6 +315,7 @@ export function LineupPicker() {
   const [editingLineupId, setEditingLineupId] = useState<string | null>(null);
   const [isCreatingLineup, setIsCreatingLineup] = useState(false);
   const [submittedTab, setSubmittedTab] = useState<"current" | "history">("current");
+  const [selectedHistoryDate, setSelectedHistoryDate] = useState("");
   const [expandedLineupIds, setExpandedLineupIds] = useState<Set<string>>(() => new Set());
   const [activeSlot, setActiveSlot] = useState<Slot>("PG");
   const [sortMode, setSortMode] = useState<SortMode>("fantasy");
@@ -406,7 +417,14 @@ export function LineupPicker() {
     () => submittedLineups.filter((submittedLineup) => !submittedLineup.gameDate || submittedLineup.gameDate !== currentGameDate),
     [currentGameDate, submittedLineups]
   );
-  const visibleSubmittedLineups = submittedTab === "current" ? currentGameDayLineups : historicalLineups;
+  const historyDates = useMemo(
+    () => historicalGameDates(submittedLineups, currentGameDate),
+    [currentGameDate, submittedLineups]
+  );
+  const activeHistoryDate = selectedHistoryDate || historyDates[0] || "";
+  const visibleSubmittedLineups = submittedTab === "current"
+    ? currentGameDayLineups
+    : historicalLineups.filter((lineup) => lineup.gameDate === activeHistoryDate);
   const hasLockedTeams = Boolean(data?.lockStatus?.lockedTeams?.length);
   const canCreateLineup = Boolean(data && !error && uniquePlayers.some((player) => !player.locked));
   const showPicker = isCreatingLineup || Boolean(editingLineupId);
@@ -850,6 +868,19 @@ export function LineupPicker() {
           </button>
         </div>
 
+        {submittedTab === "history" && historyDates.length > 0 ? (
+          <label className="historyDatePicker">
+            <span><CalendarDays aria-hidden="true" size={18} />查看比赛日</span>
+            <input
+              type="date"
+              value={activeHistoryDate}
+              min={historyDates.at(-1)}
+              max={historyDates[0]}
+              onChange={(event) => setSelectedHistoryDate(event.target.value)}
+            />
+          </label>
+        ) : null}
+
         {lineupsError ? (
           <div className="lineupEmpty">
             <strong>无法加载已提交阵容</strong>
@@ -875,7 +906,9 @@ export function LineupPicker() {
             <span>
               {submittedTab === "current"
                 ? "提交本比赛日阵容后会显示在这里。"
-                : "新比赛日开启后，旧阵容会显示在这里。"}
+                : activeHistoryDate
+                  ? `${activeHistoryDate} 没有已提交阵容。`
+                  : "新比赛日开启后，旧阵容会显示在这里。"}
             </span>
             {submittedTab === "current" && !showPicker ? (
               <button className="createLineupButton" type="button" onClick={startCreateLineup}>
