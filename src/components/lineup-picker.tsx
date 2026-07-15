@@ -870,7 +870,7 @@ export function LineupPicker() {
 
         {submittedTab === "history" && historyDates.length > 0 ? (
           <label className="historyDatePicker">
-            <span><CalendarDays aria-hidden="true" size={18} />查看比赛日</span>
+            <span><CalendarDays aria-hidden="true" size={18} />查看历史阵容</span>
             <input
               type="date"
               value={activeHistoryDate}
