@@ -8,6 +8,10 @@
     {
       "path": "/api/cron/sync-player-average-stats",
       "schedule": "30 16 * * *"
+    },
+    {
+      "path": "/api/cron/sync-player-positions",
+      "schedule": "0 22 * * 0"
     }
   ]
 }

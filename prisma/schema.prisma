@@ -245,6 +245,60 @@ model CronExecution {
   @@index([job, startedAt])
 }
 
+model PlayerExternalIdentity {
+  id               String                  @id @default(cuid())
+  nbaPlayerId      String                  @unique
+  bbrPlayerId      String?                 @unique
+  playerName       String
+  normalizedName   String
+  currentTeam      String?
+  profilePosition  String?
+  profileSourceUrl String?
+  updatedAt        DateTime                @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)"))
+  positionSeasons  PlayerPositionSeason[]
+  currentPosition  PlayerCurrentPosition?
+
+  @@index([normalizedName])
+}
+
+model PlayerPositionSeason {
+  id          String                 @id @default(cuid())
+  playerId    String
+  season      String
+  team        String?
+  gamesPlayed Int                    @default(0)
+  minutes     Float                  @default(0)
+  pgPercent   Float                  @default(0)
+  sgPercent   Float                  @default(0)
+  sfPercent   Float                  @default(0)
+  pfPercent   Float                  @default(0)
+  cPercent    Float                  @default(0)
+  sourceUrl   String
+  fetchedAt   DateTime               @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)"))
+  player      PlayerExternalIdentity @relation(fields: [playerId], references: [id], onDelete: Cascade)
+
+  @@unique([playerId, season])
+  @@index([season])
+}
+
+model PlayerCurrentPosition {
+  playerId              String                 @id
+  position1             String
+  position2             String?
+  positionDisplay       String
+  dataStatus            String
+  currentSeasonMinutes  Float                  @default(0)
+  currentSeasonWeight   Float                  @default(0)
+  confidence            Float                  @default(0)
+  candidatePosition1    String?
+  candidatePosition2    String?
+  candidateConfirmations Int                   @default(0)
+  manualPosition1       String?
+  manualPosition2       String?
+  calculatedAt          DateTime               @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)"))
+  player                PlayerExternalIdentity @relation(fields: [playerId], references: [id], onDelete: Cascade)
+}
+
 model Matchup {
   id          String      @id @default(cuid())
   leagueId    String

@@ -152,6 +152,11 @@ type AverageStatsSelection = {
   };
 };
 
+type ResolvedPosition = {
+  position: string;
+  eligibleSlots: string[];
+};
+
 function gameStatusLabel(status: number) {
   if (status === 1) {
     return "not_started";
@@ -532,6 +537,39 @@ async function loadAverageStats(players: Array<{ id: string; name: string; team:
   }
 }
 
+async function loadResolvedPositions(players: Array<{ id: string; name: string }>) {
+  if (!players.length) return new Map<string, ResolvedPosition>();
+  try {
+    const rows = await prisma.playerExternalIdentity.findMany({
+      where: {
+        OR: [
+          { nbaPlayerId: { in: players.map((player) => player.id) } },
+          { normalizedName: { in: players.map((player) => normalizeName(player.name)) } }
+        ]
+      },
+      include: { currentPosition: true }
+    });
+    const result = new Map<string, ResolvedPosition>();
+    for (const row of rows) {
+      const current = row.currentPosition;
+      if (!current || current.position1 === "UNRESOLVED") continue;
+      const selection = {
+        position: current.positionDisplay,
+        eligibleSlots: [current.position1, current.position2].filter(Boolean) as string[]
+      };
+      result.set(row.nbaPlayerId, selection);
+      result.set(normalizeName(row.playerName), selection);
+    }
+    return new Map(players.flatMap((player) => {
+      const selection = result.get(player.id) || result.get(normalizeName(player.name));
+      return selection ? [[player.id, selection]] : [];
+    }));
+  } catch (error) {
+    console.error("Resolved player position lookup failed", error);
+    return new Map<string, ResolvedPosition>();
+  }
+}
+
 async function loadFallbackPoolPlayers(teamTricodes: Set<string>, currentSeason: string, previousSeason: string) {
   if (teamTricodes.size === 0) {
     return [] as FallbackPoolPlayer[];
@@ -679,6 +717,7 @@ export async function GET() {
           statSeasons.current,
           statSeasons.previous
         );
+        const resolvedPositions = await loadResolvedPositions(fallbackPlayers);
         const players = fallbackPlayers.map((player) => {
           const statsSelection = averageStats.get(player.id);
           const englishName = player.name;
@@ -706,6 +745,7 @@ export async function GET() {
 
           return {
             ...player,
+            ...(resolvedPositions.get(player.id) || {}),
             name: translatePlayerName(englishName, playerNameTranslations),
             englishName,
             salary: statsSelection
@@ -810,17 +850,20 @@ export async function GET() {
     const lockStatus = buildLockStatus(selectedGameDay.games);
     const lockedTeams = new Set(lockStatus.lockedTeams);
     const poolPlayers = candidatePlayers.filter((player) => teamTricodes.has(player.team));
+    const resolvedPositions = await loadResolvedPositions(poolPlayers);
     const averageStats = await loadAverageStats(
       poolPlayers.map((player) => ({ id: player.id, name: player.name, team: player.team })),
       statSeasons.current,
       statSeasons.previous
     );
     const players = poolPlayers.map((player) => {
+      const resolvedPosition = resolvedPositions.get(player.id);
       const statsSelection = averageStats.get(player.id);
       if (!statsSelection) {
         const englishName = player.name;
         return {
           ...player,
+          ...(resolvedPosition || {}),
           name: translatePlayerName(englishName, playerNameTranslations),
           englishName,
           salary: playerSalary(player.stats),
@@ -854,6 +897,7 @@ export async function GET() {
       const englishName = player.name;
       return {
         ...player,
+        ...(resolvedPosition || {}),
         name: translatePlayerName(englishName, playerNameTranslations),
         englishName,
         salary: playerSalary(statsSelection.pricingStats.current, statsSelection.pricingStats.previous),
