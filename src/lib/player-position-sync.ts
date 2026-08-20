@@ -4,13 +4,19 @@ import { FANTASY_POSITIONS, resolvePlayerPosition, type FantasyPosition, type Po
 const NBA_PLAYER_INDEX_URL = "https://cdn.nba.com/static/json/staticData/playerIndex.json";
 const BBR_PBP_URL = "https://www.basketball-reference.com/leagues/NBA_{year}_play-by-play.html";
 const BBR_DRAFT_URL = "https://www.basketball-reference.com/draft/NBA_{year}.html";
-const BBR_SEARCH_URL = "https://www.basketball-reference.com/search/search.fcgi?search={query}";
 const REQUEST_TIMEOUT_MS = 30000;
+const BBR_REQUEST_DELAY_MS = 3200;
 
 type OfficialPlayer = { nbaPlayerId: string; playerName: string; team: string };
 type BbrPositionRow = SeasonPositionSample & { bbrPlayerId: string; playerName: string; normalizedName: string; team: string; gamesPlayed: number; profileUrl: string; sourceUrl: string };
 
 type PlayerIndexRow = [number, string, string, string, number, string, number, string, string, string, string, string, ...unknown[]];
+
+class HttpStatusError extends Error {
+  constructor(readonly status: number, statusText: string) {
+    super(`${status} ${statusText}`);
+  }
+}
 
 function seasonLabel(startYear: number) {
   return `${startYear}-${String(startYear + 1).slice(-2)}`;
@@ -98,12 +104,12 @@ export function parseProfilePositions(html: string) {
   return labels.filter(([label]) => value.includes(label)).map(([, position]) => position).slice(0, 2);
 }
 
-async function fetchDocument(url: string, accept = "text/html") {
+async function fetchDocument(url: string, accept = "text/html", extraHeaders: Record<string, string> = {}) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
   try {
-    const response = await fetch(url, { cache: "no-store", signal: controller.signal, headers: { Accept: accept, "Accept-Language": "en-US,en;q=0.9", "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/126.0 Safari/537.36" } });
-    if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
+    const response = await fetch(url, { cache: "no-store", signal: controller.signal, headers: { Accept: accept, "Accept-Language": "en-US,en;q=0.9", "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/126.0 Safari/537.36", ...extraHeaders } });
+    if (!response.ok) throw new HttpStatusError(response.status, response.statusText);
     return { text: await response.text(), url: response.url };
   } finally {
     clearTimeout(timer);
@@ -115,7 +121,7 @@ async function fetchText(url: string, accept = "text/html") {
 }
 
 async function fetchOfficialPlayers() {
-  const payload = JSON.parse(await fetchText(NBA_PLAYER_INDEX_URL, "application/json")) as { resultSets?: Array<{ rowSet?: PlayerIndexRow[] }> };
+  const payload = JSON.parse((await fetchDocument(NBA_PLAYER_INDEX_URL, "application/json", { Origin: "https://www.nba.com", Referer: "https://www.nba.com/" })).text) as { resultSets?: Array<{ rowSet?: PlayerIndexRow[] }> };
   const rows = payload.resultSets?.[0]?.rowSet || [];
   return rows.filter((row) => row[19] === 1).map((row): OfficialPlayer => ({ nbaPlayerId: String(row[0]), playerName: `${row[2]} ${row[1]}`.trim(), team: row[9] }));
 }
@@ -125,19 +131,22 @@ async function optionalPositionRows(season: string) {
   try {
     return parseBbrPositionRows(await fetchText(sourceUrl), season, sourceUrl);
   } catch (error) {
+    if (error instanceof HttpStatusError && error.status !== 404) throw error;
     console.warn(`Position Estimate unavailable for ${season}`, error);
     return [];
   }
 }
 
 async function profilePosition(profileUrl: string) {
-  try { return parseProfilePositions(await fetchText(profileUrl)); } catch (error) { console.warn(`Profile position unavailable: ${profileUrl}`, error); return null; }
+  try { return parseProfilePositions(await fetchText(profileUrl)); } catch (error) {
+    if (error instanceof HttpStatusError && error.status === 429) throw error;
+    console.warn(`Profile position unavailable: ${profileUrl}`, error);
+    return null;
+  }
 }
 
-async function mapInBatches<T, R>(values: T[], size: number, mapper: (value: T) => Promise<R>) {
-  const results: R[] = [];
-  for (let index = 0; index < values.length; index += size) results.push(...await Promise.all(values.slice(index, index + size).map(mapper)));
-  return results;
+function delay(milliseconds: number) {
+  return new Promise((resolve) => setTimeout(resolve, milliseconds));
 }
 
 function percentagesForDb(percentages: PositionPercentages) {
@@ -174,26 +183,15 @@ export async function syncPlayerPositionsOnce(prisma: PrismaClient, currentSeaso
       : draftLinks.get(normalizePositionPlayerName(official.playerName)) || (existing?.bbrPlayerId && existing.profileSourceUrl ? { bbrPlayerId: existing.bbrPlayerId, profileUrl: existing.profileSourceUrl } : undefined);
     if (link) linksByNbaId.set(official.nbaPlayerId, link);
   }
-  const unresolvedLinks = officialPlayers.filter((player) => !linksByNbaId.has(player.nbaPlayerId));
-  await mapInBatches(unresolvedLinks, 4, async (official) => {
-    try {
-      const searchUrl = BBR_SEARCH_URL.replace("{query}", encodeURIComponent(official.playerName));
-      const search = await fetchDocument(searchUrl);
-      const redirected = search.url.match(/https:\/\/www\.basketball-reference\.com\/players\/[^/]+\/([^/]+)\.html/i);
-      const link = redirected
-        ? { bbrPlayerId: redirected[1], profileUrl: search.url }
-        : parseProfileLinks(search.text).get(normalizePositionPlayerName(official.playerName));
-      if (link) linksByNbaId.set(official.nbaPlayerId, link);
-    } catch (error) { console.warn(`BBR profile search failed for ${official.playerName}`, error); }
-  });
   const profileResults = new Map<string, FantasyPosition[] | null>();
-  const zeroMinutePlayers = officialPlayers.filter((official) => {
-    const current = (rowsByName.get(normalizePositionPlayerName(official.playerName)) || []).some((row) => row.season === currentSeason && row.minutes > 0);
-    return !current && linksByNbaId.has(official.nbaPlayerId);
+  const rookiesWithoutPbp = officialPlayers.filter((official) => {
+    const name = normalizePositionPlayerName(official.playerName);
+    return !(rowsByName.get(name) || []).length && draftLinks.has(name) && !existingByNbaId.get(official.nbaPlayerId)?.profilePosition;
   });
-  await mapInBatches(zeroMinutePlayers, 4, async (official) => {
+  for (const [index, official] of rookiesWithoutPbp.entries()) {
     profileResults.set(official.nbaPlayerId, await profilePosition(linksByNbaId.get(official.nbaPlayerId)!.profileUrl));
-  });
+    if (index < rookiesWithoutPbp.length - 1) await delay(BBR_REQUEST_DELAY_MS);
+  }
   let manualReview = 0;
   let synced = 0;
 
