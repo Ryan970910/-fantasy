@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 
 import { clearSession } from "@/lib/auth";
 
-export function AppTopbar({ subtitle }: { subtitle: string }) {
+export function AppTopbar({ subtitle, showLogout = true }: { subtitle: string; showLogout?: boolean }) {
   async function logoutAction() {
     "use server";
 
@@ -17,9 +17,11 @@ export function AppTopbar({ subtitle }: { subtitle: string }) {
         <strong>梦幻篮球</strong>
         <span>{subtitle}</span>
       </Link>
-      <form action={logoutAction}>
-        <button className="refreshButton" type="submit">退出</button>
-      </form>
+      {showLogout ? (
+        <form action={logoutAction}>
+          <button className="refreshButton" type="submit">退出</button>
+        </form>
+      ) : null}
     </header>
   );
 }

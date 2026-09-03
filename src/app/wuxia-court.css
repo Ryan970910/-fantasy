@@ -192,7 +192,7 @@ input:focus-visible {
 }
 
 .productModuleIcon svg { width: 23px; height: 23px; }
-.startersModule .productModuleIcon { color: #d7e3da; border-color: var(--wu-jade); }
+.intelModule .productModuleIcon { color: #d7e3da; border-color: var(--wu-jade); }
 
 .productModuleCopy { display: grid; gap: 8px; }
 .productModuleCopy small { color: var(--wu-gold); font-size: 10px; letter-spacing: 0.14em; }
@@ -208,6 +208,29 @@ input:focus-visible {
 }
 
 .productModule:hover .productModuleArrow { transform: translateX(4px); }
+
+.intelHub {
+  width: min(100% - 28px, 940px);
+  margin: 0 auto;
+  padding: 44px 0 64px;
+}
+
+.intelHubHeader { padding-bottom: 22px; border-bottom: 1px solid rgb(216 193 142 / 28%); }
+.intelHubHeader h1 { margin: 4px 0 0; color: #f3ead6; font-family: var(--wu-display); font-size: 44px; letter-spacing: 0.04em; }
+.intelHubHeader > p:last-child { margin: 8px 0 0; color: #98a59f; font-size: 13px; line-height: 1.65; }
+.intelHubGrid { display: grid; margin-top: 22px; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.intelModule { display: grid; min-height: 205px; padding: 22px; grid-template-columns: auto minmax(0, 1fr) auto; gap: 16px; align-items: start; border: 1px solid rgb(216 193 142 / 30%); border-radius: 3px; color: #f1e8d5; background: #17282b; box-shadow: 0 18px 45px rgb(0 0 0 / 22%); text-decoration: none; transition: border-color 160ms ease, transform 160ms ease, background 160ms ease; }
+.intelModule:hover { border-color: var(--wu-gold); background: #1c3132; transform: translateY(-3px); }
+.intelModule:focus-visible { outline: 2px solid var(--wu-gold-light); outline-offset: 3px; }
+.intelModuleIcon { display: grid; width: 46px; height: 46px; place-items: center; border: 1px solid var(--wu-gold); border-radius: 50%; color: var(--wu-gold-light); background: #0d1c1f; }
+.intelModuleIcon svg { width: 22px; height: 22px; }
+.ballShareIntel .intelModuleIcon { color: #e2ba71; border-color: #9b7135; }
+.intelModuleCopy { display: grid; gap: 8px; }
+.intelModuleCopy small { color: var(--wu-gold); font-size: 10px; letter-spacing: 0.14em; }
+.intelModuleCopy strong { font-family: var(--wu-display); font-size: 27px; letter-spacing: 0.04em; }
+.intelModuleCopy > span { color: #98a59f; font-size: 13px; line-height: 1.7; }
+.intelModuleArrow { width: 20px; height: 20px; margin-top: 14px; color: var(--wu-gold-light); transition: transform 160ms ease; }
+.intelModule:hover .intelModuleArrow { transform: translateX(4px); }
 
 .startersHeader {
   display: flex;
@@ -251,10 +274,92 @@ input:focus-visible {
   .productModule { min-height: 168px; padding: 19px 17px; gap: 13px; }
   .productModuleIcon { width: 42px; height: 42px; }
   .productModuleCopy strong { font-size: 24px; }
+  .intelHub { width: min(100% - 24px, 940px); padding: 28px 0 44px; }
+  .intelHubHeader h1 { font-size: 32px; }
+  .intelHubGrid { grid-template-columns: 1fr; }
+  .intelModule { min-height: 160px; padding: 19px 17px; gap: 13px; }
+  .intelModuleIcon { width: 42px; height: 42px; }
+  .intelModuleCopy strong { font-size: 24px; }
   .startersHeader { align-items: flex-start; flex-direction: column; }
   .startersEmpty { min-height: 330px; padding: 20px 14px; }
   .starterPositions { width: 100%; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; }
   .starterPositions span { min-width: 0; min-height: 66px; padding: 7px 2px; }
+}
+
+.ballShareDemo {
+  width: min(100% - 28px, 940px);
+  margin: 0 auto;
+  padding: 44px 0 64px;
+}
+
+.ballShareHeader,
+.ballSharePlayerHeader {
+  display: flex;
+  gap: 18px;
+  align-items: end;
+  justify-content: space-between;
+}
+
+.ballShareHeader { padding-bottom: 22px; border-bottom: 1px solid rgb(216 193 142 / 28%); }
+.ballShareHeader h1 { margin: 4px 0 0; color: #f3ead6; font-family: var(--wu-display); font-size: 44px; letter-spacing: 0.04em; }
+.demoStatus { padding: 6px 9px; border: 1px solid rgb(184 146 85 / 48%); color: var(--wu-gold-light); background: rgb(184 146 85 / 10%); font-size: 11px; }
+
+.ballShareSearch { display: grid; gap: 8px; margin-top: 22px; padding: 16px; border: 1px solid rgb(216 193 142 / 25%); background: #17282b; }
+.ballShareSearch label { color: var(--wu-gold-light); font-size: 12px; font-weight: 700; }
+.ballShareSearch > div { display: grid; min-height: 44px; grid-template-columns: 20px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 0 5px 0 12px; border: 1px solid rgb(216 193 142 / 35%); background: #0d1c1f; }
+.ballShareSearch svg { width: 17px; color: var(--wu-gold); }
+.ballShareSearch input { width: 100%; min-width: 0; border: 0; outline: 0; color: #f2ead9; background: transparent; font-size: 15px; }
+.ballShareSearch input::placeholder { color: #76847e; }
+.ballShareSearch button { min-height: 32px; padding: 0 14px; border: 0; border-radius: 1px; color: #fff8e9; background: var(--wu-red); font-weight: 700; }
+.ballShareSearch p { margin: 0; color: #8e9c94; font-size: 11px; }
+
+.ballShareReport,
+.ballShareEmpty { margin-top: 14px; border: 1px solid rgb(216 193 142 / 28%); background: #17282b; }
+.ballShareReport { overflow: hidden; }
+.ballSharePlayerHeader { padding: 22px; border-bottom: 1px solid rgb(216 193 142 / 18%); }
+.ballSharePlayerHeader > div:first-child { display: grid; gap: 3px; }
+.ballSharePlayerHeader > div:first-child > span { color: var(--wu-gold); font-size: 11px; letter-spacing: 0.12em; }
+.ballSharePlayerHeader h2 { margin: 0; color: #f3ead6; font-family: var(--wu-display); font-size: 30px; }
+.ballSharePlayerHeader p { margin: 0; color: #9ba8a1; font-size: 12px; }
+.ballShareLabels { display: grid; gap: 5px; justify-items: end; text-align: right; }
+.ballShareLabels strong { color: var(--wu-gold-light); font-size: 15px; }
+.ballShareLabels span { color: #9ba8a1; font-size: 12px; }
+.ballShareInsight { padding: 15px 22px; border-bottom: 1px solid rgb(216 193 142 / 18%); background: rgb(184 146 85 / 8%); }
+.ballShareInsight strong { color: var(--wu-gold-light); font-size: 12px; }
+.ballShareInsight p { margin: 5px 0 0; color: #d7d1c3; font-size: 13px; line-height: 1.65; }
+
+.ballShareTable { padding: 6px 22px 12px; }
+.ballShareTableHead,
+.ballShareTableRow { display: grid; grid-template-columns: minmax(90px, 1.3fr) repeat(3, minmax(92px, 1fr)) minmax(106px, 1.1fr); gap: 12px; align-items: center; }
+.ballShareTableHead { min-height: 40px; color: #83928a; font-size: 11px; }
+.ballShareTableRow { min-height: 76px; border-top: 1px solid rgb(216 193 142 / 13%); color: #e9e2d2; font-size: 14px; }
+.ballShareTableRow strong { color: var(--wu-gold-light); }
+.ballShareMetric { display: grid; gap: 3px; }
+.ballShareMetric small { color: #9aa79f; font-size: 10px; line-height: 1.35; }
+.ballSharePercentile { display: grid; grid-template-columns: 56px auto; gap: 6px; align-items: center; color: #c4af80; font-size: 10px; white-space: nowrap; }
+.ballSharePercentile i { display: block; height: 4px; overflow: hidden; background: #314440; }
+.ballSharePercentile b { display: block; height: 100%; background: var(--wu-gold); }
+.ballShareTableRow > span { font-variant-numeric: tabular-nums; }
+.ballShareTableRow > .up,
+.ballShareTableRow > .down { display: inline-flex; gap: 5px; align-items: center; font-size: 12px; }
+.ballShareTableRow > .up { color: #8fc29c; }
+.ballShareTableRow > .down { color: #d79087; }
+.ballShareTableRow svg { width: 15px; height: 15px; }
+.ballShareReport footer { padding: 13px 22px; border-top: 1px solid rgb(216 193 142 / 18%); color: #8e9c94; background: rgb(5 14 16 / 28%); font-size: 11px; line-height: 1.6; }
+.ballShareEmpty { display: grid; min-height: 170px; padding: 20px; place-content: center; gap: 8px; color: #f0e7d5; text-align: center; }
+.ballShareEmpty span { color: #98a59f; font-size: 12px; }
+
+@media (max-width: 680px) {
+  .ballShareDemo { width: min(100% - 24px, 940px); padding: 28px 0 44px; }
+  .ballShareHeader { align-items: flex-start; flex-direction: column; }
+  .ballShareHeader h1 { font-size: 32px; }
+  .ballSharePlayerHeader { padding: 18px 16px; align-items: flex-start; }
+  .ballSharePlayerHeader h2 { font-size: 25px; }
+  .ballShareInsight { padding: 13px 16px; }
+  .ballShareTable { padding: 4px 16px 10px; overflow-x: auto; }
+  .ballShareTableHead,
+  .ballShareTableRow { width: 620px; grid-template-columns: 110px repeat(3, 112px) 128px; }
+  .ballShareReport footer { padding: 12px 16px; }
 }
 
 .lineupPicker {

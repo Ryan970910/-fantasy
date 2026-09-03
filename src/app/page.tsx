@@ -1,4 +1,4 @@
-import { ArrowRight, ClipboardList, UsersRound } from "lucide-react";
+import { ArrowRight, Radar, UsersRound } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
@@ -31,12 +31,12 @@ export default async function Home() {
             <ArrowRight className="productModuleArrow" aria-hidden="true" />
           </Link>
 
-          <Link className="productModule startersModule" href="/predicted-starters">
-            <span className="productModuleIcon"><ClipboardList aria-hidden="true" /></span>
+          <Link className="productModule intelModule" href="/pregame-intel">
+            <span className="productModuleIcon"><Radar aria-hidden="true" /></span>
             <span className="productModuleCopy">
               <small>赛前情报</small>
-              <strong>预测首发</strong>
-              <span>按比赛日查看各队预测首发阵容。</span>
+              <strong>赛前情报</strong>
+              <span>查看预测首发与近期球权，辅助比赛日前的阵容选择。</span>
             </span>
             <ArrowRight className="productModuleArrow" aria-hidden="true" />
           </Link>
