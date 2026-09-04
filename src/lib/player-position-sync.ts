@@ -7,7 +7,7 @@ const BBR_DRAFT_URL = "https://www.basketball-reference.com/draft/NBA_{year}.htm
 const REQUEST_TIMEOUT_MS = 30000;
 const BBR_REQUEST_DELAY_MS = 3200;
 
-type OfficialPlayer = { nbaPlayerId: string; playerName: string; team: string };
+export type OfficialPlayer = { nbaPlayerId: string; playerName: string; team: string; firstSeason: number | null };
 type BbrPositionRow = SeasonPositionSample & { bbrPlayerId: string; playerName: string; normalizedName: string; team: string; gamesPlayed: number; profileUrl: string; sourceUrl: string };
 
 type PlayerIndexRow = [number, string, string, string, number, string, number, string, string, string, string, string, ...unknown[]];
@@ -120,10 +120,15 @@ async function fetchText(url: string, accept = "text/html") {
   return (await fetchDocument(url, accept)).text;
 }
 
-async function fetchOfficialPlayers() {
+export async function fetchOfficialPlayers() {
   const payload = JSON.parse((await fetchDocument(NBA_PLAYER_INDEX_URL, "application/json", { Origin: "https://www.nba.com", Referer: "https://www.nba.com/" })).text) as { resultSets?: Array<{ rowSet?: PlayerIndexRow[] }> };
   const rows = payload.resultSets?.[0]?.rowSet || [];
-  return rows.filter((row) => row[19] === 1).map((row): OfficialPlayer => ({ nbaPlayerId: String(row[0]), playerName: `${row[2]} ${row[1]}`.trim(), team: row[9] }));
+  return rows.filter((row) => row[19] === 1).map((row): OfficialPlayer => ({
+    nbaPlayerId: String(row[0]),
+    playerName: `${row[2]} ${row[1]}`.trim(),
+    team: String(row[9] || ""),
+    firstSeason: Number.isFinite(Number(row[24])) ? Number(row[24]) : null
+  })).filter((player) => player.team);
 }
 
 async function optionalPositionRows(season: string) {

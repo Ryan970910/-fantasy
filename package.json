@@ -15,7 +15,8 @@
                     "player-stats:sync":  "tsx scripts/sync-player-average-stats.ts",
                     "player-stats:sync:bbr":  "tsx scripts/sync-player-average-stats-bbr.ts",
                     "player-stats:watch":  "tsx scripts/sync-player-average-stats-bbr.ts --watch --interval-ms=900000",
-                    "player-positions:sync": "tsx scripts/sync-player-positions.ts"
+                    "player-positions:sync": "tsx scripts/sync-player-positions.ts",
+                    "player-ball-share:sync": "tsx scripts/sync-player-ball-share.ts"
                 },
     "dependencies":  {
                          "@prisma/client":  "6.19.3",

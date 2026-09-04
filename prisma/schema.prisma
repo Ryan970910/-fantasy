@@ -299,6 +299,37 @@ model PlayerCurrentPosition {
   player                PlayerExternalIdentity @relation(fields: [playerId], references: [id], onDelete: Cascade)
 }
 
+model PlayerBallShare {
+  id                    String   @id @default(cuid())
+  nbaPlayerId           String
+  playerName            String
+  normalizedPlayerName  String
+  currentTeam           String
+  sourceTeam            String?
+  season                String
+  dataStatus            String
+  unavailableReason     String?
+  gamesPlayed           Int      @default(0)
+  last5UsageRate        Float?
+  last10UsageRate       Float?
+  seasonUsageRate       Float?
+  last5TimePossession   Float?
+  last10TimePossession  Float?
+  seasonTimePossession  Float?
+  last5Touches          Float?
+  last10Touches         Float?
+  seasonTouches         Float?
+  last5PotentialAssists Float?
+  last10PotentialAssists Float?
+  seasonPotentialAssists Float?
+  sourceUrl             String
+  syncedAt              DateTime @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)"))
+
+  @@unique([nbaPlayerId, season])
+  @@index([season, dataStatus])
+  @@index([normalizedPlayerName])
+}
+
 model Matchup {
   id          String      @id @default(cuid())
   leagueId    String
