@@ -1,4 +1,4 @@
-import { ArrowRight, ClipboardList } from "lucide-react";
+import { ArrowRight, ChartNoAxesCombined, ClipboardList } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
@@ -18,7 +18,7 @@ export default async function PregameIntelPage() {
         <header className="intelHubHeader">
           <p className="eyebrow">比赛工具</p>
           <h1 id="intel-hub-title">赛前情报</h1>
-          <p>在确定阵容前，查看首发预期与球员近期进攻角色。</p>
+          <p>在确定阵容前，查看首发预期、角色变化与今日推荐。</p>
         </header>
 
         <div className="intelHubGrid">
@@ -28,6 +28,16 @@ export default async function PregameIntelPage() {
               <small>比赛日预测</small>
               <strong>预测首发</strong>
               <span>按比赛日查看各队预计首发阵容。</span>
+            </span>
+            <ArrowRight className="intelModuleArrow" aria-hidden="true" />
+          </Link>
+
+          <Link className="intelModule playerIntel" href="/player-intel">
+            <span className="intelModuleIcon"><ChartNoAxesCombined aria-hidden="true" /></span>
+            <span className="intelModuleCopy">
+              <small>比赛日分析</small>
+              <strong>球员情报</strong>
+              <span>查看近期角色变化与今日推荐指数。</span>
             </span>
             <ArrowRight className="intelModuleArrow" aria-hidden="true" />
           </Link>

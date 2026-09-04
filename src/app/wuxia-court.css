@@ -224,12 +224,55 @@ input:focus-visible {
 .intelModule:focus-visible { outline: 2px solid var(--wu-gold-light); outline-offset: 3px; }
 .intelModuleIcon { display: grid; width: 46px; height: 46px; place-items: center; border: 1px solid var(--wu-gold); border-radius: 50%; color: var(--wu-gold-light); background: #0d1c1f; }
 .intelModuleIcon svg { width: 22px; height: 22px; }
+.playerIntel .intelModuleIcon { color: #d7e3da; border-color: var(--wu-jade); }
 .intelModuleCopy { display: grid; gap: 8px; }
 .intelModuleCopy small { color: var(--wu-gold); font-size: 10px; letter-spacing: 0.14em; }
 .intelModuleCopy strong { font-family: var(--wu-display); font-size: 27px; letter-spacing: 0.04em; }
 .intelModuleCopy > span { color: #98a59f; font-size: 13px; line-height: 1.7; }
 .intelModuleArrow { width: 20px; height: 20px; margin-top: 14px; color: var(--wu-gold-light); transition: transform 160ms ease; }
 .intelModule:hover .intelModuleArrow { transform: translateX(4px); }
+
+.playerIntelBoard,
+.intelEmpty {
+  width: min(100% - 28px, 1040px);
+  margin: 0 auto;
+  padding: 38px 0 64px;
+}
+
+.playerIntelHeader { display: flex; gap: 24px; align-items: end; justify-content: space-between; padding-bottom: 20px; border-bottom: 1px solid rgb(216 193 142 / 28%); }
+.playerIntelHeader h1,
+.intelEmpty h1 { margin: 4px 0 0; color: #f3ead6; font-family: var(--wu-display); font-size: 40px; letter-spacing: .04em; }
+.playerIntelHeader p:last-child,
+.intelEmpty > p:last-child { max-width: 660px; margin: 8px 0 0; color: #98a59f; font-size: 13px; line-height: 1.7; }
+.intelSort { display: inline-flex; padding: 3px; border: 1px solid rgb(216 193 142 / 30%); background: #0d1c1f; }
+.intelSort button { min-height: 34px; padding: 0 13px; border: 0; border-radius: 1px; color: #98a59f; background: transparent; font: inherit; font-size: 12px; font-weight: 800; cursor: pointer; }
+.intelSort button.active { color: #172220; background: var(--wu-gold-light); }
+.intelLegend { display: flex; flex-wrap: wrap; gap: 10px 24px; padding: 14px 0; color: #aab7ae; font-size: 12px; }
+.intelLegend span { display: inline-flex; gap: 6px; align-items: center; }
+.intelLegend svg { width: 15px; color: var(--wu-gold); }
+.intelRows { border-top: 1px solid rgb(216 193 142 / 24%); }
+.intelRow { border-bottom: 1px solid rgb(216 193 142 / 24%); background: #17282b; }
+.intelRow summary { display: grid; min-height: 86px; padding: 14px 18px; grid-template-columns: minmax(0, 1fr) 104px 104px 20px; gap: 15px; align-items: center; cursor: pointer; list-style: none; }
+.intelRow summary::-webkit-details-marker { display: none; }
+.intelRow:nth-child(even) { background: #142427; }
+.intelPlayer { display: grid; gap: 5px; min-width: 0; }
+.intelPlayer strong { overflow: hidden; color: #f1e8d5; font-family: var(--wu-display); font-size: 20px; letter-spacing: .02em; text-overflow: ellipsis; white-space: nowrap; }
+.intelPlayer small { overflow: hidden; color: #98a59f; font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
+.intelMetric { display: grid; gap: 2px; }
+.intelMetric small { color: #98a59f; font-size: 10px; }
+.intelMetric b { display: flex; gap: 5px; align-items: center; color: #f3d68e; font: 700 26px Georgia, serif; }
+.intelMetric em { padding: 1px 4px; color: #172220; background: var(--wu-gold-light); font: 800 10px var(--wu-body); }
+.intelMetric.role b { color: #d5e1d5; }
+.intelMetric.role.falling b { color: #e7aaa1; }
+.intelMetric svg { width: 17px; }
+.intelChevron { width: 17px; color: #98a59f; transition: transform 160ms ease; }
+.intelRow[open] .intelChevron { transform: rotate(180deg); }
+.intelDetail { display: grid; gap: 8px; padding: 0 18px 16px; color: #aab7ae; font-size: 12px; line-height: 1.7; }
+.intelDetail p { margin: 0; }
+.intelDetail strong { color: #e8dcc0; }
+.intelEmpty { display: grid; min-height: 420px; place-content: center; justify-items: center; text-align: center; }
+.intelEmpty > svg { width: 45px; height: 45px; margin-bottom: 15px; color: var(--wu-gold); }
+.intelEmpty h1 { font-size: 34px; }
 
 .startersHeader {
   display: flex;
@@ -279,6 +322,15 @@ input:focus-visible {
   .intelModule { min-height: 160px; padding: 19px 17px; gap: 13px; }
   .intelModuleIcon { width: 42px; height: 42px; }
   .intelModuleCopy strong { font-size: 24px; }
+  .playerIntelBoard,
+  .intelEmpty { width: min(100% - 24px, 1040px); padding: 28px 0 44px; }
+  .playerIntelHeader { align-items: flex-start; flex-direction: column; }
+  .intelRow summary { min-height: 100px; padding: 12px; grid-template-columns: minmax(0, 1fr) 72px 72px 16px; gap: 7px; }
+  .intelPlayer strong { font-size: 17px; }
+  .intelPlayer small { white-space: normal; }
+  .intelMetric small { font-size: 9px; }
+  .intelMetric b { font-size: 21px; }
+  .intelDetail { padding: 0 12px 14px; font-size: 11px; }
   .startersHeader { align-items: flex-start; flex-direction: column; }
   .startersEmpty { min-height: 330px; padding: 20px 14px; }
   .starterPositions { width: 100%; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 4px; }

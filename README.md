@@ -33,6 +33,8 @@ Run these commands after setting `DATABASE_URL`:
 
 Lineup player cards prefer the current season averages. If a player has no current season average, the app falls back to the previous season average. If no saved Box Scores are available, the app falls back to the limited official `playerIndex` fields.
 
+`/player-intel` is the pregame player-intelligence page. It calculates role change from the latest 5 played games versus the preceding 10, and calculates the game-day recommendation from season fantasy output, recent form, role change, opponent fantasy output allowed, and recent pace. It is read-only and requires a synced upcoming `Game` plus at least 15 current-season player games; otherwise it shows an explicit unavailable state.
+
 All database business timestamps are stored as Beijing time.
 
 ## Vercel deployment
