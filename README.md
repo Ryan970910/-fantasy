@@ -30,6 +30,8 @@ Run these commands after setting `DATABASE_URL`:
 - `pnpm games:sync` inserts or updates next game day rows in `Game`.
 - `pnpm games:watch` keeps `Game` scores and status refreshed while games are live.
 - `pnpm player-stats:sync` pulls per-game player averages from NBA official `LeagueDashPlayerStats` for the current NBA season and previous NBA season, then upserts them into `PlayerAverageStats`.
+- `pnpm player-ball-share:sync` runs the local Python `nba_api` collector, then upserts usage rate, touches, time of possession, and potential assists into `PlayerBallShare`. It requires `.venv` with `requirements.txt` installed and performs database writes.
+- `/api/python/probe-player-ball-share` is a read-only Vercel Python Function probe. It is protected by `CRON_SECRET`, reads no database data, and has no Cron schedule.
 
 Lineup player cards prefer the current season averages. If a player has no current season average, the app falls back to the previous season average. If the stats sync has not run or NBA's stats endpoint is unavailable, the app falls back to the limited official `playerIndex` fields.
 

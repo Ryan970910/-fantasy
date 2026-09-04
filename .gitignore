@@ -3,6 +3,8 @@ node_modules/
 out/
 .env
 .env*.local
+.venv/
+__pycache__/
 *.tsbuildinfo
 .DS_Store
 logs/

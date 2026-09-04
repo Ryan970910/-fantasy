@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildBallShareRows, type MetricWindows, type TrackingWindows } from "./player-ball-share-sync";
+import { buildBallShareRows, parsePythonBallSharePayload, type MetricWindows, type TrackingWindows } from "./player-ball-share-sync";
 
 function windows(team: string, value: number): TrackingWindows {
   const row = { playerId: "1", playerName: "Test Player", team, gamesPlayed: 20, value };
@@ -24,5 +24,20 @@ describe("buildBallShareRows", () => {
     expect(rows[0].seasonTouches).toBe(70);
     expect(rows[1].unavailableReason).toContain("DAL");
     expect(rows[2].unavailableReason).toContain("新秀");
+  });
+
+  it("parses each nba_api metric window without mixing touches and possession time", () => {
+    const parsed = parsePythonBallSharePayload({
+      season: "2025-26",
+      metrics: {
+        usageRate: { 0: [{ playerId: "1", playerName: "Test Player", team: "DAL", gamesPlayed: 20, value: 0.25 }], 5: [], 10: [] },
+        timePossession: { 0: [{ playerId: "1", playerName: "Test Player", team: "DAL", gamesPlayed: 20, value: 4.5 }], 5: [], 10: [] },
+        touches: { 0: [{ playerId: "1", playerName: "Test Player", team: "DAL", gamesPlayed: 20, value: 72 }], 5: [], 10: [] },
+        potentialAssists: { 0: [{ playerId: "1", playerName: "Test Player", team: "DAL", gamesPlayed: 20, value: 11 }], 5: [], 10: [] }
+      }
+    });
+
+    expect(parsed.windows.timePossession[0].get("1")?.value).toBe(4.5);
+    expect(parsed.windows.touches[0].get("1")?.value).toBe(72);
   });
 });
