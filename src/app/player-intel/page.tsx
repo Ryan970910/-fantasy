@@ -15,7 +15,7 @@ export default async function PlayerIntelPage() {
   const dashboard = await loadPlayerIntelDashboard();
   return (
     <main className="shell">
-      <AppTopbar subtitle="赛前情报" />
+      <AppTopbar subtitle="赛前情报" backHref="/pregame-intel" />
       {dashboard.state === "ready" ? <PlayerIntelBoard players={dashboard.players} /> : (
         <section className="intelEmpty" aria-labelledby="intel-empty-title">
           <ChartNoAxesCombined aria-hidden="true" />

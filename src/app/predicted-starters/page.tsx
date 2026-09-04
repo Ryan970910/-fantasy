@@ -14,7 +14,7 @@ export default async function PredictedStartersPage() {
 
   return (
     <main className="shell">
-      <AppTopbar subtitle="赛前情报" />
+      <AppTopbar subtitle="赛前情报" backHref="/pregame-intel" />
       <section className="startersPage" aria-labelledby="starters-title">
         <header className="startersHeader">
           <p className="eyebrow">比赛日预测</p>

@@ -13,7 +13,7 @@ export default async function PregameIntelPage() {
 
   return (
     <main className="shell">
-      <AppTopbar subtitle="赛前情报" />
+      <AppTopbar subtitle="赛前情报" backHref="/" />
       <section className="intelHub" aria-labelledby="intel-hub-title">
         <header className="intelHubHeader">
           <p className="eyebrow">比赛工具</p>
