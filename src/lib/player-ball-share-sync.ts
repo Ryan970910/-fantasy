@@ -6,6 +6,8 @@ import { fetchOfficialPlayers, type OfficialPlayer } from "./player-position-syn
 const NBA_STATS_URL = "https://stats.nba.com/stats";
 const SEASON_TYPE = "Regular Season";
 const REQUEST_TIMEOUT_MS = 30000;
+const REQUEST_DELAY_MS = 3500;
+const RETRY_DELAY_MS = 5000;
 
 type MetricName = "usageRate" | "timePossession" | "touches" | "potentialAssists";
 export type TrackingRow = { playerId: string; playerName: string; team: string; gamesPlayed: number; value: number };
@@ -134,13 +136,13 @@ async function fetchJson(url: string) {
       return await requestJson(url);
     } catch (error) {
       lastError = error instanceof Error ? error : new Error("NBA Stats request failed");
-      if (attempt === 0) await new Promise((resolve) => setTimeout(resolve, 1000));
+      if (attempt === 0) await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
     }
   }
   throw lastError || new Error("NBA Stats request failed");
 }
 
-async function metricWindows(season: string, metric: MetricName): Promise<{ windows: TrackingWindows; sourceUrl: string }> {
+async function metricWindow(season: string, metric: MetricName, lastNGames: 0 | 5 | 10) {
   const config: Record<MetricName, { endpoint: string; measure: string; column: string }> = {
     usageRate: { endpoint: "leaguedashplayerstats", measure: "Advanced", column: "USG_PCT" },
     timePossession: { endpoint: "leaguedashptstats", measure: "Possessions", column: "TIME_OF_POSS" },
@@ -148,14 +150,27 @@ async function metricWindows(season: string, metric: MetricName): Promise<{ wind
     potentialAssists: { endpoint: "leaguedashptstats", measure: "Passing", column: "POTENTIAL_AST" }
   };
   const detail = config[metric];
+  const sourceUrl = requestUrl(detail.endpoint, season, lastNGames, detail.measure);
+  return { sourceUrl, rows: resultRows(await fetchJson(sourceUrl), detail.column) };
+}
+
+async function metricWindows(season: string, metric: MetricName): Promise<{ windows: TrackingWindows; sourceUrl: string }> {
   const windows = {} as TrackingWindows;
   let sourceUrl = "";
-  for (const lastNGames of [0, 5, 10] as const) {
-    const url = requestUrl(detail.endpoint, season, lastNGames, detail.measure);
-    sourceUrl ||= url;
-    windows[lastNGames] = new Map(resultRows(await fetchJson(url), detail.column).map((row) => [row.playerId, row]));
+  const windowsToFetch = [0, 5, 10] as const;
+  for (const [index, lastNGames] of windowsToFetch.entries()) {
+    const result = await metricWindow(season, metric, lastNGames);
+    sourceUrl ||= result.sourceUrl;
+    windows[lastNGames] = new Map(result.rows.map((row) => [row.playerId, row]));
+    if (index < windowsToFetch.length - 1) await new Promise((resolve) => setTimeout(resolve, REQUEST_DELAY_MS));
   }
   return { windows, sourceUrl };
+}
+
+export async function probePlayerBallShareTracking(season = defaultBallShareSeason()) {
+  const startedAt = Date.now();
+  const result = await metricWindow(season, "touches", 0);
+  return { season, metric: "touches", players: result.rows.length, sourceUrl: result.sourceUrl, durationMs: Date.now() - startedAt };
 }
 
 function valuesForPlayer(windows: MetricWindows, playerId: string) {
@@ -192,9 +207,12 @@ export function buildBallShareRows(officialPlayers: OfficialPlayer[], windows: M
 }
 
 export async function syncPlayerBallShareOnce(prisma: PrismaClient, season = defaultBallShareSeason()) {
-  const [officialPlayers, usageRate, possessions, potentialAssists] = await Promise.all([
-    fetchOfficialPlayers(), metricWindows(season, "usageRate"), metricWindows(season, "touches"), metricWindows(season, "potentialAssists")
-  ]);
+  const officialPlayers = await fetchOfficialPlayers();
+  const usageRate = await metricWindows(season, "usageRate");
+  await new Promise((resolve) => setTimeout(resolve, REQUEST_DELAY_MS));
+  const possessions = await metricWindows(season, "touches");
+  await new Promise((resolve) => setTimeout(resolve, REQUEST_DELAY_MS));
+  const potentialAssists = await metricWindows(season, "potentialAssists");
   const windows: MetricWindows = { usageRate: usageRate.windows, touches: possessions.windows, timePossession: possessions.windows, potentialAssists: potentialAssists.windows };
   const rows = buildBallShareRows(officialPlayers, windows, season, usageRate.sourceUrl);
   for (const chunk of Array.from({ length: Math.ceil(rows.length / 100) }, (_, index) => rows.slice(index * 100, index * 100 + 100))) {
