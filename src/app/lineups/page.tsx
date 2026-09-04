@@ -12,7 +12,7 @@ export default async function LineupsPage() {
 
   return (
     <main className="shell">
-      <AppTopbar subtitle="五人上阵" backHref="/" />
+      <AppTopbar subtitle="五人上阵" />
       <LineupPicker />
     </main>
   );

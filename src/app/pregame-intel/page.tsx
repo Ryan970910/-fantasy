@@ -3,6 +3,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { AppTopbar } from "@/components/app-topbar";
+import { PageBackLink } from "@/components/page-back-link";
 import { getCurrentUser } from "@/lib/auth";
 
 export default async function PregameIntelPage() {
@@ -13,9 +14,10 @@ export default async function PregameIntelPage() {
 
   return (
     <main className="shell">
-      <AppTopbar subtitle="赛前情报" backHref="/" />
+      <AppTopbar subtitle="赛前情报" />
       <section className="intelHub" aria-labelledby="intel-hub-title">
         <header className="intelHubHeader">
+          <PageBackLink href="/">返回首页</PageBackLink>
           <p className="eyebrow">比赛工具</p>
           <h1 id="intel-hub-title">赛前情报</h1>
           <p>在确定阵容前，查看首发预期、角色变化与今日推荐。</p>

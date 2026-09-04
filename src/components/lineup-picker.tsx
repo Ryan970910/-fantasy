@@ -1,6 +1,7 @@
 "use client";
 
-import { CalendarDays, Search, UserRoundCheck, X } from "lucide-react";
+import { ArrowLeft, CalendarDays, Search, UserRoundCheck, X } from "lucide-react";
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 
 const slots = ["PG", "SG", "SF", "PF", "C"] as const;
@@ -671,6 +672,10 @@ export function LineupPicker() {
         <>
           <div className="lineupGrid lineupSelectionGrid">
           <aside className="lineupRail" aria-label="当前阵容">
+            <Link className="lineupBackLink" href="/">
+              <ArrowLeft aria-hidden="true" />
+              返回首页
+            </Link>
             <h3>
               <span>
                 <UserRoundCheck size={18} aria-hidden="true" />

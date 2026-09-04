@@ -73,22 +73,6 @@ input:focus-visible {
 
 .shell > .appTopbar { flex-direction: row; }
 
-.topbarBack {
-  display: grid;
-  width: 34px;
-  height: 34px;
-  margin-right: 12px;
-  flex: 0 0 auto;
-  place-items: center;
-  border: 1px solid rgb(216 193 142 / 40%);
-  border-radius: 2px;
-  color: var(--wu-gold-light);
-  background: transparent;
-}
-
-.topbarBack:hover { border-color: var(--wu-gold); color: #f4ead2; background: rgb(216 193 142 / 10%); }
-.topbarBack svg { width: 18px; height: 18px; }
-
 .brandCluster {
   display: flex !important;
   gap: 10px !important;
@@ -98,6 +82,24 @@ input:focus-visible {
 }
 
 .appTopbar form { margin-left: auto; }
+
+.contentBackLink,
+.lineupBackLink {
+  display: inline-flex;
+  min-height: 32px;
+  gap: 6px;
+  align-items: center;
+  color: var(--wu-gold-light);
+  font-size: 12px;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.contentBackLink { margin-bottom: 9px; }
+.contentBackLink:hover,
+.lineupBackLink:hover { color: #f4ead2; text-decoration: underline; text-underline-offset: 3px; }
+.contentBackLink svg,
+.lineupBackLink svg { width: 16px; height: 16px; }
 
 .appTopbar strong {
   display: inline-flex;
@@ -381,6 +383,8 @@ input:focus-visible {
 }
 
 .lineupPicker > .lineupHeader { flex-direction: row; }
+
+.lineupBackLink { margin: 0 0 8px; }
 
 .lineupHeader > div { min-width: 0; }
 .lineupHeader .eyebrow { margin-bottom: 4px; }

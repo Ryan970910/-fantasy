@@ -2,6 +2,7 @@ import { ChartNoAxesCombined } from "lucide-react";
 import { redirect } from "next/navigation";
 
 import { AppTopbar } from "@/components/app-topbar";
+import { PageBackLink } from "@/components/page-back-link";
 import { PlayerIntelBoard } from "@/components/player-intel-board";
 import { getCurrentUser } from "@/lib/auth";
 import { loadPlayerIntelDashboard } from "@/lib/player-intel-data";
@@ -15,10 +16,11 @@ export default async function PlayerIntelPage() {
   const dashboard = await loadPlayerIntelDashboard();
   return (
     <main className="shell">
-      <AppTopbar subtitle="赛前情报" backHref="/pregame-intel" />
+      <AppTopbar subtitle="赛前情报" />
       {dashboard.state === "ready" ? <PlayerIntelBoard players={dashboard.players} /> : (
         <section className="intelEmpty" aria-labelledby="intel-empty-title">
           <ChartNoAxesCombined aria-hidden="true" />
+          <PageBackLink href="/pregame-intel">返回赛前情报</PageBackLink>
           <p className="eyebrow">球员情报</p>
           <h1 id="intel-empty-title">{dashboard.state === "no-games" ? "暂无可用比赛日" : "暂无法生成球员情报"}</h1>
           <p>{dashboard.state === "no-games"

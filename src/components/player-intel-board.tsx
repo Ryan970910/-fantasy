@@ -3,6 +3,8 @@
 import { useMemo, useState } from "react";
 import { ChevronDown, Sparkles, TrendingDown, TrendingUp } from "lucide-react";
 
+import { PageBackLink } from "@/components/page-back-link";
+
 type IntelPlayer = {
   nbaPlayerId: string;
   playerName: string;
@@ -36,6 +38,7 @@ export function PlayerIntelBoard({ players }: { players: IntelPlayer[] }) {
     <section className="playerIntelBoard" aria-labelledby="player-intel-title">
       <header className="playerIntelHeader">
         <div>
+          <PageBackLink href="/pregame-intel">返回赛前情报</PageBackLink>
           <p className="eyebrow">比赛日球员情报</p>
           <h1 id="player-intel-title">球员情报</h1>
           <p>角色变化反映近 5 场相对此前 10 场的球队角色；今日推荐结合近期表现、对手与比赛节奏。</p>
