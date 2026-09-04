@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { SESSION_COOKIE } from "@/lib/session-cookie";
 
 const AUTH_PAGES = ["/login", "/register"];
-const PUBLIC_PATHS = [...AUTH_PAGES, "/ball-share", "/api/ball-share", "/api/nba", "/api/cron"];
+const PUBLIC_PATHS = [...AUTH_PAGES, "/ball-share", "/api/ball-share", "/api/nba", "/api/cron", "/api/python"];
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
