@@ -852,6 +852,13 @@ export function LineupPicker() {
         </div>
       ) : null}
 
+      {!showPicker ? (
+        <Link className="contentBackLink lineupPageBackLink" href="/">
+          <ArrowLeft aria-hidden="true" />
+          返回首页
+        </Link>
+      ) : null}
+
       <section className="submittedLineups" aria-labelledby="submitted-lineups-title">
         <div className="submittedLineupsHeader">
           <div>
