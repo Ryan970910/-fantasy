@@ -214,6 +214,36 @@ model PlayerAverageStats {
   @@index([season, seasonType])
 }
 
+model PlayerGameStats {
+  id                  String   @id @default(cuid())
+  gameId              String
+  nbaPlayerId         String
+  playerName          String
+  team                String
+  season              String
+  gameDate            DateTime
+  minutes             Float    @default(0)
+  points              Int      @default(0)
+  rebounds            Int      @default(0)
+  assists             Int      @default(0)
+  steals              Int      @default(0)
+  blocks              Int      @default(0)
+  turnovers           Int      @default(0)
+  threesMade          Int      @default(0)
+  fieldGoalsMade      Int      @default(0)
+  fieldGoalsAttempted Int      @default(0)
+  freeThrowsMade      Int      @default(0)
+  freeThrowsAttempted Int      @default(0)
+  offensiveRebounds   Int      @default(0)
+  defensiveRebounds   Int      @default(0)
+  sourceUrl           String
+  updatedAt           DateTime @default(dbgenerated("(now() AT TIME ZONE 'Asia/Shanghai'::text)"))
+
+  @@unique([gameId, nbaPlayerId])
+  @@index([season, nbaPlayerId])
+  @@index([gameDate])
+}
+
 model PlayerNameTranslation {
   id                    String   @id @default(cuid())
   englishName           String

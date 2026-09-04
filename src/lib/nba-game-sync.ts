@@ -1,4 +1,6 @@
 import type { PrismaClient } from "@prisma/client";
+import { syncFinishedGamePlayerStats } from "@/lib/official-player-game-stats";
+import { syncPlayerAverageStatsOnce } from "@/lib/player-average-stats-sync";
 
 const NBA_GAMES_URL = "https://www.nba.com/games";
 const REQUEST_TIMEOUT_MS = 12000;
@@ -29,6 +31,7 @@ type GameStatus = "not_started" | "in_progress" | "finished" | "unknown";
 
 type SyncedGame = {
   id: string;
+  gameTimeUTC?: string;
   homeTeam: string;
   awayTeam: string;
   homeScore: number;
@@ -144,6 +147,7 @@ function normalizeGameCards(cards: NbaGameCard[]) {
     const status = statusFromGameStatus(game.gameStatus);
     return [{
       id: game.gameId,
+      gameTimeUTC: game.gameTimeUtc,
       homeTeam: game.homeTeam.teamTricode || game.homeTeam.teamName || "TBD",
       awayTeam: game.awayTeam.teamTricode || game.awayTeam.teamName || "TBD",
       homeScore: game.homeTeam.score ?? 0,
@@ -235,11 +239,19 @@ export async function syncGamesOnce(prisma: PrismaClient) {
     );
   }
 
+  const playerStats = await syncFinishedGamePlayerStats(
+    prisma,
+    gamesToSync.filter((game) => game.status === "finished")
+  );
+  const averages = await syncPlayerAverageStatsOnce(prisma, playerStats.seasons);
+
   return {
     syncedAtBeijing: new Date(Date.now() + BEIJING_OFFSET_MS).toISOString().replace("Z", ""),
     gameDate: selected.gameDate,
     sourceUrl: selected.sourceUrl,
     count: gamesToSync.length,
+    playerStats,
+    averages,
     fetchedGameDates: results.filter((result) => result.games.length > 0).map((result) => result.gameDate),
     games: gamesToSync.map((game) => ({
       id: game.id,
