@@ -11,6 +11,7 @@ import {
   selectPricingStats
 } from "@/lib/player-pricing";
 import { loadTeamNameTranslations } from "@/lib/team-name-translations";
+import { recentUsageRates, type RecentUsage } from "@/lib/player-usage";
 
 export const dynamic = "force-dynamic";
 
@@ -92,6 +93,8 @@ type AverageStatsRow = {
   freeThrowsAttempted: number;
   offensiveRebounds: number;
   defensiveRebounds: number;
+  usageRate?: number | null;
+  usageRateGames?: number;
   source: string;
   sourceUrl: string;
 };
@@ -156,6 +159,34 @@ type ResolvedPosition = {
   position: string;
   eligibleSlots: string[];
 };
+
+async function loadRecentUsageRates(players: PoolPlayerIdentity[], season: string) {
+  const playerIds = [...new Set(players.map((player) => player.id))];
+  const teams = [...new Set(players.map((player) => player.team))];
+  if (!playerIds.length || !teams.length) {
+    return new Map<string, RecentUsage | null>();
+  }
+
+  try {
+    const rows = await prisma.playerGameStats.findMany({
+      where: { season, team: { in: teams } },
+      select: {
+        gameId: true,
+        nbaPlayerId: true,
+        team: true,
+        gameDate: true,
+        minutes: true,
+        fieldGoalsAttempted: true,
+        freeThrowsAttempted: true,
+        turnovers: true
+      }
+    });
+    return recentUsageRates(rows, playerIds);
+  } catch (error) {
+    console.error("Player usage lookup failed", error);
+    return new Map<string, RecentUsage | null>();
+  }
+}
 
 function gameStatusLabel(status: number) {
   if (status === 1) {
@@ -717,6 +748,7 @@ export async function GET() {
           statSeasons.current,
           statSeasons.previous
         );
+        const usageRates = await loadRecentUsageRates(fallbackPlayers, statSeasons.current);
         const resolvedPositions = await loadResolvedPositions(fallbackPlayers);
         const players = fallbackPlayers.map((player) => {
           const statsSelection = averageStats.get(player.id);
@@ -739,6 +771,8 @@ export async function GET() {
             freeThrowsAttempted: numberOrZero(stats.freeThrowsAttempted),
             offensiveRebounds: numberOrZero(stats.offensiveRebounds),
             defensiveRebounds: numberOrZero(stats.defensiveRebounds),
+            usageRate: usageRates.get(player.id)?.rate ?? null,
+            usageRateGames: usageRates.get(player.id)?.games ?? 0,
             source: stats.source,
             sourceUrl: stats.sourceUrl
           };
@@ -856,6 +890,7 @@ export async function GET() {
       statSeasons.current,
       statSeasons.previous
     );
+    const usageRates = await loadRecentUsageRates(poolPlayers, statSeasons.current);
     const players = poolPlayers.map((player) => {
       const resolvedPosition = resolvedPositions.get(player.id);
       const statsSelection = averageStats.get(player.id);
@@ -868,7 +903,12 @@ export async function GET() {
           englishName,
           salary: playerSalary(player.stats),
           locked: lockedTeams.has(player.team),
-          lockReason: lockedTeams.has(player.team) ? "Team game has started" : null
+          lockReason: lockedTeams.has(player.team) ? "Team game has started" : null,
+          stats: {
+            ...player.stats,
+            usageRate: usageRates.get(player.id)?.rate ?? null,
+            usageRateGames: usageRates.get(player.id)?.games ?? 0
+          }
         };
       }
 
@@ -890,6 +930,8 @@ export async function GET() {
         freeThrowsAttempted: numberOrZero(stats.freeThrowsAttempted),
         offensiveRebounds: numberOrZero(stats.offensiveRebounds),
         defensiveRebounds: numberOrZero(stats.defensiveRebounds),
+        usageRate: usageRates.get(player.id)?.rate ?? null,
+        usageRateGames: usageRates.get(player.id)?.games ?? 0,
         source: stats.source,
         sourceUrl: stats.sourceUrl
       };

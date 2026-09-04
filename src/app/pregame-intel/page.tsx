@@ -1,4 +1,4 @@
-import { ArrowRight, ClipboardList, Gauge } from "lucide-react";
+import { ArrowRight, ClipboardList } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
@@ -32,15 +32,6 @@ export default async function PregameIntelPage() {
             <ArrowRight className="intelModuleArrow" aria-hidden="true" />
           </Link>
 
-          <Link className="intelModule ballShareIntel" href="/ball-share">
-            <span className="intelModuleIcon"><Gauge aria-hidden="true" /></span>
-            <span className="intelModuleCopy">
-              <small>球员查询</small>
-              <strong>近期球权</strong>
-              <span>查看使用率、持球、触球和组织趋势。</span>
-            </span>
-            <ArrowRight className="intelModuleArrow" aria-hidden="true" />
-          </Link>
         </div>
       </section>
     </main>

@@ -329,6 +329,7 @@ model PlayerCurrentPosition {
   player                PlayerExternalIdentity @relation(fields: [playerId], references: [id], onDelete: Cascade)
 }
 
+// Retained solely to match the already-applied migration; no application code reads or writes this legacy table.
 model PlayerBallShare {
   id                    String   @id @default(cuid())
   nbaPlayerId           String

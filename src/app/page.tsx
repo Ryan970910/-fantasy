@@ -36,7 +36,7 @@ export default async function Home() {
             <span className="productModuleCopy">
               <small>赛前情报</small>
               <strong>赛前情报</strong>
-              <span>查看预测首发与近期球权，辅助比赛日前的阵容选择。</span>
+              <span>查看预测首发，辅助比赛日前的阵容选择。</span>
             </span>
             <ArrowRight className="productModuleArrow" aria-hidden="true" />
           </Link>

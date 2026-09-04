@@ -39,6 +39,8 @@ type PoolPlayer = {
     freeThrowsAttempted?: number | null;
     offensiveRebounds?: number | null;
     defensiveRebounds?: number | null;
+    usageRate?: number | null;
+    usageRateGames?: number | null;
     source?: string;
     sourceUrl?: string;
   };
@@ -220,6 +222,14 @@ function normalizePlayerName(value: string) {
     .replace(/\s+/g, " ")
     .trim()
     .toLowerCase();
+}
+
+function usageRateLabel(player: PoolPlayer) {
+  const { usageRate, usageRateGames } = player.stats;
+  if (typeof usageRate !== "number" || !Number.isFinite(usageRate) || !usageRateGames) {
+    return "使用率 暂无";
+  }
+  return `近${usageRateGames}场使用率 ${usageRate.toFixed(1)}%`;
 }
 
 function normalizePlayerSearchText(value: string) {
@@ -769,6 +779,7 @@ export function LineupPicker() {
                       <small className="playerStatsLabel">身价</small>
                       <strong>${player.salary}</strong>
                       <small>梦幻分 {projectedScore(player).toFixed(1)} | {formatStatValue(player.stats.minutes ?? null)} 分钟</small>
+                      <small className="usageRate">{usageRateLabel(player)}</small>
                     </span>
                     <span className="selectPill">{player.locked ? lockedLabel : selectedForActiveSlot ? "已选" : "选择"}</span>
                   </button>
