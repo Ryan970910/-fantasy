@@ -14,6 +14,13 @@ export type TrackingRow = { playerId: string; playerName: string; team: string; 
 export type TrackingWindows = Record<0 | 5 | 10, Map<string, TrackingRow>>;
 export type MetricWindows = Record<MetricName, TrackingWindows>;
 
+const METRIC_CONFIG: Record<MetricName, { endpoint: string; measure: string; column: string }> = {
+  usageRate: { endpoint: "leaguedashplayerstats", measure: "Advanced", column: "USG_PCT" },
+  timePossession: { endpoint: "leaguedashptstats", measure: "Possessions", column: "TIME_OF_POSS" },
+  touches: { endpoint: "leaguedashptstats", measure: "Possessions", column: "TOUCHES" },
+  potentialAssists: { endpoint: "leaguedashptstats", measure: "Passing", column: "POTENTIAL_AST" }
+};
+
 export type BallShareStatus = "AVAILABLE" | "ROOKIE" | "TEAM_CHANGED" | "NO_TRACKING_DATA";
 export type BallShareSyncRow = {
   nbaPlayerId: string;
@@ -143,15 +150,16 @@ async function fetchJson(url: string) {
 }
 
 async function metricWindow(season: string, metric: MetricName, lastNGames: 0 | 5 | 10) {
-  const config: Record<MetricName, { endpoint: string; measure: string; column: string }> = {
-    usageRate: { endpoint: "leaguedashplayerstats", measure: "Advanced", column: "USG_PCT" },
-    timePossession: { endpoint: "leaguedashptstats", measure: "Possessions", column: "TIME_OF_POSS" },
-    touches: { endpoint: "leaguedashptstats", measure: "Possessions", column: "TOUCHES" },
-    potentialAssists: { endpoint: "leaguedashptstats", measure: "Passing", column: "POTENTIAL_AST" }
-  };
-  const detail = config[metric];
+  const detail = METRIC_CONFIG[metric];
   const sourceUrl = requestUrl(detail.endpoint, season, lastNGames, detail.measure);
   return { sourceUrl, rows: resultRows(await fetchJson(sourceUrl), detail.column) };
+}
+
+async function possessionWindow(season: string, lastNGames: 0 | 5 | 10) {
+  const detail = METRIC_CONFIG.touches;
+  const sourceUrl = requestUrl(detail.endpoint, season, lastNGames, detail.measure);
+  const payload = await fetchJson(sourceUrl);
+  return { sourceUrl, touches: resultRows(payload, "TOUCHES"), timePossession: resultRows(payload, "TIME_OF_POSS") };
 }
 
 async function metricWindows(season: string, metric: MetricName): Promise<{ windows: TrackingWindows; sourceUrl: string }> {
@@ -167,10 +175,33 @@ async function metricWindows(season: string, metric: MetricName): Promise<{ wind
   return { windows, sourceUrl };
 }
 
+async function possessionWindows(season: string) {
+  const touches = {} as TrackingWindows;
+  const timePossession = {} as TrackingWindows;
+  let sourceUrl = "";
+  const windowsToFetch = [0, 5, 10] as const;
+  for (const [index, lastNGames] of windowsToFetch.entries()) {
+    const result = await possessionWindow(season, lastNGames);
+    sourceUrl ||= result.sourceUrl;
+    touches[lastNGames] = new Map(result.touches.map((row) => [row.playerId, row]));
+    timePossession[lastNGames] = new Map(result.timePossession.map((row) => [row.playerId, row]));
+    if (index < windowsToFetch.length - 1) await new Promise((resolve) => setTimeout(resolve, REQUEST_DELAY_MS));
+  }
+  return { touches, timePossession, sourceUrl };
+}
+
 export async function probePlayerBallShareTracking(season = defaultBallShareSeason()) {
   const startedAt = Date.now();
-  const result = await metricWindow(season, "touches", 0);
-  return { season, metric: "touches", players: result.rows.length, sourceUrl: result.sourceUrl, durationMs: Date.now() - startedAt };
+  const usageRate = await metricWindow(season, "usageRate", 0);
+  await new Promise((resolve) => setTimeout(resolve, REQUEST_DELAY_MS));
+  const possessions = await possessionWindow(season, 0);
+  await new Promise((resolve) => setTimeout(resolve, REQUEST_DELAY_MS));
+  const potentialAssists = await metricWindow(season, "potentialAssists", 0);
+  return {
+    season,
+    metrics: { usageRate: usageRate.rows.length, touches: possessions.touches.length, timePossession: possessions.timePossession.length, potentialAssists: potentialAssists.rows.length },
+    durationMs: Date.now() - startedAt
+  };
 }
 
 function valuesForPlayer(windows: MetricWindows, playerId: string) {
@@ -210,10 +241,10 @@ export async function syncPlayerBallShareOnce(prisma: PrismaClient, season = def
   const officialPlayers = await fetchOfficialPlayers();
   const usageRate = await metricWindows(season, "usageRate");
   await new Promise((resolve) => setTimeout(resolve, REQUEST_DELAY_MS));
-  const possessions = await metricWindows(season, "touches");
+  const possessions = await possessionWindows(season);
   await new Promise((resolve) => setTimeout(resolve, REQUEST_DELAY_MS));
   const potentialAssists = await metricWindows(season, "potentialAssists");
-  const windows: MetricWindows = { usageRate: usageRate.windows, touches: possessions.windows, timePossession: possessions.windows, potentialAssists: potentialAssists.windows };
+  const windows: MetricWindows = { usageRate: usageRate.windows, touches: possessions.touches, timePossession: possessions.timePossession, potentialAssists: potentialAssists.windows };
   const rows = buildBallShareRows(officialPlayers, windows, season, usageRate.sourceUrl);
   for (const chunk of Array.from({ length: Math.ceil(rows.length / 100) }, (_, index) => rows.slice(index * 100, index * 100 + 100))) {
     await prisma.$transaction(chunk.map((row) => prisma.playerBallShare.upsert({

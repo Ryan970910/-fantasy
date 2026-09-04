@@ -20,6 +20,8 @@ describe("buildBallShareRows", () => {
     ], source, "2025-26", "https://stats.nba.com/example");
 
     expect(rows.map((row) => row.dataStatus)).toEqual(["AVAILABLE", "TEAM_CHANGED", "ROOKIE"]);
+    expect(rows[0].seasonTimePossession).toBe(5);
+    expect(rows[0].seasonTouches).toBe(70);
     expect(rows[1].unavailableReason).toContain("DAL");
     expect(rows[2].unavailableReason).toContain("新秀");
   });
