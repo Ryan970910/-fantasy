@@ -19,7 +19,6 @@ export default async function PredictedStartersPage() {
       <section className="startersPage" aria-labelledby="starters-title">
         <header className="startersHeader">
           <PageBackLink href="/pregame-intel">返回赛前情报</PageBackLink>
-          <p className="eyebrow">比赛日预测</p>
           <h1 id="starters-title">预测首发</h1>
           <span><CalendarDays aria-hidden="true" /> 当前比赛日</span>
         </header>

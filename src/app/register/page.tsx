@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AuthIntro } from "@/components/auth-intro";
 import { redirect } from "next/navigation";
 import { createSession, getCurrentUser, hashPassword } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -82,8 +83,8 @@ export default async function RegisterPage({ searchParams }: { searchParams: Pro
 
   return (
     <main className="authShell">
+      <AuthIntro />
       <section className="authPanel" aria-labelledby="register-title">
-        <p className="eyebrow">梦幻 NBA</p>
         <h1 id="register-title">创建账号</h1>
         <p className="authCopy">注册后进入阵容选择页面。</p>
 

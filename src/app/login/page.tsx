@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { AuthIntro } from "@/components/auth-intro";
 import { redirect } from "next/navigation";
 import { createSession, getCurrentUser, verifyPassword } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
@@ -63,10 +64,10 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
 
   return (
     <main className="authShell">
+      <AuthIntro />
       <section className="authPanel" aria-labelledby="login-title">
-        <p className="eyebrow">梦幻 NBA</p>
-        <h1 id="login-title">登录</h1>
-        <p className="authCopy">登录后进入阵容选择页面。</p>
+        <h1 id="login-title">欢迎回到球场</h1>
+        <p className="authCopy">登录，继续打造你的五人阵容。</p>
 
         {params.error ? <div className="authError">{params.error}</div> : null}
 

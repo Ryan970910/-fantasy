@@ -1,0 +1,59 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-05T00:00:00+08:00",
+  "title": "Design System: 梦幻篮球",
+  "extensions": {
+    "shadows": [{ "name": "dialog", "value": "0 20px 60px rgb(5 13 10 / 35%)", "purpose": "预算提示覆盖层" }],
+    "motion": [
+      { "name": "state", "value": "180ms", "purpose": "模块状态、箭头与展开指示" },
+      { "name": "arrival", "value": "400ms ease-out", "purpose": "仅在允许动态效果时，首页标题从 translateY(8px) 进入" },
+      { "name": "reduced-motion", "value": "none", "purpose": "减少动态效果偏好下禁用动画与过渡" }
+    ],
+    "breakpoints": [
+      { "name": "narrow-max", "value": "370px" },
+      { "name": "mobile-max", "value": "700px" },
+      { "name": "compact-max", "value": "1000px" },
+      { "name": "wide-min", "value": "1600px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "主要按钮", "kind": "button", "refersTo": "button-primary", "description": "认证与主要提交动作。",
+      "html": "<button class=\"ds-primary\">保存阵容</button>",
+      "css": ".ds-primary{font:inherit;min-height:46px;padding:10px 20px;border:0;border-radius:8px;background:var(--accent);color:var(--ink);font-weight:700;cursor:pointer}.ds-primary:hover{background:#e6cd98}.ds-primary:focus-visible{outline:2px solid var(--accent);outline-offset:4px}.ds-primary:disabled{opacity:.55;color:var(--muted);cursor:not-allowed}"
+    },
+    {
+      "name": "次要按钮", "kind": "button", "refersTo": "button-secondary", "description": "阵容取消等次要动作。",
+      "html": "<button class=\"ds-secondary\">取消</button>",
+      "css": ".ds-secondary{font:inherit;min-height:44px;padding:8px;border:1px solid var(--line);border-radius:8px;background:var(--surface);color:var(--text);cursor:pointer}.ds-secondary:focus-visible{outline:2px solid var(--accent);outline-offset:4px}.ds-secondary:disabled{opacity:.55;color:var(--muted);cursor:not-allowed}"
+    },
+    {
+      "name": "输入框", "kind": "input", "refersTo": "input", "description": "带真实标签的原生文本字段。",
+      "html": "<label class=\"ds-field\">邮箱<input type=\"email\" autocomplete=\"email\" required></label>",
+      "css": ".ds-field{display:grid;gap:8px;color:var(--text);font-weight:600}.ds-field input{font:inherit;color:var(--text);min-height:48px;padding:10px 12px;border:1px solid var(--line);border-radius:8px;background:var(--bg);caret-color:var(--accent)}.ds-field input:focus-visible{outline:2px solid var(--accent);outline-offset:4px}"
+    },
+    {
+      "name": "主导航", "kind": "nav", "description": "当前页面的文字和下划线同步强调。",
+      "html": "<nav class=\"ds-nav\" aria-label=\"主导航\"><a href=\"/\">首页</a><a href=\"/lineups\" aria-current=\"page\">我的阵容</a><a href=\"/pregame-intel\">赛前情报</a></nav>",
+      "css": ".ds-nav{display:flex;gap:8px}.ds-nav a{display:flex;align-items:center;min-height:44px;padding:0 16px;color:var(--muted);text-decoration:none;border-bottom:2px solid transparent}.ds-nav a[aria-current]{color:var(--accent);border-bottom-color:var(--accent)}.ds-nav a:hover{color:var(--text);background:var(--surface)}.ds-nav a:focus-visible{outline:2px solid var(--accent);outline-offset:4px}"
+    },
+    {
+      "name": "选择标记", "kind": "chip", "description": "球员选择按钮中的视觉标记，不是独立按钮。",
+      "html": "<span class=\"ds-choice\">选择</span><span class=\"ds-choice ds-selected\">已选</span>",
+      "css": ".ds-choice{display:inline-block;padding:8px 4px;border:1px solid var(--line);border-radius:6px;color:var(--accent);text-align:center;font-size:12px}.ds-selected{color:var(--ink);background:var(--accent);border-color:var(--accent)}"
+    },
+    {
+      "name": "模块入口", "kind": "card", "refersTo": "module", "description": "首页整块链接入口。",
+      "html": "<a class=\"ds-module\" href=\"/lineups\"><strong>范特西阵容</strong><span>创建五人阵容，查看当前与历史阵容。</span></a>",
+      "css": ".ds-module{display:flex;flex-direction:column;gap:24px;padding:32px;border:1px solid var(--line);border-radius:var(--radius);background:var(--surface);color:var(--text);text-decoration:none;transition:border-color 180ms,background 180ms}.ds-module strong{font-size:28px}.ds-module span{color:var(--muted)}.ds-module:hover{border-color:var(--accent);background:var(--raised)}.ds-module:focus-visible{outline:2px solid var(--accent);outline-offset:4px}@media(prefers-reduced-motion:reduce){.ds-module{transition:none}}"
+    }
+  ],
+  "narrative": {
+    "northStar": "Courtside roster desk / 场边阵容工作台",
+    "overview": "深绿、柔和金色与象牙白文字构成清楚的选人环境。横向分组、数据比较和原生操作是视觉中心。",
+    "keyCharacteristics": ["深色球场", "横向分组", "中文系统字体", "金色选择状态"],
+    "rules": [{ "name": "状态有文字", "body": "不让颜色成为唯一的状态信号。", "section": "colors" }],
+    "dos": ["Do 复用原生控件与现有色值。", "Do 验证手机预算操作区、长姓名和空状态。"],
+    "donts": ["Don't 为普通列表叠加卡片和阴影。", "Don't 用样例数据暗示生产验证。"]
+  }
+}

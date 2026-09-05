@@ -691,6 +691,7 @@ export function LineupPicker() {
                     key={slot}
                     className={`lineupSlotButton${activeSlot === slot ? " active" : ""}`}
                     type="button"
+                    aria-pressed={activeSlot === slot}
                     onClick={() => setActiveSlot(slot)}
                   >
                     <span>{slot}</span>
@@ -772,6 +773,7 @@ export function LineupPicker() {
                     key={`${activeSlot}:${playerDisplayKey(player)}`}
                     className={`playerChoice${selectedForActiveSlot ? " selected" : ""}${disabled ? " locked" : ""}`}
                     type="button"
+                    aria-pressed={selectedForActiveSlot}
                     disabled={disabled}
                     onClick={() => choosePlayer(player.id)}
                   >
@@ -842,7 +844,6 @@ export function LineupPicker() {
             aria-describedby="salary-cap-popup-message"
             onClick={(event) => event.stopPropagation()}
           >
-            <p className="eyebrow">工资帽</p>
             <h3 id="salary-cap-popup-title">阵容超出工资帽</h3>
             <p id="salary-cap-popup-message">{salaryCapWarning}</p>
             <button type="button" onClick={() => setSalaryCapPopupOpen(false)}>
@@ -860,10 +861,11 @@ export function LineupPicker() {
       ) : null}
 
       <section className="submittedLineups" aria-labelledby="submitted-lineups-title">
+        {loading ? <p className="lineupStatus" role="status">正在加载比赛日与球员资料…</p> : null}
+        {!showPicker && submitMessage ? <p className="lineupStatus" role="status">{submitMessage}</p> : null}
         <div className="submittedLineupsHeader">
           <div>
-            <p className="eyebrow">已提交阵容</p>
-            <h3 id="submitted-lineups-title">已保存选择</h3>
+            <h3 id="submitted-lineups-title">我的阵容</h3>
           </div>
           <span>已提交 {submittedLineups.length} 个</span>
         </div>
@@ -962,7 +964,7 @@ export function LineupPicker() {
                         <strong>{submittedLineup.totalPoints.toFixed(1)}</strong>
                       </span>
                       <span className="lineupThumbMeta">
-                      比赛日 {formatDateTime(submittedLineup.gameDay)} | 工资 $${submittedLineup.totalSalary || 0}/${LINEUP_SALARY_CAP}
+                      比赛日 {formatDateTime(submittedLineup.gameDay)} | 工资 ${submittedLineup.totalSalary || 0}/${LINEUP_SALARY_CAP}
                       </span>
                     <span className="lineupMiniPlayers" aria-hidden="true">
                       {slots.map((slot) => {

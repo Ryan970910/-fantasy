@@ -18,7 +18,6 @@ export default async function PregameIntelPage() {
       <section className="intelHub" aria-labelledby="intel-hub-title">
         <header className="intelHubHeader">
           <PageBackLink href="/">返回首页</PageBackLink>
-          <p className="eyebrow">比赛工具</p>
           <h1 id="intel-hub-title">赛前情报</h1>
           <p>在确定阵容前，查看首发预期、角色变化与今日推荐。</p>
         </header>
@@ -27,7 +26,6 @@ export default async function PregameIntelPage() {
           <Link className="intelModule starterIntel" href="/predicted-starters">
             <span className="intelModuleIcon"><ClipboardList aria-hidden="true" /></span>
             <span className="intelModuleCopy">
-              <small>比赛日预测</small>
               <strong>预测首发</strong>
               <span>按比赛日查看各队预计首发阵容。</span>
             </span>
@@ -37,7 +35,6 @@ export default async function PregameIntelPage() {
           <Link className="intelModule playerIntel" href="/player-intel">
             <span className="intelModuleIcon"><ChartNoAxesCombined aria-hidden="true" /></span>
             <span className="intelModuleCopy">
-              <small>比赛日分析</small>
               <strong>球员情报</strong>
               <span>查看近期角色变化与今日推荐指数。</span>
             </span>

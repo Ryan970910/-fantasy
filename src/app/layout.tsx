@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import "./wuxia-court.css";
 
 export const metadata: Metadata = {
   title: "梦幻篮球",

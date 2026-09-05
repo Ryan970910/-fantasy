@@ -16,17 +16,18 @@ export default async function Home() {
       <AppTopbar subtitle="比赛中心" />
       <section className="productHome" aria-labelledby="product-home-title">
         <header className="productHomeHeader">
-          <p className="eyebrow">比赛工具</p>
-          <h1 id="product-home-title">选择你的赛前任务</h1>
+          <h1 id="product-home-title">你的比赛，由你布局。</h1>
+          <p>选好五人阵容，为下一个比赛日做好准备。</p>
         </header>
 
         <div className="productHomeGrid">
           <Link className="productModule fantasyModule" href="/lineups">
             <span className="productModuleIcon"><UsersRound aria-hidden="true" /></span>
             <span className="productModuleCopy">
-              <small>阵容管理</small>
               <strong>范特西阵容</strong>
               <span>创建五人阵容，查看当前与历史阵容。</span>
+              <span className="homePositions" aria-label="五个阵容位置"><b>PG</b><b>SG</b><b>SF</b><b>PF</b><b>C</b></span>
+              <span className="moduleAction">进入阵容工作台 <ArrowRight aria-hidden="true" /></span>
             </span>
             <ArrowRight className="productModuleArrow" aria-hidden="true" />
           </Link>
@@ -34,13 +35,14 @@ export default async function Home() {
           <Link className="productModule intelModule" href="/pregame-intel">
             <span className="productModuleIcon"><Radar aria-hidden="true" /></span>
             <span className="productModuleCopy">
-              <small>赛前情报</small>
               <strong>赛前情报</strong>
-              <span>查看预测首发，辅助比赛日前的阵容选择。</span>
+              <span>查看球员角色变化、今日推荐与预测首发页面。</span>
+              <span className="moduleAction">查看情报 <ArrowRight aria-hidden="true" /></span>
             </span>
             <ArrowRight className="productModuleArrow" aria-hidden="true" />
           </Link>
         </div>
+        <div className="homeRules"><h2>上场之前</h2><p>每个位置选择一人，总薪资不超过 <strong>$125</strong>。比赛开赛后，对应球队的球员锁定；其他位置仍可调整。</p></div>
       </section>
     </main>
   );
