@@ -4,6 +4,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { LocateFixed, RefreshCw } from 'lucide-react';
 import type { RankingEntry, RankingResponse } from '@/lib/live-ranking';
+import { RankingCourt } from '@/components/ranking-court';
 
 const scoreText=(score:number|null)=>score===null?'—':score.toFixed(1);
 function Score({value}:{value:number|null}) {
@@ -66,7 +67,7 @@ export function LiveRanking({initialDate}:{initialDate:string}) {
   const locate=()=>{const card=race.current?.querySelector<HTMLElement>('[data-mine="true"]');card?.scrollIntoView({block:'center',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'});card?.querySelector('summary')?.focus({preventScroll:true});};
   function selectDate(value:string){if(!value)return;setDate(value);setData(null);previous.current=null;setFeed([]);setChanges({});setNear(false);setError('');setLoading(true);}
   return <section className="rankingBoard">
-    <header className="rankingHeading"><div><h1>每一分，都在改写排名。</h1><p>五人上阵，看看谁能笑到最后。</p></div><label>NBA 比赛日（美东）<input aria-label="NBA 比赛日" type="date" value={date} onChange={e=>selectDate(e.target.value)}/></label></header>
+    <header className="rankingHeading"><div><h1 className="streetTitle"><span>RUN THE COURT</span><small>实时排名</small></h1><p>每一分，都在改写排名。</p></div><label>NBA 比赛日（美东）<input aria-label="NBA 比赛日" type="date" value={date} onChange={e=>selectDate(e.target.value)}/></label></header>
     <div className="rankingStatus"><span>{loading?'正在更新…':error?'更新中断':data?'每 30 秒自动更新':'等待数据'}{data&&` · 上次获取 ${new Date(data.fetchedAt).toLocaleTimeString('zh-CN',{timeZone:'Asia/Shanghai',hour12:false})} 北京时间`}</span><button disabled={loading} onClick={()=>setRetry(n=>n+1)}><RefreshCw size={15} aria-hidden="true"/>刷新</button></div>
     {error&&<p role="alert" className="rankingNotice">{error}</p>}
     {data&&!data.complete&&<p className="rankingNotice">部分球员技术统计暂缺，暂不显示名次。已获取的分数仅供参考。</p>}
@@ -78,7 +79,7 @@ export function LiveRanking({initialDate}:{initialDate:string}) {
       {data&&!entries.length&&<p className="rankingEmpty">{data.gameCount?'这个比赛日还没有人提交阵容。':'这个比赛日暂无 NBA 比赛。'}你可以切换日期查看。</p>}
       <div className="rankingRace" ref={race}>{shown.map(entry=><RankingCard key={`${date}:${entry.id}`} entry={entry} movement={changes[entry.id]??0}/>)}</div>
       <p className="rankingRules">每人展示本比赛日最近保存的一份阵容。未开赛球员暂不公开，已完赛球员保留。分数来自 NBA 官方逐场技术统计，沿用现有梦幻分公式；上游修正或投失球也可能使分数下降。</p>
-    </div><aside className="rankingActivity"><h2>场边动态</h2><p aria-live="polite">{feed[0]??'比赛数据更新后，这里会显示分数变化。'}</p><ol>{feed.slice(1).map((item,i)=><li key={i}>{item}</li>)}</ol><p className="rankingHint">动态仅记录本次打开页面后的变化。</p></aside></div>
+    </div><aside className="rankingActivity"><RankingCourt key={date} entries={entries}/><h2>场边动态</h2><p aria-live="polite">{feed[0]??'比赛数据更新后，这里会显示分数变化。'}</p><ol>{feed.slice(1).map((item,i)=><li key={i}>{item}</li>)}</ol><p className="rankingHint">动态仅记录本次打开页面后的变化。</p></aside></div>
   </section>;
 }
 function RankingCard({entry,movement}:{entry:RankingEntry;movement:number}) {

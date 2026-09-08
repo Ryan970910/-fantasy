@@ -1,22 +1,29 @@
 ---
-name: 梦幻篮球
-description: 深绿球场中的比赛日阵容工作台
+name: 梦幻篮球 / Street Court
+description: 美式街头篮球海报语言的真实比赛日阵容工作区
 colors:
-  bg: "#101c1b"
-  surface: "#192a27"
-  raised: "#233731"
-  line: "#364a42"
-  text: "#f0f2e9"
-  muted: "#afbeb4"
-  accent: "#d9be83"
-  ink: "#17231e"
+  bg: "#121210"
+  surface: "#1b1b18"
+  raised: "#24241f"
+  line: "#383831"
+  text: "#eeeada"
+  muted: "#aaa99a"
+  accent: "#ff6b2b"
+  ink: "#121210"
+  focus: "#d8ed91"
   danger: "#f0a49a"
 typography:
+  display:
+    fontFamily: "Anton, sans-serif"
+    fontSize: "clamp(58px, 6vw, 86px)"
+    fontWeight: 400
+    lineHeight: 1
+    letterSpacing: "-.025em"
   headline:
-    fontFamily: "'Segoe UI', 'Microsoft YaHei', 'PingFang SC', sans-serif"
-    fontSize: "clamp(28px, 3.5vw, 44px)"
-    fontWeight: 700
-    lineHeight: 1.25
+    fontFamily: "Anton, sans-serif"
+    fontSize: "clamp(38px, 4.3vw, 60px)"
+    fontWeight: 400
+    lineHeight: 1.1
     letterSpacing: "-.025em"
   body:
     fontFamily: "'Segoe UI', 'Microsoft YaHei', 'PingFang SC', sans-serif"
@@ -25,21 +32,23 @@ typography:
   label:
     fontSize: "12px"
 rounded:
-  control: "8px"
-  surface: "12px"
-  panel: "16px"
+  control: "0px"
+  surface: "0px"
 spacing:
   compact: "8px"
   small: "12px"
   medium: "16px"
   section: "24px"
   large: "32px"
+  page: "40px"
 components:
   button-primary:
     backgroundColor: "{colors.accent}"
     textColor: "{colors.ink}"
     rounded: "{rounded.control}"
-    padding: "10px 20px"
+    padding: "10px 22px"
+  button-primary-hover:
+    backgroundColor: "#f68a51"
   button-secondary:
     backgroundColor: "{colors.surface}"
     textColor: "{colors.text}"
@@ -50,97 +59,81 @@ components:
     rounded: "{rounded.control}"
     padding: "10px 12px"
   module:
-    backgroundColor: "{colors.surface}"
-    textColor: "{colors.text}"
+    backgroundColor: "{colors.text}"
+    textColor: "{colors.ink}"
     rounded: "{rounded.surface}"
     padding: "32px"
 ---
 
-# Design System: 梦幻篮球
+# Design System: 梦幻篮球 / Street Court
 
 ## Overview
 
-**Creative North Star: "Courtside roster desk / 场边阵容工作台"**
+**Creative North Star: "Street Court / 街头主场"**
 
-深绿背景、低饱和金色和象牙白文字构成安静、清楚的选人环境。球场与武侠线索通过中文语气、位置编排和有节制的强调表达；界面以阵容、数据和操作为中心。登录、注册和受保护页面共享同一套视觉语言。
+美式室外篮球赛事海报成为可操作的范特西工作区：沥青黑、橙色与奶油白构成强烈色面，Anton 英文标题和记分数字建立赛事气氛，中文说明与原生控件保持清楚。球场线、五个位置和 CSS 篮球是共同视觉线索，首页、阵容、排名、情报与认证页使用同一世界。
 
 **Key Characteristics:**
 
-- 横向分组与清晰分隔线，兼顾桌面比较和手机操作。
-- 金色标记主要操作、选择与关键数字；辅助说明保持低层级。
-- 系统中文无衬线字体、Lucide 图标和原生表单控件；无栅格插画资产。
+- 英文海报标题与清楚的中文功能说明并置。
+- 方正工作面、细分隔线、橙色操作和奶油白重点报告。
+- 桌面球场编排与手机完整原生操作共存。
 
-本文件记录已实现的前端，不承诺数据来源或后端能力。2026-09-05 finish review 的交付结论为 `ship`，无重大遗留发现；14 张修正后截图位于 `outputs/ui-review/`（七个页面各桌面/手机，使用 `*-v2.png`，阵容桌面使用 `lineup-desktop-v3.png`）。受保护页面证据来自 mock UI；登录与注册来自实际应用。该范围不等于生产登录、数据库写入或部署验证。
+本文件替换旧深绿金色方向，记录正式版已实现界面；产品与发布授权见 `PRODUCT.md`。视觉证据为 `outputs/street-release-review/*.jpg` 的八类页面桌面/手机版：受保护组件使用 fixture API，登录和注册来自实际 Next 构建。类型检查、37 项测试及构建通过；这些证据不代表生产登录、数据库写入或部署已验证。
 
 ## Colors
 
 ### Primary
 
-`accent` 是柔和金色，用于主要按钮、选中位置、导航下划线和重要金额；`ink` 是金色实底上的深色文字。
+`accent` 是球场橙，用于主要动作、选中边界、关键数字和个人排名摘要；`ink` 是橙色或浅色实底上的文字。主按钮悬停采用 frontmatter 的较亮橙色。
+
+### Secondary
+
+`focus` 是浅青柠键盘焦点；排名区保持橙色焦点。`danger` 标识错误、超预算与下降指标，并配文字或符号。
 
 ### Neutral
 
-`bg` 是全局深绿底；`surface` 承载模块、表单和底部操作区；`raised` 表示选中或展开层级。`line` 组织行与边界。`text` 用于标题和正文，`muted` 用于解释、对手和统计标签。
+`bg` 是沥青黑底，`surface` 与 `raised` 区分工作面和展开状态，`line` 分隔行。`text` 是奶油白正文，同时承担首页组队入口和球员主报告的浅色面；`muted` 用于辅助说明。浅色面中的说明采用深灰，第一名与个人行保留独立色面。
 
-错误、超预算与下降指标使用 `danger`，同时保留文字、符号或状态说明。**状态有文字规则：** 不让颜色成为唯一的状态信号。
+**The State Has Words Rule.** 加载、错误、锁定、缺少数据和选中状态都必须有可理解的文字或语义，不能只靠颜色。
 
 ## Typography
 
-同一系统字体栈服务标题、正文和控件；没有外载展示字体。标题紧凑，中文正文保留充足行距。主标题使用前述 headline；手机主标题为（29px）。认证引导标题使用（36–58px）响应字号，手机为（36px）。模块标题通常为（23–28px），正文为（14px），次要标签为（11–12px）。
+Anton 由 `next/font/local` 加载 `public/fonts/anton.ttf`，通过 `--font-anton` 使用，字重（400）、`display: swap`；许可保留于 `public/fonts/OFL.txt`。英文海报标题、PG/SG/SF/PF/C、排名和预算数字使用 Anton；中文和正文采用 frontmatter 的系统字体栈。
 
-比分、身价和指标使用等宽数字 `tabular-nums`。说明文本通常限制在（65ch）以内。长球员名允许换行；手机位置槽位中的姓名采用紧凑两行高度，完整姓名在球员列表中显示。
+首页标题采用 display 层级，内部主词另放大；手机标题为（64px）。内页标题采用 headline，手机通常为（38px）；中文伴随标题为桌面（23px）、手机（18px）。认证标题为桌面（46–72px）、手机（44px）。分数使用等宽数字，长英文姓名可换行，说明文本通常不超过（65ch）。
 
 ## Layout
 
-常规内容居中，最大宽度（1120px），桌面左右至少（24px）、上下（64px）；手机左右（20px）、上下（36px）。首页模块为（1.55:1）双列，手机叠为单列；这是一页的组合方式，不是所有页面的模板。
+常规页面最大宽度（1240px），左右留白共（80px），顶部（40px）；手机左右各（18px）、顶部（28px）。顶栏桌面至少（92px），手机为品牌与四项导航两行、至少（116px）。首页双栏海报在手机改为单栏并隐藏装饰篮球；入口随之纵排。
 
-顶栏桌面高至少（76px）；手机变成品牌/退出与三项导航两行，高至少（116px）。认证页最大宽度（1100px），桌面为（1.15:1）双列，手机上下排列并隐藏装饰性位置行。
+阵容编辑最大宽度（1320px），高度扣除顶栏。超过（1000px）时，左侧半场内排布五个可点击位置，右侧为球员池；中等宽度使用（260px）位置栏；（700px）及以下变为五列位置条和纵向球员池。底部预算与保存操作保持可见，并计入安全区。球队、排序与日期继续使用原生控件。
 
-阵容编辑最大宽度（1280px），占据顶栏以外的动态视口。桌面位置栏宽（320px），中等屏为（260px），超宽屏为（360px）。球员列表独立滚动，预算操作区保持可见。手机位置栏变成五列，搜索独占一行，筛选/排序各占半行；操作区计入 `safe-area-inset-bottom`，金额与按钮分为两行。
-
-断点为：最大（1000px）调整密度；最大（700px）切换手机结构；最大（370px）压缩导航与指标间距；最小（1600px）加宽位置栏。历史卡片桌面双列、手机单列；展开后的球员信息在手机纵向排列。
+排名桌面为主列表与（270px）球场/公告侧栏；（900px）以下改单列，（560px）以下进一步压缩行与日期布局。情报主报告桌面为姓名、等级、指标三列，（1000px）以下隐藏装饰性大等级，（700px）以下指标横排在姓名下方。认证页桌面双栏、手机纵排。
 
 ## Elevation & Depth
 
-页面主要依靠底色层级和细线分组，不给普通模块堆叠阴影。预算提示对话框使用深色遮罩和单一阴影（`0 20px 60px rgb(5 13 10 / 35%)`），表达真正的临时覆盖层。
+主体依靠色面与细线形成层级。阴影集中在首页 CSS 篮球、贴纸和预算对话框；普通数据行不叠加浮动卡片。篮球悬停旋转并轻微上移，入口悬停上移（3px）。交互过渡通常（180–250ms），篮球为（700ms）；减少动态效果偏好下关闭动画与过渡。
 
 ## Shapes
 
-控件为轻圆角，模块为中等圆角，认证面板和弹窗为较大圆角，值见 frontmatter。球员列表与情报行保持平直分隔；状态选择标记为小圆角矩形，不把每一项都做成悬浮卡片。图标主要为（20px），导航与辅助图标略小。
+主要按钮、输入、模块和排名行采用直角。圆形用于篮球、品牌图标、头像和篮筐；首页橙色画面使用切角。球场由边线和几何弧线组成。位置槽位默认虚线，当前槽位用实线强调；少量内嵌选择标记保留小圆角。图标使用 Lucide，篮球与球场以 CSS 绘制，无新增栅格素材。
 
 ## Components
 
-### Buttons
-
-主要动作使用金底深字，通常至少（46px）高；次要操作使用表面色或透明底和细边框，阵容底部按钮至少（44px）高。禁用状态降低不透明度至（0.55），保留原生 `disabled`。悬停通过底色、文字或边框变化表达。
-
-### Inputs / Fields
-
-输入框使用深底和细线，通用最小高度（44px），认证输入框为（48px）。保留真实标签、邮箱/密码类型、自动填写与原生校验。搜索有可访问名称和清除按钮；球队与排序使用原生 `select`，历史日期使用原生 `input type="date"`。
-
-### Navigation
-
-三项导航始终显示：首页、我的阵容、赛前情报。当前页通过金色文字、下划线及 `aria-current="page"` 表达；情报子页归属赛前情报。手机导航均分三列。Lucide 图标配可见文字，装饰图标对辅助技术隐藏。
-
-### Cards / Containers
-
-首页入口是整块链接，悬停提高背景层级并强调边框。情报入口和球员情报优先用分隔行；球员情报用原生 `details` / `summary` 展开。预测首发以明确的暂无数据说明及位置占位呈现。
-
-### Selection / Budget
-
-位置槽位、球员行和选择标记共同表达选择；槽位和球员按钮使用 `aria-pressed`。金额与梦幻分保持可见，超预算辅以提示文字。已保存阵容提供当前/历史切换及展开状态；加载和提交消息使用状态区域。
-
-### Focus / Motion
-
-全局键盘焦点为金色（2px）轮廓，偏移（4px）。预算弹窗使用 `alertdialog` 语义。不要以此文档替代实际键盘与辅助技术测试。
-
-模块状态、箭头和情报折叠指示使用（180ms）过渡。首页标题仅在允许动态效果时作（400ms）向上（8px）的进入动画。`prefers-reduced-motion: reduce` 下禁用动画与过渡。
+- **Buttons / Fields:** 主要按钮橙底深字，一般至少（44px）高，首页主入口为（48px）。保留原生禁用、loading 和表单验证；通用焦点是（2px）浅青柠轮廓、偏移（4px），排名焦点为橙色、偏移（3px）。
+- **Navigation:** 首页、我的阵容、实时排名、赛前情报共用导航。当前页用浅色文字、橙色底线与 `aria-current` 表达；手机四列均分。
+- **Scoreboard:** 首页比赛条读取真实 API，横向溢出可滚动；加载、无比赛、错误与刷新状态有文字，不放入演示比赛。
+- **Player intelligence:** 只保留一个球员姓名搜索栏，支持中文或英文。结果为可聚焦按钮，回车可选首项，清空后恢复默认报告；没有实现 demo 的上下键结果导航。选择更新同一份奶油白报告，下方原生 `details` 展开详细指标；排序、空结果和数据不可用状态保持可见。
+- **Lineup / Budget:** 点击位置与球员按钮选人，保留当前/历史、编辑、删除及预算反馈。正式版不把 demo 拖拽、内存保存或模拟控制当作已实现能力；服务器仍决定定价、锁定与保存结果。
+- **Rankings:** 个人摘要为橙色，第一名为浅色，当前用户行有橙色边界。日期、范围筛选、刷新和原生展开行复用真实排名流程；球场通过原生下拉选择阵容、点击位置查看已开赛球员，未开赛球员隐藏。没有演示得分、自动播放或重置比赛控制。
+- **Empty / Auth:** 预测首发保持无数据源的诚实空状态。登录与注册沿用真实认证表单，橙色顶线与英文海报引导统一视觉。
 
 ## Do's and Don'ts
 
-- **Do** 复用上述色值、中文字体栈、原生控件与 Lucide 图标。
-- **Do** 在桌面和手机验证长姓名、选人滚动、底部预算、日期输入和空状态。
-- **Do** 用文字说明加载、错误、锁定和缺少数据，并维持可见焦点。
-- **Don't** 为普通列表添加层层卡片、额外阴影或装饰图片。
-- **Don't** 隐藏手机端关键金额和提交操作，或用颜色独自传递状态。
-- **Don't** 用样例数据或视觉完成度暗示预测首发、生产数据或后端流程已经验证。
+- **Do** 复用沥青黑、橙色、奶油白、本地 Anton 和中文系统字体。
+- **Do** 验证桌面球场、手机长姓名、底部预算、日期输入和空状态。
+- **Do** 保留原生操作、可见焦点、减少动态效果偏好和清楚的状态文字。
+- **Don't** 恢复深绿金色武侠主题，或给普通数据行堆叠阴影卡片。
+- **Don't** 用 demo 模拟数据、拖拽或动画控制描述正式版能力。
+- **Don't** 用视觉截图或构建通过暗示生产数据写入、部署或认证流程已经验证。

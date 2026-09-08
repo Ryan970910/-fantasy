@@ -50,6 +50,7 @@ export async function loadPlayerIntelDashboard() {
   ]);
   const players = buildPlayerIntel(rows, scheduledGames).map((player) => ({
     ...player,
+    englishName: player.playerName,
     playerName: translatePlayerName(player.playerName, translations),
     opponentName: teamTranslations[player.opponent] || player.opponent
   }));

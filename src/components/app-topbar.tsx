@@ -23,7 +23,7 @@ export function AppTopbar({
     <header className="appTopbar">
       <Link className="brandCluster" href="/" aria-label="返回首页">
         <CircleDot className="brandIcon" aria-hidden="true" /><strong>梦幻篮球</strong>
-        <span>{subtitle}</span>
+        <span>STREET COURT<small>{subtitle}</small></span>
       </Link>
       <AppNavigation />
       {showLogout ? (

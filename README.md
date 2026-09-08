@@ -1,17 +1,21 @@
 # Fantasy NBA System
 
-A clean Yahoo Fantasy NBA style league system built with Next.js, Prisma, and PostgreSQL.
+A daily five-player NBA lineup tool built with Next.js, Prisma, and PostgreSQL.
 
 ## MVP scope
 
-- League creation and membership
-- Fantasy teams
-- NBA player pool
-- Snake draft model
-- Roster slots
-- Points-league scoring
-- Weekly matchups and standings
-- Free-agent transaction model
+- Authenticated daily lineups with PG, SG, SF, PF and C slots under a $125 salary cap
+- NBA player pool, current and historical saved lineups, and per-team game locks
+- Real game-day fantasy rankings with unstarted players hidden on the server
+- Player intelligence from synced game statistics; predicted starters currently has no data source
+
+## Street Court frontend
+
+The production UI follows the approved `demos/street-court/` concept: asphalt black, orange, cream, locally bundled Anton lettering, a desktop lineup court, animated ranking changes and an interactive court showing only publicly available started players. Authentication, salary, locking and persistence rules are unchanged.
+
+Player intelligence has one Chinese/English name search. Selecting a result updates the report using real dashboard statistics. Search covers the players eligible for that dashboard (upcoming games and enough historical samples), not every NBA player. Missing games or samples are explained in the page. No simulated metrics or predicted starters are shipped into production.
+
+The shared styles are `src/app/globals.css` and `src/app/street.css`; rankings also use `src/app/rankings/ranking.css`. Anton is packaged with `next/font/local`; its license is in `public/fonts/OFL.txt`. The standalone demo remains a separate local artifact and does not call production APIs.
 
 ## Local setup
 
@@ -59,7 +63,7 @@ The app defines Vercel Cron endpoints:
 
 These endpoints require `Authorization: Bearer <CRON_SECRET>`. Vercel automatically sends this header to cron jobs when `CRON_SECRET` is configured.
 
-The checked-in `vercel.json` uses once-per-day schedules because the Vercel Hobby plan rejects cron expressions that run more than once per day. If the project is upgraded to Pro, the schedules can be changed to more frequent expressions such as `*/5 * * * *` for game sync and `0 * * * *` for player average stats.
+The checked-in `vercel.json` defines games every minute, averages at `30 16 * * *`, and positions at `0 22 * * 0`. These definitions do not prove that Cron is enabled in Vercel. Verify the dashboard before operational changes; a frontend deployment does not authorize enabling Cron or manually running synchronization.
 
 The first implementation uses a points-league ruleset because it is easier to validate before adding 9-cat scoring.
 

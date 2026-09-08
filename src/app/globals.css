@@ -1,16 +1,16 @@
-/* Courtside roster desk: one theme, shared by every web route. */
+/* Street Court: shared surfaces and functional layouts. */
 :root {
   color-scheme: dark;
-  --bg: #101c1b;
-  --surface: #192a27;
-  --raised: #233731;
-  --line: #364a42;
-  --text: #f0f2e9;
-  --muted: #afbeb4;
-  --accent: #d9be83;
-  --ink: #17231e;
+  --bg: #121210;
+  --surface: #1b1b18;
+  --raised: #24241f;
+  --line: #383831;
+  --text: #eeeada;
+  --muted: #aaa99a;
+  --accent: #ff6b2b;
+  --ink: #121210;
   --danger: #f0a49a;
-  --radius: 12px;
+  --radius: 0px;
   font-family: 'Segoe UI', 'Microsoft YaHei', 'PingFang SC', sans-serif;
   color: var(--text);
   background: var(--bg);

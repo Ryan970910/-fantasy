@@ -865,7 +865,7 @@ export function LineupPicker() {
         {!showPicker && submitMessage ? <p className="lineupStatus" role="status">{submitMessage}</p> : null}
         <div className="submittedLineupsHeader">
           <div>
-            <h3 id="submitted-lineups-title">我的阵容</h3>
+            <h3 id="submitted-lineups-title" className="streetTitle"><span>BUILD YOUR FIVE</span><small>我的阵容</small></h3>
           </div>
           <span>已提交 {submittedLineups.length} 个</span>
         </div>

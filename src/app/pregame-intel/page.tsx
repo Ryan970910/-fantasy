@@ -18,7 +18,7 @@ export default async function PregameIntelPage() {
       <section className="intelHub" aria-labelledby="intel-hub-title">
         <header className="intelHubHeader">
           <PageBackLink href="/">返回首页</PageBackLink>
-          <h1 id="intel-hub-title">赛前情报</h1>
+          <h1 id="intel-hub-title" className="streetTitle"><span>KNOW THE GAME</span><small>赛前情报</small></h1>
           <p>在确定阵容前，查看首发预期、角色变化与今日推荐。</p>
         </header>
 
