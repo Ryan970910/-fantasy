@@ -259,7 +259,7 @@ small { font-size: 12px; }
   .appTopbar form { grid-column: 2; grid-row: 1; }
   .appTopbar .refreshButton { border: 0; padding: 8px; }
   .appTopbar .refreshButton span { font-size: 12px; }
-  .appNavigation { grid-column: 1 / -1; grid-row: 2; display: grid; grid-template-columns: repeat(3, 1fr); margin: 0; gap: 0; }
+  .appNavigation { grid-column: 1 / -1; grid-row: 2; display: grid; grid-template-columns: repeat(4, 1fr); margin: 0; gap: 0; }
   .appNavigation a { justify-content: center; padding: 10px 4px; min-height: 44px; font-size: 13px; }
   .appNavigation svg { width: 16px; }
   .productHome, .intelHub, .startersPage, .playerIntelBoard, .intelEmpty { width: calc(100% - 40px); padding: 36px 0; }

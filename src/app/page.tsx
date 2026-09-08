@@ -1,4 +1,4 @@
-import { ArrowRight, Radar, UsersRound } from "lucide-react";
+import { ArrowRight, Radar, UsersRound, Trophy } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
@@ -39,6 +39,11 @@ export default async function Home() {
               <span>查看球员角色变化、今日推荐与预测首发页面。</span>
               <span className="moduleAction">查看情报 <ArrowRight aria-hidden="true" /></span>
             </span>
+            <ArrowRight className="productModuleArrow" aria-hidden="true" />
+          </Link>
+          <Link className="productModule intelModule" href="/rankings">
+            <span className="productModuleIcon"><Trophy aria-hidden="true" /></span>
+            <span className="productModuleCopy"><strong>实时排名</strong><span>追踪比赛日梦幻分，查看已开赛阵容与名次变化。</span><span className="moduleAction">进入排名赛道 <ArrowRight aria-hidden="true" /></span></span>
             <ArrowRight className="productModuleArrow" aria-hidden="true" />
           </Link>
         </div>

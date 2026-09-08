@@ -62,3 +62,15 @@ These endpoints require `Authorization: Bearer <CRON_SECRET>`. Vercel automatica
 The checked-in `vercel.json` uses once-per-day schedules because the Vercel Hobby plan rejects cron expressions that run more than once per day. If the project is upgraded to Pro, the schedules can be changed to more frequent expressions such as `*/5 * * * *` for game sync and `0 * * * *` for player average stats.
 
 The first implementation uses a points-league ruleset because it is easier to validate before adding 9-cat scoring.
+
+## Live rankings
+
+`/rankings` is a login-protected, read-only leaderboard. It polls `/api/rankings?date=YYYY-MM-DD` every 30 seconds while the page is visible. Dates are NBA Eastern-time game dates; retrieval times are displayed in Beijing time.
+
+For each user, it selects the most recently updated `Lineup` named `Lineup YYYY-MM-DD`, then reads its five slots through `LineupPlayer` and `Player`. User display names come from `User.name`; emails and user IDs are not exposed. Legacy lineups without a dated name are not included. Multiple lineups on one day produce one ranking entry per user.
+
+The server uses the official NBA scoreboard (with the dated NBA games page as fallback) and complete official box scores for all started games. Scores use the shared `fantasyScore()` formula, not stored averages or `Lineup.totalPoints`. Numeric NBA player IDs are primary; legacy nonnumeric identities can match a unique normalized English name. Chinese translations are display-only. Unknown players and incomplete statistics stay unavailable, not zero; incomplete entries suspend ordinal ranking. Official zero statistics remain zero, including DNPs.
+
+Only official game status 2 (in progress) or 3 (finished) reveals a selected player. Unstarted/unknown players are filtered on the server and never serialized into the response. Finished players remain visible. API responses are private and no-store; upstream fetches revalidate after 20 seconds. No migration, database write, or Cron change is required.
+
+The standalone interactive prototype remains under `demos/live-ranking/`; its simulated data and controls are not used by the production route.

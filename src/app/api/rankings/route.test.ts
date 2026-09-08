@@ -1,0 +1,21 @@
+import {beforeEach,expect,it,vi} from 'vitest';
+const mocks=vi.hoisted(()=>({auth:vi.fn(),query:vi.fn(),games:vi.fn()}));
+vi.mock('@/lib/auth',()=>({getCurrentUser:mocks.auth}));
+vi.mock('@/lib/prisma',()=>({prisma:{$queryRawUnsafe:mocks.query}}));
+vi.mock('@/lib/game-window',()=>({nbaGameDate:()=> '2026-09-08'}));
+vi.mock('@/lib/live-ranking-source',()=>({loadRankingGames:mocks.games}));
+vi.mock('@/lib/player-name-translations',()=>({loadPlayerNameTranslations:async()=>new Map(),translatePlayerName:(name:string)=>name}));
+vi.mock('@/lib/live-ranking',()=>import('../../../lib/live-ranking'));
+import {GET} from './route';
+beforeEach(()=>{vi.clearAllMocks();mocks.auth.mockResolvedValue({id:'user-1'});mocks.query.mockResolvedValue([]);mocks.games.mockResolvedValue([])});
+it('rejects unauthenticated requests before reading any lineup',async()=>{mocks.auth.mockResolvedValue(null);expect((await GET(new Request('http://localhost/api/rankings'))).status).toBe(401);expect(mocks.query).not.toHaveBeenCalled()});
+it('validates dates before SQL',async()=>{for(const date of ['2026-02-30','bad'])expect((await GET(new Request('http://localhost/api/rankings?date='+date))).status).toBe(400);expect(mocks.query).not.toHaveBeenCalled()});
+it('returns only started players without user IDs and does not cache personal responses',async()=>{
+  mocks.query.mockResolvedValue([{id:'lineup',userId:'user-1',name:'Visible User',playerId:'1',playerName:'Started Player',team:'BOS',slot:'SF'},{id:'lineup',userId:'user-1',name:'Visible User',playerId:'hidden-id',playerName:'Secret Player',team:'LAL',slot:'C'}]);
+  mocks.games.mockResolvedValue([{id:'0022600001',status:2,teams:['BOS','NYK'],available:true,scores:{'1':20},names:{}}]);
+  const response=await GET(new Request('http://localhost/api/rankings?date=2026-09-08'));
+  expect(response.status).toBe(200);expect(response.headers.get('Cache-Control')).toBe('private, no-store');
+  const body=await response.json();expect(body.entries[0]).toMatchObject({isMe:true,score:20,waiting:1,rank:1});expect(JSON.stringify(body)).not.toMatch(/Secret Player|hidden-id|user-1/);
+  expect(mocks.query.mock.calls[0][1]).toBe('Lineup 2026-09-08');
+});
+it('reports source failure explicitly without leaking internal errors',async()=>{mocks.games.mockRejectedValue(new Error('internal secret'));const response=await GET(new Request('http://localhost/api/rankings'));expect(response.status).toBe(503);expect(await response.text()).not.toContain('internal secret')});

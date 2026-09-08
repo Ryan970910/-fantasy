@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>实时排名 · 梦幻篮球交互 Demo</title><link rel="stylesheet" href="./style.css"></head>
+<body>
+<div class="previewbar"><span>交互 Demo · 全部为模拟数据</span><button id="viewport">手机视图</button></div>
+<div class="app">
+  <header class="topbar"><a class="brand" href="./">梦幻篮球<span>场边战况</span></a><span class="navLabel">实时排名</span><span class="demoDay">比赛日演示</span></header>
+  <div class="workspace"><div class="layout">
+    <main>
+      <header class="pageHeading"><div><h1>每一分，都在改写排名。</h1><p>五人上阵，看看谁能笑到最后。</p></div><span class="liveState" id="live-state">演示已暂停</span></header>
+      <section class="myStanding" aria-label="我的排名"><div class="myTop"><span>水哥 <b>你</b></span><span id="my-change">等待下一次得分</span></div><div class="myNumbers"><strong id="my-rank">#4</strong><div><b id="my-score">124.0</b><span>阵容总分</span></div><div class="chase"><span id="gap-label">距离上一名</span><strong id="gap">2.2 <small>分</small></strong></div></div><div class="myFoot"><span>2 人比赛中 · 1 人未开赛</span><button id="locate">定位我的卡片</button></div></section>
+      <div class="raceHeading"><h2>排名赛道 <span>8 位参与者</span></h2><div class="viewSwitch" aria-label="排名范围"><button id="all" aria-pressed="true">全部</button><button id="near" aria-pressed="false">我的附近</button></div></div>
+      <p class="raceHint" id="race-hint">按本比赛日模拟总分排名</p>
+      <div id="race" class="race" aria-label="用户排名"></div>
+      <p class="rules">演示口径：每位用户一份阵容，同分并列。加分事件仅为交互示例，不代表正式计分规则。</p>
+    </main>
+    <aside class="activity"><h2>场边动态<span id="event-count">尚未开始</span></h2><div class="latest" aria-live="polite" aria-atomic="true" id="announcement">点击「下一次得分」，看水哥完成第一次反超。</div><ol id="feed"><li class="introEvent"><span>准备就绪</span><p>塔图姆即将命中三分，水哥距离第 3 名只差 2.2 分。</p></li></ol><details class="how"><summary>这个 Demo 可以怎么玩？</summary><p>手动推进一次得分，或开启每 4 秒更新的自动演示。点击排名卡可看得分来源；切换「我的附近」聚焦前后对手。共 7 个事件，可随时重置。</p></details></aside>
+  </div></div>
+  <footer class="controls"><div class="playStatus"><strong id="step">准备开场</strong><span id="progress">7 次得分，见证排名变化</span></div><div class="controlButtons"><button id="reset">重置</button><button id="play" aria-pressed="false">自动演示</button><button class="primary" id="next">下一次得分 <span aria-hidden="true">→</span></button></div></footer>
+</div>
+<script type="module" src="./app.mjs"></script>
+</body></html>
