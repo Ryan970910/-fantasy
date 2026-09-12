@@ -73,7 +73,7 @@ body{background:#10323b url('../../public/retro/navy-worn.webp') center top/1100
 /* Readable ink and quiet texture beneath functional text; worn borders stay intact. */
 .retroAction,.authButton,.shell :is(.createLineupButton,.lineupSubmitButton.ready,.submittedLineupEdit,.intelSort button.active,.submittedLineupTab.active,.rankingMine),.shell .rankingRaceHeading button[aria-pressed=true],.shell .rankingCourt button[aria-pressed=true]{background-image:var(--red-print);background-size:cover;color:#fff0ce}
 .retroJoin,.retroJersey,.appTopbar>.appNavigation{background-image:var(--navy-print);background-size:cover}
-.shell button:disabled,.authPanel button:disabled{opacity:1;color:#414539;background:var(--paper-print);background-size:cover;border:1px dashed #887b61;cursor:not-allowed}
+.shell button:disabled,.shell .rankingBoard button:disabled,.authPanel button:disabled{opacity:1;color:#414539;background:var(--paper-print);background-size:cover;border:1px dashed #887b61;cursor:not-allowed}
 .shell input::placeholder,.authPanel input::placeholder{color:#34443d;opacity:1}
 .shell .rankingEmpty{color:#243e3a;line-height:1.9}
 
