@@ -201,7 +201,7 @@
       "kind": "button",
       "description": "真实认证操作的旧红墨按钮。",
       "html": "<button class=\"ds-auth\">登录</button>",
-      "css": ".ds-auth{padding:10px 22px;min-height:48px;border:0;background:#a6321f url('/retro/red-worn.webp') center/cover;color:#fff0ce;font:700 14px 'Segoe UI','Microsoft YaHei',sans-serif}.ds-auth:hover{background-color:#942d1a;background-blend-mode:multiply}.ds-auth:focus-visible{outline:2px solid #e7b46b;outline-offset:4px}.ds-auth:disabled{opacity:.55;cursor:not-allowed}"
+      "css": ".ds-auth{padding:10px 22px;min-height:48px;border:0;background:#792116 url('/retro/red-worn.webp') center/cover;color:#fff0ce;font:700 14px 'Segoe UI','Microsoft YaHei',sans-serif}.ds-auth:hover{background-color:#942d1a;background-blend-mode:multiply}.ds-auth:focus-visible{outline:2px solid #e7b46b;outline-offset:4px}.ds-auth:disabled{opacity:.55;cursor:not-allowed}"
     },
     {
       "name": "纸面搜索",
@@ -209,7 +209,7 @@
       "refersTo": "search",
       "description": "桌面中英文球员搜索；GET q 进入正式球员情报。",
       "html": "<form class=\"ds-search\" action=\"/player-intel\" method=\"get\"><label for=\"ds-q\">球员</label><input id=\"ds-q\" name=\"q\" type=\"search\" placeholder=\"中文或英文姓名\"><button>搜索</button></form>",
-      "css": ".ds-search{display:flex;align-items:center;gap:10px;padding:0 10px;border-radius:4px;background:#e8d7ab url('/retro/paper-worn.webp') center/cover;color:#10323b;font:14px 'Segoe UI','Microsoft YaHei',sans-serif}.ds-search input{width:100%;min-width:0;min-height:44px;border:0;background:none;color:#10323b;caret-color:#a6321f}.ds-search input::placeholder{color:#675335}.ds-search button{min-height:44px;padding:8px;border:0;background:none;color:#10323b}.ds-search :focus-visible{outline:2px solid #e7b46b;outline-offset:4px}"
+      "css": ".ds-search{display:flex;align-items:center;gap:10px;padding:0 10px;border-radius:4px;background:#e8d7ab url('/retro/paper-worn.webp') center/cover;color:#10323b;font:14px 'Segoe UI','Microsoft YaHei',sans-serif}.ds-search input{width:100%;min-width:0;min-height:44px;border:0;background:none;color:#10323b;caret-color:#792116}.ds-search input::placeholder{color:#34443d}.ds-search button{min-height:44px;padding:8px;border:0;background:none;color:#10323b}.ds-search :focus-visible{outline:2px solid #e7b46b;outline-offset:4px}"
     },
     {
       "name": "手机快捷导航",
@@ -223,7 +223,7 @@
       "kind": "chip",
       "description": "球员按钮内部状态文字，继承所在纸面的局部变量。",
       "html": "<span class=\"ds-choice\">选择</span> <span class=\"ds-choice ds-selected\">已选</span>",
-      "css": ".ds-choice{display:inline-block;padding:8px 4px;border:1px solid #b9a47b;border-radius:6px;color:#a6321f;text-align:center;font-size:12px}.ds-selected{background:#a6321f;border-color:#a6321f;color:#fff0ce}"
+      "css": ".ds-choice{display:inline-block;padding:8px 4px;border:1px solid #b9a47b;border-radius:6px;color:#792116;text-align:center;font-size:12px}.ds-selected{background:#792116;border-color:#792116;color:#fff0ce}"
     },
     {
       "name": "旧纸数据面",
@@ -231,7 +231,7 @@
       "refersTo": "paper",
       "description": "数据、日期和可读空状态的基础纸面。",
       "html": "<section class=\"ds-paper\"><h2>MY TEAM</h2><p>最近保存的阵容</p><p>尚未保存阵容。</p><a href=\"/lineups\">管理阵容</a></section>",
-      "css": ".ds-paper{padding:18px;border:1px solid #b9a37b;border-radius:5px 8px 6px 4px;border-image:url('/retro/paper-worn.webp') 60/7px/0 stretch;background:#e8d7ab url('/retro/paper-worn.webp') center/cover;color:#10323b;font:14px/1.6 'Segoe UI','Microsoft YaHei',sans-serif}.ds-paper h2{font:24px/1.2 var(--font-anton,Anton),sans-serif}.ds-paper a{color:#a6321f}.ds-paper a:focus-visible{outline:2px solid #a6321f;outline-offset:4px}"
+      "css": ".ds-paper{padding:18px;border:1px solid #b9a37b;border-radius:5px 8px 6px 4px;border-image:url('/retro/paper-worn.webp') 60/7px/0 stretch;background:#e8d7ab url('/retro/paper-worn.webp') center/cover;color:#10323b;font:14px/1.6 'Segoe UI','Microsoft YaHei',sans-serif}.ds-paper h2{font:24px/1.2 var(--font-anton,Anton),sans-serif}.ds-paper a{color:#792116}.ds-paper a:focus-visible{outline:2px solid #792116;outline-offset:4px}"
     }
   ],
   "narrative": {

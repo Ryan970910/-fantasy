@@ -1,4 +1,4 @@
-import { ArrowRight, ChartNoAxesColumnIncreasing, Newspaper } from "lucide-react";
+import { ArrowRight, ChartNoAxesColumnIncreasing } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { AppTopbar } from "@/components/app-topbar";
@@ -26,7 +26,6 @@ export default async function Home() {
           <RetroHomeData section="team" date={date} />
           <Link className="retroPaper retroScoutLink" href="/player-intel"><h2>PLAYER SPOTLIGHT</h2><ChartNoAxesColumnIncreasing aria-hidden="true" /><strong>每个选择，<br />都有依据。</strong><p>搜索球员姓名，查看近期表现、角色变化与今日推荐。</p><span>查看球员报告 <ArrowRight aria-hidden="true" /></span></Link>
           <Link className="retroJoin" href="/rankings"><h2>JOIN THE GAME</h2><p>PLAY YOUR FIVE. MAKE YOUR MARK.</p><span>追踪真实阵容与比赛日排名 <ArrowRight aria-hidden="true" /></span></Link>
-          <div className="retroUtility"><Link href="/player-intel"><ChartNoAxesColumnIncreasing aria-hidden="true" /><b>球员分析</b></Link><Link href="/pregame-intel"><Newspaper aria-hidden="true" /><b>赛前情报</b></Link></div>
         </div>
         <section className="retroPaper homeRules" id="rules"><h2>上场之前</h2><p>每个位置选择一人，总薪资不超过 <strong>$125</strong>。比赛开赛后，对应球队的球员锁定；其他位置仍可调整。</p></section>
       </div>

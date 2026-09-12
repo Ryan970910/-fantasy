@@ -3,13 +3,13 @@ name: 梦幻篮球 / Retro Courtside
 description: 重度磨损红蓝旧纸篮球杂志，承载真实比赛日操作
 colors:
   red: "#b63822"
-  action: "#a6321f"
+  action: "#792116"
   navy: "#10323b"
   cream: "#eee0ba"
   paper: "#e8d7ab"
   paper-edge: "#b9a37b"
   paper-line: "#b9a47b"
-  paper-muted: "#675335"
+  paper-muted: "#34443d"
   action-text: "#fff0ce"
   focus: "#e7b46b"
 typography:
@@ -147,3 +147,7 @@ display 是首页封面标题；内部页面使用 headline，手机为（34px�
 - Don't 把 demo 数据、自动填充、拖拽或内存保存描述成正式版能力。
 - Don't 将封面人物当作用户阵容成员，或为真实球员伪造肖像对应。
 - Don't 用视觉预览或构建通过暗示生产写入、认证和部署已验证。
+
+## 阅读区域与入口去重
+
+首页删除球员分析和赛前情报的重复快捷区块，保留 Player Spotlight；JOIN THE GAME 在桌面占满下方一行。纸面和控件使用共享 paper-print 背景，在原纹理上叠加奶油纸色以压低污渍对比，磨损边框保留原图。红色操作按钮、排名摘要和深蓝阅读块分别使用 red-print、navy-print，文字保持不透明。辅助文字使用深墨色；禁用按钮以虚线边框区分，不能靠降低整块透明度使文字消失。
