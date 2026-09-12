@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import "./street.css";
+import "./retro.css";
 
 const anton = localFont({ src: "../../public/fonts/anton.ttf", variable: "--font-anton", display: "swap", weight: "400" });
 

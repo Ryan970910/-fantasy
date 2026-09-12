@@ -7,15 +7,17 @@ import { loadPlayerIntelDashboard } from "@/lib/player-intel-data";
 
 export const dynamic = "force-dynamic";
 
-export default async function PlayerIntelPage() {
+export default async function PlayerIntelPage({ searchParams }: { searchParams: Promise<{ q?: string | string[] }> }) {
   const currentUser = await getCurrentUser();
   if (!currentUser) redirect("/login");
 
   const dashboard = await loadPlayerIntelDashboard();
+  const { q } = await searchParams;
+  const initialQuery = typeof q === "string" ? q : "";
   return (
     <main className="shell">
       <AppTopbar subtitle="赛前情报" />
-      <PlayerIntelBoard players={dashboard.players} emptyMessage={dashboard.state === "ready" ? undefined : dashboard.state === "no-games"
+      <PlayerIntelBoard key={initialQuery} initialQuery={initialQuery} players={dashboard.players} emptyMessage={dashboard.state === "ready" ? undefined : dashboard.state === "no-games"
             ? "下一比赛日同步后，这里会展示今日推荐与角色变化。"
             : dashboard.state === "no-stats"
               ? "本赛季官方逐场数据尚未同步，无法计算指标。"

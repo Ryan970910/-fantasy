@@ -1,139 +1,149 @@
 ---
-name: 梦幻篮球 / Street Court
-description: 美式街头篮球海报语言的真实比赛日阵容工作区
+name: 梦幻篮球 / Retro Courtside
+description: 重度磨损红蓝旧纸篮球杂志，承载真实比赛日操作
 colors:
-  bg: "#121210"
-  surface: "#1b1b18"
-  raised: "#24241f"
-  line: "#383831"
-  text: "#eeeada"
-  muted: "#aaa99a"
-  accent: "#ff6b2b"
-  ink: "#121210"
-  focus: "#d8ed91"
-  danger: "#f0a49a"
+  red: "#b63822"
+  action: "#a6321f"
+  navy: "#10323b"
+  cream: "#eee0ba"
+  paper: "#e8d7ab"
+  paper-edge: "#b9a37b"
+  paper-line: "#b9a47b"
+  paper-muted: "#675335"
+  action-text: "#fff0ce"
+  focus: "#e7b46b"
 typography:
   display:
     fontFamily: "Anton, sans-serif"
-    fontSize: "clamp(58px, 6vw, 86px)"
+    fontSize: "clamp(52px,5.5vw,88px)"
     fontWeight: 400
-    lineHeight: 1
+    lineHeight: 1.04
     letterSpacing: "-.025em"
   headline:
     fontFamily: "Anton, sans-serif"
-    fontSize: "clamp(38px, 4.3vw, 60px)"
+    fontSize: "clamp(32px,3.3vw,48px)"
     fontWeight: 400
-    lineHeight: 1.1
-    letterSpacing: "-.025em"
   body:
     fontFamily: "'Segoe UI', 'Microsoft YaHei', 'PingFang SC', sans-serif"
     fontSize: "14px"
     lineHeight: 1.6
-  label:
-    fontSize: "12px"
+  handwriting:
+    fontFamily: "Kalam, cursive"
+    fontWeight: 400
 rounded:
-  control: "0px"
-  surface: "0px"
+  control: "3px 5px 2px 4px"
+  paper: "5px 8px 6px 4px"
+  search: "4px"
 spacing:
   compact: "8px"
-  small: "12px"
-  medium: "16px"
-  section: "24px"
-  large: "32px"
-  page: "40px"
+  gutter: "12px"
+  mobile-inset: "16px"
+  paper-inset: "18px"
+  page-inset: "28px"
 components:
-  button-primary:
-    backgroundColor: "{colors.accent}"
-    textColor: "{colors.ink}"
-    rounded: "{rounded.control}"
-    padding: "10px 22px"
-  button-primary-hover:
-    backgroundColor: "#f68a51"
-  button-secondary:
-    backgroundColor: "{colors.surface}"
-    textColor: "{colors.text}"
-    rounded: "{rounded.control}"
-  input:
-    backgroundColor: "{colors.bg}"
-    textColor: "{colors.text}"
-    rounded: "{rounded.control}"
+  action-link:
+    backgroundColor: "{colors.action}"
+    textColor: "{colors.action-text}"
     padding: "10px 12px"
-  module:
-    backgroundColor: "{colors.text}"
-    textColor: "{colors.ink}"
-    rounded: "{rounded.surface}"
-    padding: "32px"
+  search:
+    backgroundColor: "{colors.paper}"
+    textColor: "{colors.navy}"
+    rounded: "{rounded.search}"
+    padding: "0px 10px"
+  paper:
+    backgroundColor: "{colors.paper}"
+    textColor: "{colors.navy}"
+    rounded: "{rounded.paper}"
+    padding: "18px"
 ---
 
-# Design System: 梦幻篮球 / Street Court
+# Design System: 梦幻篮球 / Retro Courtside
 
 ## Overview
 
-**Creative North Star: "Street Court / 街头主场"**
+**Creative North Star: "The Courtside Magazine / 场边旧刊"**
 
-美式室外篮球赛事海报成为可操作的范特西工作区：沥青黑、橙色与奶油白构成强烈色面，Anton 英文标题和记分数字建立赛事气氛，中文说明与原生控件保持清楚。球场线、五个位置和 CSS 篮球是共同视觉线索，首页、阵容、排名、情报与认证页使用同一世界。
+重度磨损的篮球旧刊成为真实比赛日工作区：褪色红墨、石油蓝和陈旧奶油纸覆盖首页、阵容、排名、情报与认证页。Anton 的赛事标题与 Kalam 的手写边注营造印刷物气氛，中文正文和原生控件保持清楚。
+
+用户批准的 Retro Courtside 世界取代旧黑橙与更早绿金方向。源侧栏艺术保留印刷字形，全局材质延续同一参考；不宣称整个站点逐像素一致。当前依据为 `src/app/retro.css` 及继承的 `globals.css`、`street.css`，组件行为以正式源代码为准。
 
 **Key Characteristics:**
 
-- 英文海报标题与清楚的中文功能说明并置。
-- 方正工作面、细分隔线、橙色操作和奶油白重点报告。
-- 桌面球场编排与手机完整原生操作共存。
-
-本文件替换旧深绿金色方向，记录正式版已实现界面；产品与发布授权见 `PRODUCT.md`。视觉证据为 `outputs/street-release-review/*.jpg` 的八类页面桌面/手机版：受保护组件使用 fixture API，登录和注册来自实际 Next 构建。类型检查、37 项测试及构建通过；这些证据不代表生产登录、数据库写入或部署已验证。
+- 全局红蓝旧墨与磨损奶油纸，包含控件、球场和手机版。
+- 凝练英文标题、短手写边注与可读中文说明并置。
+- 桌面印刷侧栏和编辑栏，手机快捷入口与固定底部导航。
+- 装饰封面与真实阵容、数据日期、空状态明确区分。
 
 ## Colors
 
 ### Primary
 
-`accent` 是球场橙，用于主要动作、选中边界、关键数字和个人排名摘要；`ink` 是橙色或浅色实底上的文字。主按钮悬停采用 frontmatter 的较亮橙色。
+red 用于封面和引导面，action 用于主要操作、已选筛选与个人排名摘要；主要动作搭配 action-text。
 
 ### Secondary
 
-`focus` 是浅青柠键盘焦点；排名区保持橙色焦点。`danger` 标识错误、超预算与下降指标，并配文字或符号。
+navy 是背景旧墨，也是纸面标题、姓名与数字的颜色。focus 是深底暖色焦点；纸面主要工作区使用 action 焦点。
 
 ### Neutral
 
-`bg` 是沥青黑底，`surface` 与 `raised` 区分工作面和展开状态，`line` 分隔行。`text` 是奶油白正文，同时承担首页组队入口和球员主报告的浅色面；`muted` 用于辅助说明。浅色面中的说明采用深灰，第一名与个人行保留独立色面。
+cream 是深底文字，paper 是阅读面与输入底色；paper-edge、paper-line 和 paper-muted 分别承担纸边、分隔和辅助说明。纸面覆盖共享 CSS 变量，不要将深底文字颜色直接搬到浅纸上。
+
+**The Limited Ink Rule.** 延用红、蓝、奶油纸与暖色强调的角色，先复用现有局部变量再增加颜色。
 
 **The State Has Words Rule.** 加载、错误、锁定、缺少数据和选中状态都必须有可理解的文字或语义，不能只靠颜色。
 
 ## Typography
 
-Anton 由 `next/font/local` 加载 `public/fonts/anton.ttf`，通过 `--font-anton` 使用，字重（400）、`display: swap`；许可保留于 `public/fonts/OFL.txt`。英文海报标题、PG/SG/SF/PF/C、排名和预算数字使用 Anton；中文和正文采用 frontmatter 的系统字体栈。
+Anton 使用已有本地字体与 `--font-anton`，承担英文标题、位置和分数；Kalam 使用 `public/fonts/kalam.ttf`，以 swap 加载，承担短手写注释。中文姓名、说明、表单使用系统无衬线字体栈。许可保留在 `public/fonts/`。
 
-首页标题采用 display 层级，内部主词另放大；手机标题为（64px）。内页标题采用 headline，手机通常为（38px）；中文伴随标题为桌面（23px）、手机（18px）。认证标题为桌面（46–72px）、手机（44px）。分数使用等宽数字，长英文姓名可换行，说明文本通常不超过（65ch）。
+display 是首页封面标题；内部页面使用 headline，手机为（34px）。首页手机标题为（62px），超宽桌面为（94px）；纸面小节通常是 Anton（24px）。手写注释按空间采用（23–34px），保留各统计组件自身字号。
+
+**The Two Reading Speeds Rule.** 凝练字体用于快速扫描，普通无衬线用于姓名和操作说明；Kalam 只承担短边注。
 
 ## Layout
 
-常规页面最大宽度（1240px），左右留白共（80px），顶部（40px）；手机左右各（18px）、顶部（28px）。顶栏桌面至少（92px），手机为品牌与四项导航两行、至少（116px）。首页双栏海报在手机改为单栏并隐藏装饰篮球；入口随之纵排。
+桌面侧栏固定左侧，可纵向滚动，原始画布为（269px × 1009px），工作区留出（269px）。在（701–1000px）范围，占位为（230px），原图按（0.855）缩放。首页最大宽度（1600px），主编辑栏旁为（292px）右栏、（12px）间距；（1250px）以下右栏移到主内容下方，（1000px）以下进一步单列。
 
-阵容编辑最大宽度（1320px），高度扣除顶栏。超过（1000px）时，左侧半场内排布五个可点击位置，右侧为球员池；中等宽度使用（260px）位置栏；（700px）及以下变为五列位置条和纵向球员池。底部预算与保存操作保持可见，并计入安全区。球队、排序与日期继续使用原生控件。
+内页纸面最大宽度（1280px），桌面内边距（28px）。手机断点（700px）：侧栏隐藏、恢复全宽，纸面左右各（10px）外距，通常（20px 14px）内边距。保留品牌、四项快捷链接和固定（70px）底部导航；页面预留（76px）底部空间，阵容保存栏位于导航上方。首页内容纵排，认证页双栏转单栏。
 
-排名桌面为主列表与（270px）球场/公告侧栏；（900px）以下改单列，（560px）以下进一步压缩行与日期布局。情报主报告桌面为姓名、等级、指标三列，（1000px）以下隐藏装饰性大等级，（700px）以下指标横排在姓名下方。认证页桌面双栏、手机纵排。
+阵容位置、球员池、日期、历史和排名展开沿用真实工作流。验证长姓名、原生日期和固定操作区，不能等比缩小桌面画面。
 
 ## Elevation & Depth
 
-主体依靠色面与细线形成层级。阴影集中在首页 CSS 篮球、贴纸和预算对话框；普通数据行不叠加浮动卡片。篮球悬停旋转并轻微上移，入口悬停上移（3px）。交互过渡通常（180–250ms），篮球为（700ms）；减少动态效果偏好下关闭动画与过渡。
+`public/retro/red-worn.webp`、`navy-worn.webp`、`paper-worn.webp` 分别提供红墨、蓝墨和旧纸。擦痕、褪色和纸边遍布主要面板与控件。纸面采用 cover 裁切，border-image 使用（60 / 7px / 0 stretch）。薄边线、轻微旋转和封面插画重叠形成物件层次；普通数据行仍用分隔线组织。
+
+**The Global Wear Rule.** 旧纸印刷材质必须覆盖每个主要界面和控件；只有侧栏做旧不构成这个世界。
+
+沿用全局 reduced-motion 规则，关闭动画、过渡和顺滑滚动。印刷侧栏没有位移与过渡，悬停仅显细框。
 
 ## Shapes
 
-主要按钮、输入、模块和排名行采用直角。圆形用于篮球、品牌图标、头像和篮筐；首页橙色画面使用切角。球场由边线和几何弧线组成。位置槽位默认虚线，当前槽位用实线强调；少量内嵌选择标记保留小圆角。图标使用 Lucide，篮球与球场以 CSS 绘制，无新增栅格素材。
+纸面和控件使用小幅不对称圆角，保留印刷纸块轮廓。球场弧线和槽位是功能图形，空位置保留明确边界。导航和姓名仍是语义 HTML，功能图标使用 Lucide。
 
 ## Components
 
-- **Buttons / Fields:** 主要按钮橙底深字，一般至少（44px）高，首页主入口为（48px）。保留原生禁用、loading 和表单验证；通用焦点是（2px）浅青柠轮廓、偏移（4px），排名焦点为橙色、偏移（3px）。
-- **Navigation:** 首页、我的阵容、实时排名、赛前情报共用导航。当前页用浅色文字、橙色底线与 `aria-current` 表达；手机四列均分。
-- **Scoreboard:** 首页比赛条读取真实 API，横向溢出可滚动；加载、无比赛、错误与刷新状态有文字，不放入演示比赛。
-- **Player intelligence:** 只保留一个球员姓名搜索栏，支持中文或英文。结果为可聚焦按钮，回车可选首项，清空后恢复默认报告；没有实现 demo 的上下键结果导航。选择更新同一份奶油白报告，下方原生 `details` 展开详细指标；排序、空结果和数据不可用状态保持可见。
-- **Lineup / Budget:** 点击位置与球员按钮选人，保留当前/历史、编辑、删除及预算反馈。正式版不把 demo 拖拽、内存保存或模拟控制当作已实现能力；服务器仍决定定价、锁定与保存结果。
-- **Rankings:** 个人摘要为橙色，第一名为浅色，当前用户行有橙色边界。日期、范围筛选、刷新和原生展开行复用真实排名流程；球场通过原生下拉选择阵容、点击位置查看已开赛球员，未开赛球员隐藏。没有演示得分、自动播放或重置比赛控制。
-- **Empty / Auth:** 预测首发保持无数据源的诚实空状态。登录与注册沿用真实认证表单，橙色顶线与英文海报引导统一视觉。
+- **Navigation:** 源艺术覆盖语义链接，保留可访问名称与 aria-current。HOME 到首页，LIVE 到首页比赛区，PLAYERS 到球员情报，MY TEAM 到阵容，MATCHUP 到预测首发，RANKINGS 到排名，NEWS 到赛前情报，TOOLS 到首页规则。COMMUNITY 只展开“尚未开放”说明。选中态使用原字形滤镜与纸面叠色；侧栏焦点为浅色（2px），偏移（3px）。手机快捷入口是真链接。
+- **Search:** 桌面纸面搜索框以 GET q 进入球员情报页，支持中文和英文姓名。手机隐藏全局搜索，在球员情报页使用已有搜索；结果选择、清空、排序、空结果和数据不可用状态沿用真实组件。
+- **Actions / Fields:** 红色纸墨承担主要操作，浅纸承担输入与次要控件；认证按钮悬停变深红。保留禁用、加载、原生验证和焦点。纸面焦点深红，深底焦点暖色。
+- **Home data:** MY TEAM 显示 /api/lineups 的最近保存阵容，并标注比赛日与保存时薪资；球衣图标表达位置，不暗示肖像。排名读取当前美东比赛日 /api/rankings，保留日期、缺统计和无比赛状态。比赛条使用 /api/nba/live 的既有加载、刷新、错误和不可用状态。
+- **Cover:** Curry 是装饰封面，空 alt 与独立标签不能让它冒充已选球员；不将 demo 肖像绑定到真实阵容成员。
+- **Lineup / Rankings:** 纸面球场、位置、预算、历史、日期筛选与展开行服务真实操作。排名只揭示已经开赛的球员，服务器继续决定身份、定价、锁定和保存结果。
+- **Empty / Auth:** 预测首发保持未接入数据源的空状态；登录与注册使用真实表单，错误与下一步保持可读。
+
+无损 WebP 对应的 `public/retro/*.webp.json` 记录来源与转换信息。参考世界见 `demos/retro-courtside/DESIGN.md`、`outputs/retro-sidebar/desktop.jpg`。八类正式组件页面的桌面/手机证据位于 `outputs/retro-release-review/*-{desktop,mobile}.jpg`；受保护页面预览使用明确标识的隔离 fixture，登录/注册来自实际 Next 构建。完成阶段报告类型检查、37 项测试、构建及独立视觉审查通过；这些不等于生产认证、数据库写入或部署已验证。
 
 ## Do's and Don'ts
 
-- **Do** 复用沥青黑、橙色、奶油白、本地 Anton 和中文系统字体。
-- **Do** 验证桌面球场、手机长姓名、底部预算、日期输入和空状态。
-- **Do** 保留原生操作、可见焦点、减少动态效果偏好和清楚的状态文字。
-- **Don't** 恢复深绿金色武侠主题，或给普通数据行堆叠阴影卡片。
-- **Don't** 用 demo 模拟数据、拖拽或动画控制描述正式版能力。
-- **Don't** 用视觉截图或构建通过暗示生产数据写入、部署或认证流程已经验证。
+### Do:
+
+- Do 在所有页面和手机视图使用重度磨损红蓝旧墨与奶油纸。
+- Do 保持中文可读、原生控件、可见焦点和减少动态效果支持。
+- Do 标注保存快照、比赛日、缺失数据与未开放能力。
+- Do 保留每份交付栅格的来源记录与字体许可。
+
+### Don't:
+
+- Don't 将旧黑橙或绿金文件当作当前视觉权威。
+- Don't 把 demo 数据、自动填充、拖拽或内存保存描述成正式版能力。
+- Don't 将封面人物当作用户阵容成员，或为真实球员伪造肖像对应。
+- Don't 用视觉预览或构建通过暗示生产写入、认证和部署已验证。

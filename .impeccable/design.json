@@ -1,300 +1,281 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-09T00:00:00+08:00",
-  "title": "Design System: 梦幻篮球 / Street Court",
+  "generatedAt": "2026-09-12T00:00:00+08:00",
+  "title": "Design System: 梦幻篮球 / Retro Courtside",
   "extensions": {
-    "shadows": [
-      {
-        "name": "basketball",
-        "value": "18px 30px 35px #56251140",
-        "purpose": "首页 CSS 篮球的物体深度"
-      },
-      {
-        "name": "dialog",
-        "value": "0 20px 60px rgb(5 13 10 / 35%)",
-        "purpose": "预算提示覆盖层"
-      }
-    ],
-    "motion": [
-      {
-        "name": "state",
-        "value": "180ms",
-        "purpose": "模块和排名状态"
-      },
-      {
-        "name": "module-lift",
-        "value": "250ms",
-        "purpose": "入口悬停上移 3px"
-      },
-      {
-        "name": "basketball",
-        "value": "700ms cubic-bezier(.16,1,.3,1)",
-        "purpose": "首页篮球悬停旋转和上移"
-      },
-      {
-        "name": "reduced-motion",
-        "value": "none",
-        "purpose": "减少动态效果偏好下禁用动画与过渡"
-      }
-    ],
-    "breakpoints": [
-      {
-        "value": "370px",
-        "name": "narrow-max"
-      },
-      {
-        "value": "560px",
-        "name": "ranking-compact-max"
-      },
-      {
-        "value": "700px",
-        "name": "mobile-max"
-      },
-      {
-        "value": "900px",
-        "name": "ranking-stack-max"
-      },
-      {
-        "value": "1000px",
-        "name": "compact-max"
-      }
-    ],
     "colorMeta": {
+      "red": {
+        "role": "primary",
+        "displayName": "褪色红墨",
+        "tonalRamp": [
+          "oklch(15% 0.15 35)",
+          "oklch(26% 0.15 35)",
+          "oklch(38% 0.15 35)",
+          "oklch(49% 0.15 35)",
+          "oklch(61% 0.15 35)",
+          "oklch(72% 0.15 35)",
+          "oklch(84% 0.15 35)",
+          "oklch(95% 0.15 35)"
+        ]
+      },
+      "action": {
+        "role": "primary",
+        "displayName": "操作深红",
+        "tonalRamp": [
+          "oklch(15% 0.15 33)",
+          "oklch(26% 0.15 33)",
+          "oklch(38% 0.15 33)",
+          "oklch(49% 0.15 33)",
+          "oklch(61% 0.15 33)",
+          "oklch(72% 0.15 33)",
+          "oklch(84% 0.15 33)",
+          "oklch(95% 0.15 33)"
+        ]
+      },
+      "navy": {
+        "role": "secondary",
+        "displayName": "石油蓝",
+        "tonalRamp": [
+          "oklch(15% 0.06 220)",
+          "oklch(26% 0.06 220)",
+          "oklch(38% 0.06 220)",
+          "oklch(49% 0.06 220)",
+          "oklch(61% 0.06 220)",
+          "oklch(72% 0.06 220)",
+          "oklch(84% 0.06 220)",
+          "oklch(95% 0.06 220)"
+        ]
+      },
+      "cream": {
+        "role": "neutral",
+        "displayName": "奶油文字",
+        "tonalRamp": [
+          "oklch(15% 0.05 85)",
+          "oklch(26% 0.05 85)",
+          "oklch(38% 0.05 85)",
+          "oklch(49% 0.05 85)",
+          "oklch(61% 0.05 85)",
+          "oklch(72% 0.05 85)",
+          "oklch(84% 0.05 85)",
+          "oklch(95% 0.05 85)"
+        ]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "磨损旧纸",
+        "tonalRamp": [
+          "oklch(15% 0.06 85)",
+          "oklch(26% 0.06 85)",
+          "oklch(38% 0.06 85)",
+          "oklch(49% 0.06 85)",
+          "oklch(61% 0.06 85)",
+          "oklch(72% 0.06 85)",
+          "oklch(84% 0.06 85)",
+          "oklch(95% 0.06 85)"
+        ]
+      },
+      "paper-edge": {
+        "role": "neutral",
+        "displayName": "纸边",
+        "tonalRamp": [
+          "oklch(15% 0.05 80)",
+          "oklch(26% 0.05 80)",
+          "oklch(38% 0.05 80)",
+          "oklch(49% 0.05 80)",
+          "oklch(61% 0.05 80)",
+          "oklch(72% 0.05 80)",
+          "oklch(84% 0.05 80)",
+          "oklch(95% 0.05 80)"
+        ]
+      },
+      "paper-line": {
+        "role": "neutral",
+        "displayName": "纸面分隔",
+        "tonalRamp": [
+          "oklch(15% 0.05 80)",
+          "oklch(26% 0.05 80)",
+          "oklch(38% 0.05 80)",
+          "oklch(49% 0.05 80)",
+          "oklch(61% 0.05 80)",
+          "oklch(72% 0.05 80)",
+          "oklch(84% 0.05 80)",
+          "oklch(95% 0.05 80)"
+        ]
+      },
+      "paper-muted": {
+        "role": "neutral",
+        "displayName": "纸面辅助字",
+        "tonalRamp": [
+          "oklch(15% 0.05 75)",
+          "oklch(26% 0.05 75)",
+          "oklch(38% 0.05 75)",
+          "oklch(49% 0.05 75)",
+          "oklch(61% 0.05 75)",
+          "oklch(72% 0.05 75)",
+          "oklch(84% 0.05 75)",
+          "oklch(95% 0.05 75)"
+        ]
+      },
+      "action-text": {
+        "role": "neutral",
+        "displayName": "操作浅字",
+        "tonalRamp": [
+          "oklch(15% 0.05 85)",
+          "oklch(26% 0.05 85)",
+          "oklch(38% 0.05 85)",
+          "oklch(49% 0.05 85)",
+          "oklch(61% 0.05 85)",
+          "oklch(72% 0.05 85)",
+          "oklch(84% 0.05 85)",
+          "oklch(95% 0.05 85)"
+        ]
+      },
       "focus": {
         "role": "secondary",
+        "displayName": "暖色焦点",
         "tonalRamp": [
-          "oklch(15% 0.1 120)",
-          "oklch(26% 0.1 120)",
-          "oklch(38% 0.1 120)",
-          "oklch(49% 0.1 120)",
-          "oklch(61% 0.1 120)",
-          "oklch(72% 0.1 120)",
-          "oklch(84% 0.1 120)",
-          "oklch(95% 0.1 120)"
-        ],
-        "displayName": "青柠焦点"
-      },
-      "muted": {
-        "role": "neutral",
-        "tonalRamp": [
-          "oklch(15% 0.02 105)",
-          "oklch(26% 0.02 105)",
-          "oklch(38% 0.02 105)",
-          "oklch(49% 0.02 105)",
-          "oklch(61% 0.02 105)",
-          "oklch(72% 0.02 105)",
-          "oklch(84% 0.02 105)",
-          "oklch(95% 0.02 105)"
-        ],
-        "displayName": "次要文字"
-      },
-      "raised": {
-        "role": "neutral",
-        "tonalRamp": [
-          "oklch(15% 0.008 106)",
-          "oklch(26% 0.008 106)",
-          "oklch(38% 0.008 106)",
-          "oklch(49% 0.008 106)",
-          "oklch(61% 0.008 106)",
-          "oklch(72% 0.008 106)",
-          "oklch(84% 0.008 106)",
-          "oklch(95% 0.008 106)"
-        ],
-        "displayName": "展开工作面"
-      },
-      "surface": {
-        "role": "neutral",
-        "tonalRamp": [
-          "oklch(15% 0.005 106)",
-          "oklch(26% 0.005 106)",
-          "oklch(38% 0.005 106)",
-          "oklch(49% 0.005 106)",
-          "oklch(61% 0.005 106)",
-          "oklch(72% 0.005 106)",
-          "oklch(84% 0.005 106)",
-          "oklch(95% 0.005 106)"
-        ],
-        "displayName": "工作面"
-      },
-      "danger": {
-        "role": "secondary",
-        "tonalRamp": [
-          "oklch(15% 0.09 25)",
-          "oklch(26% 0.09 25)",
-          "oklch(38% 0.09 25)",
-          "oklch(49% 0.09 25)",
-          "oklch(61% 0.09 25)",
-          "oklch(72% 0.09 25)",
-          "oklch(84% 0.09 25)",
-          "oklch(95% 0.09 25)"
-        ],
-        "displayName": "错误与下降"
-      },
-      "ink": {
-        "role": "neutral",
-        "tonalRamp": [
-          "oklch(15% 0.005 106)",
-          "oklch(26% 0.005 106)",
-          "oklch(38% 0.005 106)",
-          "oklch(49% 0.005 106)",
-          "oklch(61% 0.005 106)",
-          "oklch(72% 0.005 106)",
-          "oklch(84% 0.005 106)",
-          "oklch(95% 0.005 106)"
-        ],
-        "displayName": "深色文字"
-      },
-      "line": {
-        "role": "neutral",
-        "tonalRamp": [
-          "oklch(15% 0.012 106)",
-          "oklch(26% 0.012 106)",
-          "oklch(38% 0.012 106)",
-          "oklch(49% 0.012 106)",
-          "oklch(61% 0.012 106)",
-          "oklch(72% 0.012 106)",
-          "oklch(84% 0.012 106)",
-          "oklch(95% 0.012 106)"
-        ],
-        "displayName": "分隔线"
-      },
-      "bg": {
-        "role": "neutral",
-        "tonalRamp": [
-          "oklch(15% 0.005 106)",
-          "oklch(26% 0.005 106)",
-          "oklch(38% 0.005 106)",
-          "oklch(49% 0.005 106)",
-          "oklch(61% 0.005 106)",
-          "oklch(72% 0.005 106)",
-          "oklch(84% 0.005 106)",
-          "oklch(95% 0.005 106)"
-        ],
-        "displayName": "沥青黑"
-      },
-      "accent": {
-        "role": "primary",
-        "tonalRamp": [
-          "oklch(15% 0.19 41)",
-          "oklch(26% 0.19 41)",
-          "oklch(38% 0.19 41)",
-          "oklch(49% 0.19 41)",
-          "oklch(61% 0.19 41)",
-          "oklch(72% 0.19 41)",
-          "oklch(84% 0.19 41)",
-          "oklch(95% 0.19 41)"
-        ],
-        "displayName": "球场橙"
-      },
-      "text": {
-        "role": "neutral",
-        "tonalRamp": [
-          "oklch(15% 0.023 95)",
-          "oklch(26% 0.023 95)",
-          "oklch(38% 0.023 95)",
-          "oklch(49% 0.023 95)",
-          "oklch(61% 0.023 95)",
-          "oklch(72% 0.023 95)",
-          "oklch(84% 0.023 95)",
-          "oklch(95% 0.023 95)"
-        ],
-        "displayName": "奶油白"
+          "oklch(15% 0.1 75)",
+          "oklch(26% 0.1 75)",
+          "oklch(38% 0.1 75)",
+          "oklch(49% 0.1 75)",
+          "oklch(61% 0.1 75)",
+          "oklch(72% 0.1 75)",
+          "oklch(84% 0.1 75)",
+          "oklch(95% 0.1 75)"
+        ]
       }
     },
     "typographyMeta": {
       "display": {
-        "purpose": "首页英文标题，本地字体",
-        "displayName": "Anton 海报标题"
+        "displayName": "Anton 封面",
+        "purpose": "首页赛事标题"
       },
       "headline": {
-        "purpose": "内页英文标题",
-        "displayName": "Anton 页面标题"
+        "displayName": "Anton 页面标题",
+        "purpose": "内部页面英文标题"
       },
       "body": {
-        "purpose": "正文和原生控件",
-        "displayName": "中文系统字体"
+        "displayName": "中文系统无衬线",
+        "purpose": "姓名、说明与原生控件"
+      },
+      "handwriting": {
+        "displayName": "Kalam 边注",
+        "purpose": "短手写注释"
       }
-    }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "printed-navigation",
+        "value": "none",
+        "purpose": "源侧栏不位移、不做过渡"
+      },
+      {
+        "name": "reduced-motion",
+        "value": "none",
+        "purpose": "全局偏好关闭动画、过渡与顺滑滚动"
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "mobile-max",
+        "value": "700px"
+      },
+      {
+        "name": "scaled-sidebar-max",
+        "value": "1000px"
+      },
+      {
+        "name": "stack-home-rail-max",
+        "value": "1250px"
+      },
+      {
+        "name": "wide-home-min",
+        "value": "1600px"
+      }
+    ]
   },
   "components": [
     {
-      "name": "主要按钮",
+      "name": "主要认证按钮",
       "kind": "button",
-      "refersTo": "button-primary",
-      "description": "认证与主要提交动作。",
-      "html": "<button class=\"ds-primary\">保存阵容</button>",
-      "css": ".ds-primary{font:inherit;min-height:48px;padding:10px 22px;border:0;border-radius:0;background:var(--accent,#ff6b2b);color:var(--ink,#121210);font-weight:700;cursor:pointer}.ds-primary:hover{background:#f68a51}.ds-primary:focus-visible{outline:2px solid #d8ed91;outline-offset:4px}.ds-primary:disabled{opacity:.55;cursor:not-allowed}"
+      "description": "真实认证操作的旧红墨按钮。",
+      "html": "<button class=\"ds-auth\">登录</button>",
+      "css": ".ds-auth{padding:10px 22px;min-height:48px;border:0;background:#a6321f url('/retro/red-worn.webp') center/cover;color:#fff0ce;font:700 14px 'Segoe UI','Microsoft YaHei',sans-serif}.ds-auth:hover{background-color:#942d1a;background-blend-mode:multiply}.ds-auth:focus-visible{outline:2px solid #e7b46b;outline-offset:4px}.ds-auth:disabled{opacity:.55;cursor:not-allowed}"
     },
     {
-      "name": "次要按钮",
-      "kind": "button",
-      "refersTo": "button-secondary",
-      "description": "阵容取消等次要动作。",
-      "html": "<button class=\"ds-secondary\">取消</button>",
-      "css": ".ds-secondary{font:inherit;min-height:44px;padding:8px 12px;border:1px solid var(--line,#383831);border-radius:0;background:var(--surface,#1b1b18);color:var(--text,#eeeada);cursor:pointer}.ds-secondary:hover{background:var(--raised,#24241f)}.ds-secondary:focus-visible{outline:2px solid #d8ed91;outline-offset:4px}.ds-secondary:disabled{opacity:.55;cursor:not-allowed}"
-    },
-    {
-      "name": "单一球员姓名搜索",
+      "name": "纸面搜索",
       "kind": "input",
-      "refersTo": "input",
-      "description": "球员情报的一个中英文姓名搜索入口。",
-      "html": "<label class=\"ds-field\">搜索球员<input type=\"search\" placeholder=\"输入中文或英文姓名\" autocomplete=\"off\"></label>",
-      "css": ".ds-field{display:grid;gap:8px;color:var(--text,#eeeada);font:14px/1.6 \"Segoe UI\",\"Microsoft YaHei\",sans-serif}.ds-field input{font:inherit;color:var(--text,#eeeada);min-height:44px;padding:10px 12px;border:1px solid var(--line,#383831);border-radius:0;background:var(--bg,#121210);caret-color:var(--accent,#ff6b2b)}.ds-field input::placeholder{color:var(--muted,#aaa99a)}.ds-field input:hover{border-color:var(--accent,#ff6b2b)}.ds-field input:focus-visible{outline:2px solid #d8ed91;outline-offset:4px}"
+      "refersTo": "search",
+      "description": "桌面中英文球员搜索；GET q 进入正式球员情报。",
+      "html": "<form class=\"ds-search\" action=\"/player-intel\" method=\"get\"><label for=\"ds-q\">球员</label><input id=\"ds-q\" name=\"q\" type=\"search\" placeholder=\"中文或英文姓名\"><button>搜索</button></form>",
+      "css": ".ds-search{display:flex;align-items:center;gap:10px;padding:0 10px;border-radius:4px;background:#e8d7ab url('/retro/paper-worn.webp') center/cover;color:#10323b;font:14px 'Segoe UI','Microsoft YaHei',sans-serif}.ds-search input{width:100%;min-width:0;min-height:44px;border:0;background:none;color:#10323b;caret-color:#a6321f}.ds-search input::placeholder{color:#675335}.ds-search button{min-height:44px;padding:8px;border:0;background:none;color:#10323b}.ds-search :focus-visible{outline:2px solid #e7b46b;outline-offset:4px}"
     },
     {
-      "name": "主导航",
+      "name": "手机快捷导航",
       "kind": "nav",
-      "description": "当前页面的文字和下划线同步强调。",
-      "html": "<nav class=\"ds-nav\" aria-label=\"主导航\"><a href=\"/\">首页</a><a href=\"/lineups\" aria-current=\"page\">我的阵容</a><a href=\"/rankings\">实时排名</a><a href=\"/pregame-intel\">赛前情报</a></nav>",
-      "css": ".ds-nav{display:flex;gap:8px;flex-wrap:wrap}.ds-nav a{display:flex;align-items:center;min-height:44px;padding:0 16px;color:var(--muted,#aaa99a);text-decoration:none;border-bottom:3px solid transparent}.ds-nav a[aria-current]{color:var(--text,#eeeada);border-bottom-color:var(--accent,#ff6b2b)}.ds-nav a:hover{color:var(--text,#eeeada);background:var(--surface,#1b1b18)}.ds-nav a:focus-visible{outline:2px solid #d8ed91;outline-offset:4px}"
+      "description": "纸面快捷链接；源艺术桌面侧栏另由实际组件承载。",
+      "html": "<nav class=\"ds-nav\" aria-label=\"快捷导航\"><a href=\"/\">HOME</a><a href=\"/lineups\">MY TEAM</a><a href=\"/player-intel\">PLAYERS</a><a href=\"/rankings\">RANKINGS</a></nav>",
+      "css": ".ds-nav{display:flex;padding:3px;border-radius:5px;background:#e8d7ab url('/retro/paper-worn.webp') center/cover;color:#10323b}.ds-nav a{flex:1;display:grid;place-items:center;min-height:40px;color:inherit;text-decoration:none;font:17px var(--font-anton,Anton),sans-serif}.ds-nav a:hover{background:#10323b;color:#eee0ba}.ds-nav a:focus-visible{outline:2px solid #e7b46b;outline-offset:4px}"
     },
     {
-      "name": "选择标记",
+      "name": "球员选择标记",
       "kind": "chip",
-      "description": "球员选择按钮中的视觉标记，不是独立按钮。",
-      "html": "<span class=\"ds-choice\">选择</span><span class=\"ds-choice ds-selected\">已选</span>",
-      "css": ".ds-choice{display:inline-block;padding:8px 4px;border:1px solid var(--line,#383831);border-radius:6px;color:var(--accent,#ff6b2b);text-align:center;font-size:12px}.ds-selected{color:var(--ink,#121210);background:var(--accent,#ff6b2b);border-color:var(--accent,#ff6b2b)}"
+      "description": "球员按钮内部状态文字，继承所在纸面的局部变量。",
+      "html": "<span class=\"ds-choice\">选择</span> <span class=\"ds-choice ds-selected\">已选</span>",
+      "css": ".ds-choice{display:inline-block;padding:8px 4px;border:1px solid #b9a47b;border-radius:6px;color:#a6321f;text-align:center;font-size:12px}.ds-selected{background:#a6321f;border-color:#a6321f;color:#fff0ce}"
     },
     {
-      "name": "模块入口",
+      "name": "旧纸数据面",
       "kind": "card",
-      "refersTo": "module",
-      "description": "首页整块链接入口。",
-      "html": "<a class=\"ds-module\" href=\"/lineups\"><strong>范特西阵容</strong><span>创建五人阵容，查看当前与历史阵容。</span></a>",
-      "css": ".ds-module{display:flex;flex-direction:column;gap:24px;padding:32px;border:0;border-bottom:1px solid var(--line,#383831);border-radius:0;background:var(--text,#eeeada);color:var(--ink,#121210);text-decoration:none;transition:background 180ms,transform 250ms}.ds-module strong{font-size:28px}.ds-module span{color:#57574c}.ds-module:hover{background:#dedbc9;transform:translateY(-3px)}.ds-module:focus-visible{outline:2px solid #d8ed91;outline-offset:4px}@media(prefers-reduced-motion:reduce){.ds-module{transition:none}}"
-    },
-    {
-      "css": ".ds-scout{display:flex;flex-wrap:wrap;align-items:center;gap:32px;padding:40px;background:var(--text,#eeeada);color:var(--ink,#121210)}.ds-scout h2{font:400 40px/1.1 var(--font-anton,Anton),sans-serif;margin:20px 0}.ds-scout small,.ds-scout p,.ds-scout dt{font:12px/1.6 \"Segoe UI\",\"Microsoft YaHei\",sans-serif;color:#57574c}.ds-scout dl{border-left:1px solid #c2bfb0;padding-left:32px}.ds-scout dd{margin:0;font:400 42px/1.2 var(--font-anton,Anton),sans-serif;font-variant-numeric:tabular-nums}",
-      "name": "球员主报告",
-      "html": "<section class=\"ds-scout\"><div><small>球员报告</small><h2>PLAYER INTEL</h2><p>基于已同步的官方逐场数据</p></div><dl><dt>近 5 场梦幻分</dt><dd>—</dd></dl></section>",
-      "kind": "custom",
-      "description": "姓名、等级与近期指标使用奶油白宽面板。"
+      "refersTo": "paper",
+      "description": "数据、日期和可读空状态的基础纸面。",
+      "html": "<section class=\"ds-paper\"><h2>MY TEAM</h2><p>最近保存的阵容</p><p>尚未保存阵容。</p><a href=\"/lineups\">管理阵容</a></section>",
+      "css": ".ds-paper{padding:18px;border:1px solid #b9a37b;border-radius:5px 8px 6px 4px;border-image:url('/retro/paper-worn.webp') 60/7px/0 stretch;background:#e8d7ab url('/retro/paper-worn.webp') center/cover;color:#10323b;font:14px/1.6 'Segoe UI','Microsoft YaHei',sans-serif}.ds-paper h2{font:24px/1.2 var(--font-anton,Anton),sans-serif}.ds-paper a{color:#a6321f}.ds-paper a:focus-visible{outline:2px solid #a6321f;outline-offset:4px}"
     }
   ],
   "narrative": {
-    "northStar": "Street Court / 街头主场",
-    "overview": "美式室外篮球赛事海报成为可操作的范特西工作区：沥青黑、橙色与奶油白构成强烈色面，Anton 英文标题和记分数字建立赛事气氛，中文说明与原生控件保持清楚。球场线、五个位置和 CSS 篮球是共同视觉线索，首页、阵容、排名、情报与认证页使用同一世界。",
+    "northStar": "The Courtside Magazine / 场边旧刊",
+    "overview": "重度磨损的篮球旧刊成为真实比赛日工作区：褪色红墨、石油蓝和陈旧奶油纸覆盖首页、阵容、排名、情报与认证页。Anton 的赛事标题与 Kalam 的手写边注营造印刷物气氛，中文正文和原生控件保持清楚。\n\n用户批准的 Retro Courtside 世界取代旧黑橙与更早绿金方向。源侧栏艺术保留印刷字形，全局材质延续同一参考；不宣称整个站点逐像素一致。当前依据为 `src/app/retro.css` 及继承的 `globals.css`、`street.css`，组件行为以正式源代码为准。",
     "keyCharacteristics": [
-      "英文海报标题与清楚的中文功能说明并置。",
-      "方正工作面、细分隔线、橙色操作和奶油白重点报告。",
-      "桌面球场编排与手机完整原生操作共存。"
+      "全局红蓝旧墨与磨损奶油纸，包含控件、球场和手机版。",
+      "凝练英文标题、短手写边注与可读中文说明并置。",
+      "桌面印刷侧栏和编辑栏，手机快捷入口与固定底部导航。",
+      "装饰封面与真实阵容、数据日期、空状态明确区分。"
     ],
     "rules": [
       {
-        "section": "colors",
+        "name": "The Limited Ink Rule",
+        "body": "延用红、蓝、奶油纸与暖色强调的角色，先复用现有局部变量再增加颜色。",
+        "section": "colors"
+      },
+      {
         "name": "The State Has Words Rule",
-        "body": "加载、错误、锁定、缺少数据和选中状态都必须有可理解的文字或语义，不能只靠颜色。"
+        "body": "加载、错误、锁定、缺少数据和选中状态都必须有可理解的文字或语义，不能只靠颜色。",
+        "section": "colors"
+      },
+      {
+        "name": "The Two Reading Speeds Rule",
+        "body": "凝练字体用于快速扫描，普通无衬线用于姓名和操作说明；Kalam 只承担短边注。",
+        "section": "typography"
+      },
+      {
+        "name": "The Global Wear Rule",
+        "body": "旧纸印刷材质必须覆盖每个主要界面和控件；只有侧栏做旧不构成这个世界。",
+        "section": "elevation"
       }
     ],
     "dos": [
-      "Do 复用沥青黑、橙色、奶油白、本地 Anton 和中文系统字体。",
-      "Do 验证桌面球场、手机长姓名、底部预算、日期输入和空状态。",
-      "Do 保留原生操作、可见焦点、减少动态效果偏好和清楚的状态文字。"
+      "Do 在所有页面和手机视图使用重度磨损红蓝旧墨与奶油纸。",
+      "Do 保持中文可读、原生控件、可见焦点和减少动态效果支持。",
+      "Do 标注保存快照、比赛日、缺失数据与未开放能力。",
+      "Do 保留每份交付栅格的来源记录与字体许可。"
     ],
     "donts": [
-      "Don't 恢复深绿金色武侠主题，或给普通数据行堆叠阴影卡片。",
-      "Don't 用 demo 模拟数据、拖拽或动画控制描述正式版能力。",
-      "Don't 用视觉截图或构建通过暗示生产数据写入、部署或认证流程已经验证。"
+      "Don't 将旧黑橙或绿金文件当作当前视觉权威。",
+      "Don't 把 demo 数据、自动填充、拖拽或内存保存描述成正式版能力。",
+      "Don't 将封面人物当作用户阵容成员，或为真实球员伪造肖像对应。",
+      "Don't 用视觉预览或构建通过暗示生产写入、认证和部署已验证。"
     ]
   }
 }

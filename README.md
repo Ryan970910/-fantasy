@@ -9,13 +9,15 @@ A daily five-player NBA lineup tool built with Next.js, Prisma, and PostgreSQL.
 - Real game-day fantasy rankings with unstarted players hidden on the server
 - Player intelligence from synced game statistics; predicted starters currently has no data source
 
-## Street Court frontend
+## Retro Courtside frontend
 
-The production UI follows the approved `demos/street-court/` concept: asphalt black, orange, cream, locally bundled Anton lettering, a desktop lineup court, animated ranking changes and an interactive court showing only publicly available started players. Authentication, salary, locking and persistence rules are unchanged.
+The production UI follows the approved Retro Courtside concept: worn rust-red printing, a scratched navy notebook cover, aged cream paper, Anton display lettering and Kalam handwriting. The responsive shell, home, lineup court, rankings, intelligence, login and registration share these materials. Authentication, salary, locking and persistence rules are unchanged.
 
 Player intelligence has one Chinese/English name search. Selecting a result updates the report using real dashboard statistics. Search covers the players eligible for that dashboard (upcoming games and enough historical samples), not every NBA player. Missing games or samples are explained in the page. No simulated metrics or predicted starters are shipped into production.
 
-The shared styles are `src/app/globals.css` and `src/app/street.css`; rankings also use `src/app/rankings/ranking.css`. Anton is packaged with `next/font/local`; its license is in `public/fonts/OFL.txt`. The standalone demo remains a separate local artifact and does not call production APIs.
+The desktop header search opens player intelligence with the entered name. Home reads the latest saved lineup from `/api/lineups` and the current NBA game-day leaderboard from `/api/rankings`; a saved lineup is explicitly labelled with its game date and saved salary. The cover athlete is decorative. Unavailable live data remains an error state, never a fabricated score. Community and predicted starters remain unavailable until their data and functionality exist.
+
+Functional layouts remain in `src/app/globals.css`, `src/app/street.css` and `src/app/rankings/ranking.css`; `src/app/retro.css` supplies the approved global materials. Images in `public/retro/` are lossless WebP copies of the approved art, with provenance sidecars. CSS imports are bundled into Next static assets so the login page can load them without changing authentication. Font licenses are in `public/fonts/OFL.txt` and `public/fonts/Kalam-OFL.txt`. The standalone demo remains a separate local artifact.
 
 ## Local setup
 

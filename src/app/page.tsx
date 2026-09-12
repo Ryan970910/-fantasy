@@ -1,60 +1,36 @@
-import { ArrowRight, Radar, UsersRound, Trophy } from "lucide-react";
+import { ArrowRight, ChartNoAxesColumnIncreasing, Newspaper, UsersRound } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-
 import { AppTopbar } from "@/components/app-topbar";
 import { StreetScoreboard } from "@/components/street-scoreboard";
+import { RetroHomeData } from "@/components/retro-home-data";
 import { getCurrentUser } from "@/lib/auth";
-
+import curryArt from "../../public/retro/curry.webp";
+import { nbaGameDate } from "@/lib/game-window";
 export default async function Home() {
   const currentUser = await getCurrentUser();
-  if (!currentUser) {
-    redirect("/login");
-  }
-
-  return (
-    <main className="shell">
-      <AppTopbar subtitle="比赛中心" />
-      <section className="productHome" aria-labelledby="product-home-title">
-        <header className="streetHero">
-          <div className="productHomeHeader">
-            <h1 id="product-home-title"><span>THIS IS YOUR</span><strong>COURT.</strong></h1>
-            <p><b>你的主场，由你定局。</b><br />选好五人阵容，为下一个比赛日做好准备。</p>
-            <Link className="streetPrimary" href="/lineups">组建我的阵容 <ArrowRight aria-hidden="true" /></Link>
-          </div>
-          <div className="streetHeroArt" aria-hidden="true"><span className="streetArtWord">MAKE<br />YOUR MARK.</span><div className="streetBall"><span /></div><span className="streetArtTag">五人上阵<br /><small>$125 / ONE TEAM</small></span></div>
+  if (!currentUser) { redirect("/login"); }
+  const date = nbaGameDate();
+  return <main className="shell">
+    <AppTopbar subtitle="比赛中心" />
+    <section className="retroHome" aria-labelledby="product-home-title">
+      <div className="retroEditorial">
+        <header className="retroHero">
+          <div className="retroHeroCopy"><h1 id="product-home-title">FANTASY<br />MADE SIMPLE</h1><p>PICK / MANAGE / COMPETE / WIN</p><Link className="retroHeroLink" href="/lineups">选好五人，为你的主场而战 <ArrowRight aria-hidden="true" /></Link></div>
+          {/* Approved cover art is decorative, never a saved-lineup player. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img className="retroHeroPlayer" src={curryArt.src} alt="" fetchPriority="high" />
+          <span className="retroHeroSticker" aria-hidden="true">STEPH<br />CURRY</span>
         </header>
-        <StreetScoreboard />
-
-        <div className="productHomeGrid">
-          <Link className="productModule fantasyModule" href="/lineups">
-            <span className="productModuleIcon"><UsersRound aria-hidden="true" /></span>
-            <span className="productModuleCopy">
-              <strong>范特西阵容</strong>
-              <span>创建五人阵容，查看当前与历史阵容。</span>
-              <span className="homePositions" aria-label="五个阵容位置"><b>PG</b><b>SG</b><b>SF</b><b>PF</b><b>C</b></span>
-              <span className="moduleAction">进入阵容工作台 <ArrowRight aria-hidden="true" /></span>
-            </span>
-            <ArrowRight className="productModuleArrow" aria-hidden="true" />
-          </Link>
-
-          <Link className="productModule intelModule" href="/pregame-intel">
-            <span className="productModuleIcon"><Radar aria-hidden="true" /></span>
-            <span className="productModuleCopy">
-              <strong>赛前情报</strong>
-              <span>查看球员角色变化、今日推荐与预测首发页面。</span>
-              <span className="moduleAction">查看情报 <ArrowRight aria-hidden="true" /></span>
-            </span>
-            <ArrowRight className="productModuleArrow" aria-hidden="true" />
-          </Link>
-          <Link className="productModule rankingModule" href="/rankings">
-            <span className="productModuleIcon"><Trophy aria-hidden="true" /></span>
-            <span className="productModuleCopy"><strong>实时排名</strong><span>追踪比赛日梦幻分，查看已开赛阵容与名次变化。</span><span className="moduleAction">进入排名赛道 <ArrowRight aria-hidden="true" /></span></span>
-            <ArrowRight className="productModuleArrow" aria-hidden="true" />
-          </Link>
+        <div className="retroHomeLower">
+          <RetroHomeData section="team" date={date} />
+          <Link className="retroPaper retroScoutLink" href="/player-intel"><h2>PLAYER SPOTLIGHT</h2><ChartNoAxesColumnIncreasing aria-hidden="true" /><strong>每个选择，<br />都有依据。</strong><p>搜索球员姓名，查看近期表现、角色变化与今日推荐。</p><span>查看球员报告 <ArrowRight aria-hidden="true" /></span></Link>
+          <Link className="retroJoin" href="/rankings"><h2>JOIN THE GAME</h2><p>PLAY YOUR FIVE. MAKE YOUR MARK.</p><span>追踪真实阵容与比赛日排名 <ArrowRight aria-hidden="true" /></span></Link>
+          <div className="retroUtility"><Link href="/player-intel"><ChartNoAxesColumnIncreasing aria-hidden="true" /><b>PLAYER<br />ANALYSIS</b><small>球员分析</small></Link><Link href="/pregame-intel"><Newspaper aria-hidden="true" /><b>DAILY<br />INSIGHTS</b><small>赛前情报</small></Link><Link href="/predicted-starters"><UsersRound aria-hidden="true" /><b>STARTING<br />FIVE</b><small>预测首发</small></Link></div>
         </div>
-        <div className="homeRules"><h2>上场之前</h2><p>每个位置选择一人，总薪资不超过 <strong>$125</strong>。比赛开赛后，对应球队的球员锁定；其他位置仍可调整。</p></div>
-      </section>
-    </main>
-  );
+        <section className="retroPaper homeRules" id="rules"><h2>上场之前</h2><p>每个位置选择一人，总薪资不超过 <strong>$125</strong>。比赛开赛后，对应球队的球员锁定；其他位置仍可调整。</p></section>
+      </div>
+      <aside className="retroRail"><section className="retroPaper retroGames" id="nba-games"><h2>TODAY’S GAMES<small>NBA 比赛</small></h2><StreetScoreboard /></section><RetroHomeData section="rankings" date={date} /><div className="retroQuote" aria-hidden="true">GOOD PLAYERS<br />INSPIRE.<br />GREAT PLAYERS<br />ELEVATE.</div></aside>
+    </section>
+  </main>;
 }

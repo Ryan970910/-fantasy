@@ -29,9 +29,9 @@ function change(value: number, suffix = "") {
   return `${value >= 0 ? "+" : ""}${value.toFixed(1)}${suffix}`;
 }
 
-export function PlayerIntelBoard({ players, emptyMessage }: { players: IntelPlayer[]; emptyMessage?: string }) {
+export function PlayerIntelBoard({ players, emptyMessage, initialQuery = "" }: { players: IntelPlayer[]; emptyMessage?: string; initialQuery?: string }) {
   const [sort, setSort] = useState<"today" | "role">("today");
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(initialQuery);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const sorted = useMemo(
     () => [...players].sort((left, right) => sort === "today" ? right.todayScore - left.todayScore : right.roleChange - left.roleChange),
