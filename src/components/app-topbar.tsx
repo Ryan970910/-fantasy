@@ -34,7 +34,6 @@ export function AppTopbar({
         </form>
       ) : null}
       <span className="retroTopMotto" aria-hidden="true">BALL<br />NEVER LIES.</span>
-      <nav className="retroMobileTabs" aria-label="快捷导航"><Link href="/">HOME</Link><Link href="/lineups">MY TEAM</Link><Link href="/player-intel">PLAYERS</Link><Link href="/rankings">RANKINGS</Link></nav>
     </header></>
   );
 }
