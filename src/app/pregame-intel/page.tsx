@@ -1,4 +1,4 @@
-import { ArrowRight, ChartNoAxesCombined, ClipboardList } from "lucide-react";
+import { ArrowRight, ChartNoAxesCombined, ClipboardList, HeartPulse } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 
@@ -19,7 +19,7 @@ export default async function PregameIntelPage() {
         <header className="intelHubHeader">
           <PageBackLink href="/">返回首页</PageBackLink>
           <h1 id="intel-hub-title" className="streetTitle"><span>KNOW THE GAME</span><small>赛前情报</small></h1>
-          <p>在确定阵容前，查看预测首发、球员角色变化与今日推荐。</p>
+          <p>在确定阵容前，查看预测首发、球员伤病、角色变化与今日推荐。</p>
         </header>
 
         <div className="intelHubGrid">
@@ -28,6 +28,14 @@ export default async function PregameIntelPage() {
             <span className="intelModuleCopy">
               <strong>预测首发</strong>
               <span>按比赛日查看预计首发，暂无数据时显示待公布。</span>
+            </span>
+            <ArrowRight className="intelModuleArrow" aria-hidden="true" />
+          </Link>
+          <Link className="intelModule" href="/injuries">
+            <span className="intelModuleIcon"><HeartPulse aria-hidden="true" /></span>
+            <span className="intelModuleCopy">
+              <strong>球员伤病</strong>
+              <span>查看 NBA 官方出场状态与伤病原因，仅保留最近 7 天报告。</span>
             </span>
             <ArrowRight className="intelModuleArrow" aria-hidden="true" />
           </Link>

@@ -8,6 +8,15 @@ A daily five-player NBA lineup tool built with Next.js, Prisma, and PostgreSQL.
 - NBA player pool, current and historical saved lineups, and per-team game locks
 - Real game-day fantasy rankings with unstarted players hidden on the server
 - Player intelligence from synced game statistics; predicted starters currently has no data source
+- Official NBA injury reports under Pregame Intelligence → Player Injuries (`/injuries`)
+
+## Official injury reports
+
+`/injuries` and `GET /api/nba/injuries` require the existing login session. The server discovers the current injury-report season page from `official.nba.com`, selects its newest linked PDF published less than seven days ago, and reads the official table. The page supports Chinese/English player search, team/status filters, unsubmitted-team notices, Beijing-time report/retrieval timestamps, and a link to the original PDF. Reasons remain in the official English wording; an available player is not necessarily a confirmed starter.
+
+Only the latest eligible report is read; this is not a seven-day history archive. Reports at least seven days old are excluded before download and are removed from the page at expiry. A report older than 24 hours is clearly labelled as reference information. Missing recent reports, upstream failures and unsubmitted teams are distinct states, never a claim that all players are healthy.
+
+Successful results are cached only in each Vercel server process's memory for at most five minutes (or until the report reaches seven days old, whichever is sooner), with an expiry timer and a request-time expiry check. This cache is lost on restart and is not shared between instances. Upstream fetches and API responses use `no-store`; no injury records or PDF archives are written to Neon, disk, browser storage, or Vercel's persistent Data Cache. The visible page checks every five minutes and on returning to the tab. No database migration, data-sync script, paid API key or Cron change is needed. PDF text extraction uses the pinned `pdf2json` package; the deployment runtime must meet its Node `>=22.23.2` requirement.
 
 ## Retro Courtside frontend
 

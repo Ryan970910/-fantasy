@@ -1,0 +1,33 @@
+.injuryBoard .injurySource {display:flex;justify-content:space-between;gap:24px;padding:24px 0;border-bottom:1px solid var(--line)}
+.injurySource p,.injuryRow p {margin:6px 0;color:var(--muted);line-height:1.6}
+.injuryActions {display:flex;flex-wrap:wrap;align-items:center;gap:16px}
+.injuryActions a {display:inline-flex;align-items:center;gap:8px;text-decoration:underline;text-underline-offset:4px;font-weight:600}
+.injuryActions svg {width:17px;height:17px}
+.injuryFilters {display:grid;grid-template-columns:2fr 1.5fr 1fr;gap:18px;padding:24px 0 8px}
+.injuryFilters label {display:grid;gap:8px;font-size:14px;font-weight:600;min-width:0}
+.injuryFilters :is(input,select) {min-width:0;width:100%;height:44px;padding:8px 10px;border:1px solid var(--line);border-radius:4px;background:var(--bg);color:var(--text);font:inherit;caret-color:var(--accent)}
+.injuryFilters input::placeholder {color:var(--muted)}
+.injuryBoard :is(a,button,input,select,summary):focus-visible {outline:2px solid var(--accent);outline-offset:3px}
+.injuryCount,.injuryFootnote {color:var(--muted);font-size:13px;line-height:1.7}
+.injuryRow {display:grid;grid-template-columns:1.2fr .7fr 1.6fr;gap:24px;padding:22px 0;border-top:1px solid var(--line);align-items:start}
+.injuryRow>div {min-width:0;overflow-wrap:anywhere}
+.injuryRow h2 {font-size:18px;margin:0;line-height:1.5}
+.injuryRow small {display:block;margin-top:6px;color:var(--muted);line-height:1.6;font-variant-numeric:tabular-nums}
+.injuryStatus {display:inline-block;font-weight:700;font-size:14px;color:var(--accent)}
+.injuryStatus[data-status="Available"],.injuryStatus[data-status="Probable"] {color:var(--text)}
+.injuryEmpty {padding:38px 0;max-width:65ch;line-height:1.8}
+.injuryEmpty>svg {width:32px;height:32px;color:var(--accent)}
+.injuryEmpty h2 {font-size:22px;margin:16px 0 8px}
+.injuryNotice {padding:16px 0;border-bottom:1px solid var(--line);font-weight:600;line-height:1.8;color:var(--accent)}
+.injuryPending {border-block:1px solid var(--line);padding:18px 0;line-height:1.8}
+.injuryPending summary {cursor:pointer;font-weight:600}
+.injuryFootnote {margin-top:24px;max-width:75ch}
+@media(max-width:700px) {
+ .injuryBoard .injurySource {display:block;padding:20px 0}
+ .injuryActions {margin-top:16px}
+ .injuryFilters {grid-template-columns:1fr 1fr;gap:14px}
+ .injuryFilters label:first-child {grid-column:1/-1}
+ .injuryRow {grid-template-columns:minmax(0,1fr) auto;gap:8px 16px;padding:20px 0}
+ .injuryReason {grid-column:1/-1}
+ .injuryRow h2 {font-size:17px}
+}

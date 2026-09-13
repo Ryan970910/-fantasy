@@ -15,7 +15,7 @@ export function AppNavigation({ sidebar = false }: { sidebar?: boolean }) {
   const pathname = usePathname();
   return <nav className={sidebar ? "retroSidebarNavigation" : "appNavigation"} aria-label={sidebar ? "桌面导航" : "主导航"}>
     {navigationItems.map(({ href, label, icon: Icon }) => {
-      const active = pathname === href || (href === "/pregame-intel" && ["/predicted-starters", "/player-intel"].includes(pathname));
+      const active = pathname === href || (href === "/pregame-intel" && ["/predicted-starters", "/player-intel", "/injuries"].includes(pathname));
       return <Link key={href} href={href} aria-current={active ? "page" : undefined}><Icon aria-hidden="true" /><span>{label}</span></Link>;
     })}
   </nav>;
